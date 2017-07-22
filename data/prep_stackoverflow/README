@@ -1,0 +1,1 @@
+The code files here download the Stack Overflow data, create a full PostgreSQL database from the data, then subset to only the data from 2016 and create CSVs for each subsetted table and an SQLite database containing only the 2016 data.

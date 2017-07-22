@@ -1,0 +1,1908 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+<title>Working with large datasets in SQL, R, and Python</title>
+
+<script type="text/javascript">
+window.onload = function() {
+  var imgs = document.getElementsByTagName('img'), i, img;
+  for (i = 0; i < imgs.length; i++) {
+    img = imgs[i];
+    // center an image if it is the only element of its parent
+    if (img.parentElement.childElementCount === 1)
+      img.parentElement.style.textAlign = 'center';
+  }
+};
+</script>
+
+<!-- Styles for R syntax highlighter -->
+<style type="text/css">
+   pre .operator,
+   pre .paren {
+     color: rgb(104, 118, 135)
+   }
+
+   pre .literal {
+     color: #990073
+   }
+
+   pre .number {
+     color: #099;
+   }
+
+   pre .comment {
+     color: #998;
+     font-style: italic
+   }
+
+   pre .keyword {
+     color: #900;
+     font-weight: bold
+   }
+
+   pre .identifier {
+     color: rgb(0, 0, 0);
+   }
+
+   pre .string {
+     color: #d14;
+   }
+</style>
+
+<!-- R syntax highlighter -->
+<script type="text/javascript">
+var hljs=new function(){function m(p){return p.replace(/&/gm,"&amp;").replace(/</gm,"&lt;")}function f(r,q,p){return RegExp(q,"m"+(r.cI?"i":"")+(p?"g":""))}function b(r){for(var p=0;p<r.childNodes.length;p++){var q=r.childNodes[p];if(q.nodeName=="CODE"){return q}if(!(q.nodeType==3&&q.nodeValue.match(/\s+/))){break}}}function h(t,s){var p="";for(var r=0;r<t.childNodes.length;r++){if(t.childNodes[r].nodeType==3){var q=t.childNodes[r].nodeValue;if(s){q=q.replace(/\n/g,"")}p+=q}else{if(t.childNodes[r].nodeName=="BR"){p+="\n"}else{p+=h(t.childNodes[r])}}}if(/MSIE [678]/.test(navigator.userAgent)){p=p.replace(/\r/g,"\n")}return p}function a(s){var r=s.className.split(/\s+/);r=r.concat(s.parentNode.className.split(/\s+/));for(var q=0;q<r.length;q++){var p=r[q].replace(/^language-/,"");if(e[p]){return p}}}function c(q){var p=[];(function(s,t){for(var r=0;r<s.childNodes.length;r++){if(s.childNodes[r].nodeType==3){t+=s.childNodes[r].nodeValue.length}else{if(s.childNodes[r].nodeName=="BR"){t+=1}else{if(s.childNodes[r].nodeType==1){p.push({event:"start",offset:t,node:s.childNodes[r]});t=arguments.callee(s.childNodes[r],t);p.push({event:"stop",offset:t,node:s.childNodes[r]})}}}}return t})(q,0);return p}function k(y,w,x){var q=0;var z="";var s=[];function u(){if(y.length&&w.length){if(y[0].offset!=w[0].offset){return(y[0].offset<w[0].offset)?y:w}else{return w[0].event=="start"?y:w}}else{return y.length?y:w}}function t(D){var A="<"+D.nodeName.toLowerCase();for(var B=0;B<D.attributes.length;B++){var C=D.attributes[B];A+=" "+C.nodeName.toLowerCase();if(C.value!==undefined&&C.value!==false&&C.value!==null){A+='="'+m(C.value)+'"'}}return A+">"}while(y.length||w.length){var v=u().splice(0,1)[0];z+=m(x.substr(q,v.offset-q));q=v.offset;if(v.event=="start"){z+=t(v.node);s.push(v.node)}else{if(v.event=="stop"){var p,r=s.length;do{r--;p=s[r];z+=("</"+p.nodeName.toLowerCase()+">")}while(p!=v.node);s.splice(r,1);while(r<s.length){z+=t(s[r]);r++}}}}return z+m(x.substr(q))}function j(){function q(x,y,v){if(x.compiled){return}var u;var s=[];if(x.k){x.lR=f(y,x.l||hljs.IR,true);for(var w in x.k){if(!x.k.hasOwnProperty(w)){continue}if(x.k[w] instanceof Object){u=x.k[w]}else{u=x.k;w="keyword"}for(var r in u){if(!u.hasOwnProperty(r)){continue}x.k[r]=[w,u[r]];s.push(r)}}}if(!v){if(x.bWK){x.b="\\b("+s.join("|")+")\\s"}x.bR=f(y,x.b?x.b:"\\B|\\b");if(!x.e&&!x.eW){x.e="\\B|\\b"}if(x.e){x.eR=f(y,x.e)}}if(x.i){x.iR=f(y,x.i)}if(x.r===undefined){x.r=1}if(!x.c){x.c=[]}x.compiled=true;for(var t=0;t<x.c.length;t++){if(x.c[t]=="self"){x.c[t]=x}q(x.c[t],y,false)}if(x.starts){q(x.starts,y,false)}}for(var p in e){if(!e.hasOwnProperty(p)){continue}q(e[p].dM,e[p],true)}}function d(B,C){if(!j.called){j();j.called=true}function q(r,M){for(var L=0;L<M.c.length;L++){if((M.c[L].bR.exec(r)||[null])[0]==r){return M.c[L]}}}function v(L,r){if(D[L].e&&D[L].eR.test(r)){return 1}if(D[L].eW){var M=v(L-1,r);return M?M+1:0}return 0}function w(r,L){return L.i&&L.iR.test(r)}function K(N,O){var M=[];for(var L=0;L<N.c.length;L++){M.push(N.c[L].b)}var r=D.length-1;do{if(D[r].e){M.push(D[r].e)}r--}while(D[r+1].eW);if(N.i){M.push(N.i)}return f(O,M.join("|"),true)}function p(M,L){var N=D[D.length-1];if(!N.t){N.t=K(N,E)}N.t.lastIndex=L;var r=N.t.exec(M);return r?[M.substr(L,r.index-L),r[0],false]:[M.substr(L),"",true]}function z(N,r){var L=E.cI?r[0].toLowerCase():r[0];var M=N.k[L];if(M&&M instanceof Array){return M}return false}function F(L,P){L=m(L);if(!P.k){return L}var r="";var O=0;P.lR.lastIndex=0;var M=P.lR.exec(L);while(M){r+=L.substr(O,M.index-O);var N=z(P,M);if(N){x+=N[1];r+='<span class="'+N[0]+'">'+M[0]+"</span>"}else{r+=M[0]}O=P.lR.lastIndex;M=P.lR.exec(L)}return r+L.substr(O,L.length-O)}function J(L,M){if(M.sL&&e[M.sL]){var r=d(M.sL,L);x+=r.keyword_count;return r.value}else{return F(L,M)}}function I(M,r){var L=M.cN?'<span class="'+M.cN+'">':"";if(M.rB){y+=L;M.buffer=""}else{if(M.eB){y+=m(r)+L;M.buffer=""}else{y+=L;M.buffer=r}}D.push(M);A+=M.r}function G(N,M,Q){var R=D[D.length-1];if(Q){y+=J(R.buffer+N,R);return false}var P=q(M,R);if(P){y+=J(R.buffer+N,R);I(P,M);return P.rB}var L=v(D.length-1,M);if(L){var O=R.cN?"</span>":"";if(R.rE){y+=J(R.buffer+N,R)+O}else{if(R.eE){y+=J(R.buffer+N,R)+O+m(M)}else{y+=J(R.buffer+N+M,R)+O}}while(L>1){O=D[D.length-2].cN?"</span>":"";y+=O;L--;D.length--}var r=D[D.length-1];D.length--;D[D.length-1].buffer="";if(r.starts){I(r.starts,"")}return R.rE}if(w(M,R)){throw"Illegal"}}var E=e[B];var D=[E.dM];var A=0;var x=0;var y="";try{var s,u=0;E.dM.buffer="";do{s=p(C,u);var t=G(s[0],s[1],s[2]);u+=s[0].length;if(!t){u+=s[1].length}}while(!s[2]);if(D.length>1){throw"Illegal"}return{r:A,keyword_count:x,value:y}}catch(H){if(H=="Illegal"){return{r:0,keyword_count:0,value:m(C)}}else{throw H}}}function g(t){var p={keyword_count:0,r:0,value:m(t)};var r=p;for(var q in e){if(!e.hasOwnProperty(q)){continue}var s=d(q,t);s.language=q;if(s.keyword_count+s.r>r.keyword_count+r.r){r=s}if(s.keyword_count+s.r>p.keyword_count+p.r){r=p;p=s}}if(r.language){p.second_best=r}return p}function i(r,q,p){if(q){r=r.replace(/^((<[^>]+>|\t)+)/gm,function(t,w,v,u){return w.replace(/\t/g,q)})}if(p){r=r.replace(/\n/g,"<br>")}return r}function n(t,w,r){var x=h(t,r);var v=a(t);var y,s;if(v){y=d(v,x)}else{return}var q=c(t);if(q.length){s=document.createElement("pre");s.innerHTML=y.value;y.value=k(q,c(s),x)}y.value=i(y.value,w,r);var u=t.className;if(!u.match("(\\s|^)(language-)?"+v+"(\\s|$)")){u=u?(u+" "+v):v}if(/MSIE [678]/.test(navigator.userAgent)&&t.tagName=="CODE"&&t.parentNode.tagName=="PRE"){s=t.parentNode;var p=document.createElement("div");p.innerHTML="<pre><code>"+y.value+"</code></pre>";t=p.firstChild.firstChild;p.firstChild.cN=s.cN;s.parentNode.replaceChild(p.firstChild,s)}else{t.innerHTML=y.value}t.className=u;t.result={language:v,kw:y.keyword_count,re:y.r};if(y.second_best){t.second_best={language:y.second_best.language,kw:y.second_best.keyword_count,re:y.second_best.r}}}function o(){if(o.called){return}o.called=true;var r=document.getElementsByTagName("pre");for(var p=0;p<r.length;p++){var q=b(r[p]);if(q){n(q,hljs.tabReplace)}}}function l(){if(window.addEventListener){window.addEventListener("DOMContentLoaded",o,false);window.addEventListener("load",o,false)}else{if(window.attachEvent){window.attachEvent("onload",o)}else{window.onload=o}}}var e={};this.LANGUAGES=e;this.highlight=d;this.highlightAuto=g;this.fixMarkup=i;this.highlightBlock=n;this.initHighlighting=o;this.initHighlightingOnLoad=l;this.IR="[a-zA-Z][a-zA-Z0-9_]*";this.UIR="[a-zA-Z_][a-zA-Z0-9_]*";this.NR="\\b\\d+(\\.\\d+)?";this.CNR="\\b(0[xX][a-fA-F0-9]+|(\\d+(\\.\\d*)?|\\.\\d+)([eE][-+]?\\d+)?)";this.BNR="\\b(0b[01]+)";this.RSR="!|!=|!==|%|%=|&|&&|&=|\\*|\\*=|\\+|\\+=|,|\\.|-|-=|/|/=|:|;|<|<<|<<=|<=|=|==|===|>|>=|>>|>>=|>>>|>>>=|\\?|\\[|\\{|\\(|\\^|\\^=|\\||\\|=|\\|\\||~";this.ER="(?![\\s\\S])";this.BE={b:"\\\\.",r:0};this.ASM={cN:"string",b:"'",e:"'",i:"\\n",c:[this.BE],r:0};this.QSM={cN:"string",b:'"',e:'"',i:"\\n",c:[this.BE],r:0};this.CLCM={cN:"comment",b:"//",e:"$"};this.CBLCLM={cN:"comment",b:"/\\*",e:"\\*/"};this.HCM={cN:"comment",b:"#",e:"$"};this.NM={cN:"number",b:this.NR,r:0};this.CNM={cN:"number",b:this.CNR,r:0};this.BNM={cN:"number",b:this.BNR,r:0};this.inherit=function(r,s){var p={};for(var q in r){p[q]=r[q]}if(s){for(var q in s){p[q]=s[q]}}return p}}();hljs.LANGUAGES.cpp=function(){var a={keyword:{"false":1,"int":1,"float":1,"while":1,"private":1,"char":1,"catch":1,"export":1,virtual:1,operator:2,sizeof:2,dynamic_cast:2,typedef:2,const_cast:2,"const":1,struct:1,"for":1,static_cast:2,union:1,namespace:1,unsigned:1,"long":1,"throw":1,"volatile":2,"static":1,"protected":1,bool:1,template:1,mutable:1,"if":1,"public":1,friend:2,"do":1,"return":1,"goto":1,auto:1,"void":2,"enum":1,"else":1,"break":1,"new":1,extern:1,using:1,"true":1,"class":1,asm:1,"case":1,typeid:1,"short":1,reinterpret_cast:2,"default":1,"double":1,register:1,explicit:1,signed:1,typename:1,"try":1,"this":1,"switch":1,"continue":1,wchar_t:1,inline:1,"delete":1,alignof:1,char16_t:1,char32_t:1,constexpr:1,decltype:1,noexcept:1,nullptr:1,static_assert:1,thread_local:1,restrict:1,_Bool:1,complex:1},built_in:{std:1,string:1,cin:1,cout:1,cerr:1,clog:1,stringstream:1,istringstream:1,ostringstream:1,auto_ptr:1,deque:1,list:1,queue:1,stack:1,vector:1,map:1,set:1,bitset:1,multiset:1,multimap:1,unordered_set:1,unordered_map:1,unordered_multiset:1,unordered_multimap:1,array:1,shared_ptr:1}};return{dM:{k:a,i:"</",c:[hljs.CLCM,hljs.CBLCLM,hljs.QSM,{cN:"string",b:"'\\\\?.",e:"'",i:"."},{cN:"number",b:"\\b(\\d+(\\.\\d*)?|\\.\\d+)(u|U|l|L|ul|UL|f|F)"},hljs.CNM,{cN:"preprocessor",b:"#",e:"$"},{cN:"stl_container",b:"\\b(deque|list|queue|stack|vector|map|set|bitset|multiset|multimap|unordered_map|unordered_set|unordered_multiset|unordered_multimap|array)\\s*<",e:">",k:a,r:10,c:["self"]}]}}}();hljs.LANGUAGES.r={dM:{c:[hljs.HCM,{cN:"number",b:"\\b0[xX][0-9a-fA-F]+[Li]?\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\b\\d+(?:[eE][+\\-]?\\d*)?L\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\b\\d+\\.(?!\\d)(?:i\\b)?",e:hljs.IMMEDIATE_RE,r:1},{cN:"number",b:"\\b\\d+(?:\\.\\d*)?(?:[eE][+\\-]?\\d*)?i?\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\.\\d+(?:[eE][+\\-]?\\d*)?i?\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"keyword",b:"(?:tryCatch|library|setGeneric|setGroupGeneric)\\b",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\.\\.\\.",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\.\\.\\d+(?![\\w.])",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\b(?:function)",e:hljs.IMMEDIATE_RE,r:2},{cN:"keyword",b:"(?:if|in|break|next|repeat|else|for|return|switch|while|try|stop|warning|require|attach|detach|source|setMethod|setClass)\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"literal",b:"(?:NA|NA_integer_|NA_real_|NA_character_|NA_complex_)\\b",e:hljs.IMMEDIATE_RE,r:10},{cN:"literal",b:"(?:NULL|TRUE|FALSE|T|F|Inf|NaN)\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"identifier",b:"[a-zA-Z.][a-zA-Z0-9._]*\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"operator",b:"<\\-(?!\\s*\\d)",e:hljs.IMMEDIATE_RE,r:2},{cN:"operator",b:"\\->|<\\-",e:hljs.IMMEDIATE_RE,r:1},{cN:"operator",b:"%%|~",e:hljs.IMMEDIATE_RE},{cN:"operator",b:">=|<=|==|!=|\\|\\||&&|=|\\+|\\-|\\*|/|\\^|>|<|!|&|\\||\\$|:",e:hljs.IMMEDIATE_RE,r:0},{cN:"operator",b:"%",e:"%",i:"\\n",r:1},{cN:"identifier",b:"`",e:"`",r:0},{cN:"string",b:'"',e:'"',c:[hljs.BE],r:0},{cN:"string",b:"'",e:"'",c:[hljs.BE],r:0},{cN:"paren",b:"[[({\\])}]",e:hljs.IMMEDIATE_RE,r:0}]}};
+hljs.initHighlightingOnLoad();
+</script>
+
+<!-- MathJax scripts -->
+<script type="text/javascript" src="https://cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+<style type="text/css">
+body, td {
+   font-family: sans-serif;
+   background-color: white;
+   font-size: 13px;
+}
+
+body {
+  max-width: 800px;
+  margin: auto;
+  padding: 1em;
+  line-height: 20px;
+}
+
+tt, code, pre {
+   font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace;
+}
+
+h1 {
+   font-size:2.2em;
+}
+
+h2 {
+   font-size:1.8em;
+}
+
+h3 {
+   font-size:1.4em;
+}
+
+h4 {
+   font-size:1.0em;
+}
+
+h5 {
+   font-size:0.9em;
+}
+
+h6 {
+   font-size:0.8em;
+}
+
+a:visited {
+   color: rgb(50%, 0%, 50%);
+}
+
+pre, img {
+  max-width: 100%;
+}
+pre {
+  overflow-x: auto;
+}
+pre code {
+   display: block; padding: 0.5em;
+}
+
+code {
+  font-size: 92%;
+  border: 1px solid #ccc;
+}
+
+code[class] {
+  background-color: #F8F8F8;
+}
+
+table, td, th {
+  border: none;
+}
+
+blockquote {
+   color:#666666;
+   margin:0;
+   padding-left: 1em;
+   border-left: 0.5em #EEE solid;
+}
+
+hr {
+   height: 0px;
+   border-bottom: none;
+   border-top-width: thin;
+   border-top-style: dotted;
+   border-top-color: #999999;
+}
+
+@media print {
+   * {
+      background: transparent !important;
+      color: black !important;
+      filter:none !important;
+      -ms-filter: none !important;
+   }
+
+   body {
+      font-size:12pt;
+      max-width:100%;
+   }
+
+   a, a:visited {
+      text-decoration: underline;
+   }
+
+   hr {
+      visibility: hidden;
+      page-break-before: always;
+   }
+
+   pre, blockquote {
+      padding-right: 1em;
+      page-break-inside: avoid;
+   }
+
+   tr, img {
+      page-break-inside: avoid;
+   }
+
+   img {
+      max-width: 100% !important;
+   }
+
+   @page :left {
+      margin: 15mm 20mm 15mm 10mm;
+   }
+
+   @page :right {
+      margin: 15mm 10mm 15mm 20mm;
+   }
+
+   p, h2, h3 {
+      orphans: 3; widows: 3;
+   }
+
+   h2, h3 {
+      page-break-after: avoid;
+   }
+}
+</style>
+
+
+
+</head>
+
+<body>
+<h1>Working with large datasets in SQL, R, and Python</h1>
+
+<h2>Querying and manipulating databases and datasets in R and Python</h2>
+
+<p>Chris Paciorek, Department of Statistics, UC Berkeley</p>
+
+<p>Todo:</p>
+
+<ul>
+<li> post zipped data and update links here</li>
+<li> repeat cleaning steps for Wikistats</li>
+<li> test docker and BCE</li>
+</ul>
+
+<h1>0) This Tutorial</h1>
+
+<p>This tutorial covers tools for manipulating large datasets, including those living in SQL databases or in data frames and related objects in R and Python. The focus is on querying rather than creating and administering databases as the intended audience is for statisticians/data analysis/data scientists who are carrying out analyses. A major emphasis is on how to do queries efficiently and how to use SQL effectively. At the moment, this tutorial is somewhat more focused on R than Python, but the manipulation of databases from R and Python are very similar because the core reliance is on SQL.</p>
+
+<p>This tutorial assumes you have a working knowledge of R or Python. </p>
+
+<p>Materials for this tutorial, including the R markdown file and associated code files that were used to create this document are available on Github at <a href="https://github.com/berkeley-scf/tutorial-databases">https://github.com/berkeley-scf/tutorial-databases</a>.  You can download the files by doing cloning the Git repository. E.g.,from a terminal window on a UNIX-like machine, you can do this:</p>
+
+<pre><code class="r">git clone https://github.com/berkeley-scf/tutorial-databases
+</code></pre>
+
+<p>Alternatively you can simply download a <a href="https://github.com/berkeley-scf/tutorial-databases/archive/master.zip">zip file</a> containing all the materials.</p>
+
+<p>The example data files are not part of the Github repository. You can get the example data files (Stack Overflow data and Wikipedia webtraffic data) <a href="http://www.stat.berkeley.edu/share/paciorek/tutorial-databases-data.zip">here</a>.</p>
+
+<p>To create this HTML document, simply compile the corresponding R Markdown file in R as follows on the command line (or execute this R code within R or RStudio):</p>
+
+<pre><code class="r">Rscript -e &quot;library(knitr); knit2html(&#39;databases.Rmd&#39;)&quot;
+</code></pre>
+
+<p>Solutions to the SQL challenges are available on request. </p>
+
+<h2>Using PostgreSQL on Mac or Windows</h2>
+
+<p>To replicate the (non-essential) PostgreSQL administration portion of this tutorial, you&#39;ll need access to a machine on which you can run a PostgreSQL server. While there are a variety of ways to do this, this tutorial assumes that you are running PostgreSQL on an Ubuntu Linux machine. If you are a Windows or Mac user, there are several options:</p>
+
+<ul>
+<li>You could run Ubuntu in a Docker container; Docker can be installed on Windows or Mac.</li>
+<li>You use an Ubuntu Linux virtual machine (VM) developed here at Berkeley, the <a href="http://bce.berkeley.edu">Berkeley Common Environment (BCE)</a>. BCE can be run through VirtualBox on your computer. </li>
+<li>You can run an Amazon EC2 instance - either running BCE or by simply starting up an Amazon EC2 instance using a image that supports R and/or Python and then install PostgreSQL as discussed in this tutorial.</li>
+</ul>
+
+<p>This tutorial by Christopher Paciorek is licensed under a Creative Commons Attribution 3.0 Unported License (CC BY).</p>
+
+<h1>1) Background</h1>
+
+<h2>1.1) Data size</h2>
+
+<p>The techniques and tools discussed here are designed for datasets in the range of gigabytes to tens of gigabytes, though they may scale to larger if you have a machine with a lot of memory or simply have enough disk space and are willing to wait. If you have 10s of gigabytes of data, you&#39;ll be better off if your machine has 10s of GBs of memory, as discussed in this tutorial. </p>
+
+<p>If you&#39;re scaling to 100s of GBs, terabytes or petabytes, tools such as Spark may be your best bet, or possibly carefully administered databases. Those topics are beyond the scope of this tutorial. However, this tutorial will be useful if you&#39;re doing SQL queries on Spark datasets or professionally administered databases.</p>
+
+<h2>1.2) Memory vs. disk</h2>
+
+<p>On a computer there is a hierarchy of locations where data can be stored. The hierarchy has the trade-off that the locations that the CPU can access most quickly can store the least amount of data.  The hierarchy looks like this:</p>
+
+<ul>
+<li> cpu cache </li>
+<li> main memory</li>
+<li> disk</li>
+<li> local network (data stored on other machines)</li>
+<li> general internet access</li>
+</ul>
+
+<p>For our purposes here the key question is whether the data resides in memory or on disk, but when considering Spark and distributed systems, one gets into moving data across the network between machines. </p>
+
+<p>Formally, databases are stored on disk, while R and Python store datasets in memory. This would suggest that databases will be slow to access their data but will be able to store more data than can be loaded into an R or Python session. However, databases can be quite fast due in part to disk caching by the operating system as well as careful implementation of good algorithms for database operations. For more information about disk caching see Section 2.6.5.</p>
+
+<p>And conversely, R (and probably Python) have mechanisms for storing large datasets on disk in a way that they can be accessed fairly quickly.</p>
+
+<h1>2) Database systems and SQL</h1>
+
+<h2>2.1) Overview of databases</h2>
+
+<p>Basically, standard SQL databases are a collection of rectangular format datasets (<em>tables</em>, also called <em>relations</em>). Some of these tables have fields in common so it makes sense to merge (i.e., join) information from multiple tables. E.g., you might have a database with a table of student information, a table of teacher information and a table of school information. </p>
+
+<p>A relational database stores data as a set of tables (or relations), which are rather similar to R or Pandas data frames, in that a table is made up of columns, which are called <em>fields</em> or <em>attributes</em>, each containing a single <em>type</em> (numeric, character, date, currency, enumerated (i.e., categorical), &hellip;) and rows or records containing the observations for one entity. One principle of databases is that if a set of fields contain duplicated information about a given category, you can more efficiently store information about each level of the category in a separate table; consider information about people living in a state and information about each state - you don&#39;t want to include variables that only vary by state in the table containing information about individuals (at least until you&#39;re doing the actual analysis that needs the information in a single table). Or consider students nested within classes nested within schools.</p>
+
+<p>Databases are set up to allow for fast querying and merging (called joins in database terminology). </p>
+
+<p>You can interact with databases in a variety of database systems (DBMS=database management system) (some systems are SQLite, MySQL, PostgreSQL, Oracle, Access). We&#39;ll concentrate on accessing data in a database rather than management of databases. SQL is the Structured Query Language and is a special-purpose high-level language for managing databases and making queries. Variations on SQL are used in many different DBMS.</p>
+
+<p>Queries are the way that the user gets information (often simply subsets of tables or information merged across tables). The result of an SQL query is in general another table, though in some cases it might have only one row and/or one column.</p>
+
+<p>Many DBMS have a client-server model. Clients connect to the server, with some authentication, and make requests.</p>
+
+<p>There are often multiple ways to interact with a DBMS, including directly using command line tools provided by the DBMS or via Python or R, among others. </p>
+
+<h3>2.1.1) Relational Database Management Systems (DBMS)</h3>
+
+<p>There are a variety of relational database management systems (DBMS). Some that are commonly used by the intended audience of this tutorial are SQLite, PostgreSQL, and mySQL. We&#39;ll concentrate on SQLite (because it is simple to use on a single machine) and PostgreSQL (because is is a popular open-source DBMS that is a good representative of a client-server model and has some functionality that SQLite lacks).</p>
+
+<p>SQLite is quite nice in terms of being self-contained - there is no server-client model, just a single file on your hard drive that stores the database and to which you can connect to using the SQLite shell, R, Python, etc.  However, it does not have some useful functionality that other DBMS have. For example, you can&#39;t use <code>ALTER TABLE</code> to modify column types or drop columns. It also doesn&#39;t support <a href="https://www.postgresql.org/docs/9.6/static/functions-window.html">window functions</a>.</p>
+
+<h3>2.1.2) NoSQL databases</h3>
+
+<p>NoSQL (not only SQL) systems have to do with working with datasets that are not well-handled in traditional DBMS, and not specifically about the use or non-use of SQL itself. In particular data might not fit well within the rectangular row-column data model of one or more tables in a database. And one might be in a context where a full DBMS is not needed. Or one might have more data or need faster responses than can be well-handled by standard DBMS.</p>
+
+<p>While these systems tend to scale better, they generally don&#39;t have a declarative query language so you end up having to do more programming yourself. For example in the Stanford database course referenced at the end of this tutorial, the noSQL video gives the example of web log data that records visits to websites. One might have the data in the form of files and not want to go through the trouble of data cleaning and extracting fields from unstructured text. In addition, one may need to do only simple queries that involve looking at each record separately and therefore can be easily done in parallel, which noSQL systems tend to be designed to do. Or one might have document data, such as Wikipedia pages, where the unstructured text on each page is not really suited for a DBMS. </p>
+
+<p>Some NoSQL systems include</p>
+
+<ul>
+<li>Hadoop/Spark-style MapReduce systems,</li>
+<li>key-value storage systems (e.g., with data stored as pairs of keys (i.e., ids) and values, such as in JSON),</li>
+<li>document storage systems (like key-value systems but where the value is a document), and</li>
+<li>graph storage systems (e.g., for social networks). </li>
+</ul>
+
+<h2>2.2) Concepts in SQL</h2>
+
+<h3>2.2.1) Simple queries for choosing rows and columns from a table</h3>
+
+<p>SQL is a declarative language that tells the database system what results you want. The system then parses the SQL syntax and determines how to implement the query.</p>
+
+<p>Later we&#39;ll introduce a database of Stack Overflow questions and answers. The <em>questions</em> table has a field <em>viewcount</em> that indicates how many times each question was viewed. </p>
+
+<p>Here is a simple query that selects the first five rows (and all columns, based on the <code>*</code> wildcard) from the questions table.</p>
+
+<pre><code>select * from questions limit 5
+</code></pre>
+
+<p>Now let&#39;s see some more interesting usage of other SQL syntax.</p>
+
+<pre><code>## find the largest viewcounts in the questions table
+select distinct viewcount from questions order by viewcount desc limit 20
+## now get the questions that are viewed the most
+select * from questions where viewcount &gt; 100000
+</code></pre>
+
+<p>Let&#39;s lay out the various verbs in SQL. Here&#39;s the form of a standard query (though the ORDER BY is often not used and sorting is computationally expensive):</p>
+
+<pre><code>SELECT &lt;column(s)&gt; FROM &lt;table&gt; WHERE &lt;condition(s) on column(s)&gt; ORDER BY &lt;column(s)&gt;
+</code></pre>
+
+<p>SQL keywords are often written in ALL CAPITALS though I won&#39;t necessarily do that in this tutorial. </p>
+
+<p>And here is a table of some important keywords:</p>
+
+<table><thead>
+<tr>
+<th>Keyword</th>
+<th>What it does</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>SELECT</td>
+<td>select columns</td>
+</tr>
+<tr>
+<td>FROM</td>
+<td>which table to operate on</td>
+</tr>
+<tr>
+<td>WHERE</td>
+<td>filter (choose) rows satisfying certain conditions</td>
+</tr>
+<tr>
+<td>LIKE, IN, &lt;, &gt;, ==, etc.</td>
+<td>used as part of conditions</td>
+</tr>
+<tr>
+<td>ORDER BY</td>
+<td>sort based on columns</td>
+</tr>
+</tbody></table>
+
+<p>For comparisons in a WHERE clause, some common syntax for setting conditions includes LIKE (for patterns), =, &gt;, &lt;, &gt;=, &lt;=, !=.</p>
+
+<p>Some other keywords are: DISTINCT, ON, JOIN, GROUP BY, AS, USING, UNION, INTERSECT, SIMILAR TO. </p>
+
+<h3>2.2.2.) Schema and normalization</h3>
+
+<p>To truly leverage the conceptual and computational power of a database you&#39;ll want to have your data in a normalized form, which means spreading your data across multiple tables in such a way that you don&#39;t repeat information unnecessarily.</p>
+
+<p>The schema is the metadata about the tables in the database and the fields (and their types) in those tables.</p>
+
+<p>Let&#39;s consider this using an educational example. Suppose we have a school with multiple teachers teaching multiple classes and multiple students taking multiple classes. If we put this all in one table organized per student, the data might have the following fields:</p>
+
+<ul>
+<li>student ID</li>
+<li>student grade level</li>
+<li>student name</li>
+<li>class 1</li>
+<li>class 2 </li>
+<li>&hellip;</li>
+<li>class n</li>
+<li>grade in class 1</li>
+<li>grade in class 2</li>
+<li>&hellip;</li>
+<li>grade in class n</li>
+<li>teacher ID 1</li>
+<li>teacher ID 2 </li>
+<li>&hellip;</li>
+<li>teacher ID n</li>
+<li>teacher department 1</li>
+<li>teacher department 2</li>
+<li>&hellip;</li>
+<li>teacher department n</li>
+<li>teacher age 1</li>
+<li>teacher age 2 </li>
+<li>&hellip;</li>
+<li>teacher age n</li>
+</ul>
+
+<p>There are a lot of problems with this.</p>
+
+<ul>
+<li>&#39;n&#39; needs to be the maximum number of classes a student might take. If one ambitious student takes many classes, there will be a lot of empty data slots.</li>
+<li>All the information about individual teachers (department, age, etc.) is repeated many times, meaning we use more storage than we need to.</li>
+<li>If we want to look at the data on a per teacher basis, this is very poorly organized for that.</li>
+<li>If one wants to change certain information (such as the age of a teacher) one needs to do it in many locations, which can result in errors and is inefficient. </li>
+</ul>
+
+<p>It would get even worse if there was a field related to teachers for which a given teacher could have multiple values (e.g., teachers could be in multiple departments). This would lead to even more redundancy - each student-class-teacher combination would be crossed with all of the departments for the teacher (so-called multivalued dependency in database theory).</p>
+
+<p>An alternative organization of the data would be to have each row represent the enrollment of a student in a class.</p>
+
+<ul>
+<li>student ID</li>
+<li>student name</li>
+<li>class</li>
+<li>grade in class</li>
+<li>student grade level</li>
+<li>teacher ID</li>
+<li>teacher department</li>
+<li>teacher age</li>
+</ul>
+
+<p>This has some advantages relative to our original organization in terms of not having empty data slots, but it doesn&#39;t solve the other issues above.</p>
+
+<p>Instead, a natural way to order this database is with the following tables.</p>
+
+<ul>
+<li><p>Student</p>
+
+<ul>
+<li>ID</li>
+<li>name</li>
+<li>grade_level</li>
+</ul></li>
+<li><p>Teacher</p>
+
+<ul>
+<li>ID</li>
+<li>name</li>
+<li>department</li>
+<li>age</li>
+</ul></li>
+<li><p>Class</p>
+
+<ul>
+<li>ID</li>
+<li>topic</li>
+<li>class_size</li>
+<li>teacher_ID</li>
+</ul></li>
+<li><p>ClassAssignment</p>
+
+<ul>
+<li>student_ID</li>
+<li>class_ID</li>
+<li>grade</li>
+</ul></li>
+</ul>
+
+<p>Then we do queries to pull information from multiple tables. We do the joins based on &#39;keys&#39;, which are the fields in each table that allow us to match rows from different tables. </p>
+
+<p>(That said, if all anticipated uses of a database will end up recombining the same set of tables, we may want to have a denormalized schema in which those tables are actually combined in the database. It is possible to be too pure about normalization! We can also create a virtual table, called a <em>view</em>, as discussed later.)</p>
+
+<h3>2.2.3) Keys</h3>
+
+<p>A key is a field or collection of fields that give(s) a unique value for every row/observation. A table in a database should then have a primary key that is the main unique identifier used by the DBMS. Foreign keys are columns in one table that give the value of the primary key in another table. When information from multiple tables is joined together, the matching of a row from one table to a row in another table is generally done by equating the primary key in one table with a foreign key in a different table.</p>
+
+<p>In our educational example, the primary keys would presumably be: Student.ID, Teacher.ID, Class.ID, and {ClassAssignment.studentID, ClassAssignment.class_ID}.</p>
+
+<p>Some examples of foreign keys would be:</p>
+
+<ul>
+<li>student_ID as the foreign key in ClassAssignment for joining with Student on Student.ID</li>
+<li>teacher_ID as foreign key in Class for joining with Teacher based on Teacher.ID</li>
+<li>class_ID as the foreign key in ClassAssignment for joining with Class based on Class.ID</li>
+</ul>
+
+<h3>2.2.4) Queries that join data across multiple tables</h3>
+
+<p>Suppose we want a result that has the grades of all students in 9th grade. For this we need information from the Student table (to determine grade level) and information from the ClassAssignment table (to determine the class grade). More specifically we need a query that joins &#39;Student&#39; with &#39;ClassAssignment&#39; based on &#39;Student.ID&#39; and &#39;ClassAssignment.student_ID&#39; and filters the rows based on &#39;Student.grade_level&#39;:</p>
+
+<pre><code>SELECT Student.ID, grade FROM Student, ClassAssignment WHERE Student.ID = ClassAssignment.student_ID 
+          and Student.grade_level = 9;
+</code></pre>
+
+<p>If we wanted to include information about the teachers who gave those grades we&#39;d also join in the Teacher and Class tables. It would look something like this:</p>
+
+<pre><code>SELECT Student.ID, grade, Teacher.name, Teacher.department FROM 
+       Student, ClassAssignment, Teacher, Class
+       WHERE Student.ID = ClassAssignment.student_ID AND
+       ClassAssignment.class_ID = Class.ID AND
+       Class.teacher_ID = teacher.ID AND 
+       Student.grade_level = 9;
+</code></pre>
+
+<p>Note that both of these queries are <em>joins</em> (specifically <em>inner joins</em>), which are like <code>merge()</code> in R. We  don&#39;t specifically use the JOIN keyword, but one could do these queries explicitly using JOIN, as we&#39;ll see later.</p>
+
+<h2>2.3) Using SQL</h2>
+
+<h3>2.3.1) Stack Overflow example database</h3>
+
+<p>I&#39;ve obtained data from <a href="https://stackoverflow.com">Stack Overflow</a>, the popular website for asking coding questions, and placed it into a normalized database. The SQLite version (also in CSVs as one CSV per table) has metadata on all of the questions and answers posted in 2016.</p>
+
+<p>We&#39;ll explore SQL functionality using this example database. </p>
+
+<p>Now let&#39;s consider Stack Overflow question/answer data. Each question may have multiple answers and each question may have multiple (topic) tags.</p>
+
+<p>If we tried to put this into a single table, the fields could look like this if we have one row per questions:</p>
+
+<ul>
+<li>question ID</li>
+<li>ID of user submitting question</li>
+<li>question</li>
+<li>tag 1</li>
+<li>tag 2 </li>
+<li>&hellip;</li>
+<li>tag n</li>
+<li>answer 1</li>
+<li>ID of user submitting answer 1</li>
+<li>answer 2</li>
+<li>ID of user submitting answer 2 </li>
+<li>&hellip;</li>
+</ul>
+
+<p>or like this if we have one row per question-answer pair:</p>
+
+<ul>
+<li>question ID</li>
+<li>ID of user submitting question</li>
+<li>question</li>
+<li>tag 1</li>
+<li>tag 2</li>
+<li>&hellip;</li>
+<li>tag n</li>
+<li>answer</li>
+<li>ID of user submitting</li>
+</ul>
+
+<p>As we&#39;ve discussed neither of those schema is particularly desirable. </p>
+
+<p><strong><em>Question</em></strong>: How would you devise a schema to normalize the data. I.e., what set of tables do you think we should create?</p>
+
+<p>Don&#39;t peek until after you&#39;ve thought about it, but you can view one <a href="figures/normalized_example.png">reasonable schema here</a>. The lines between tables indicate the relationship of foreign keys in one table to primary keys in another table. The schema in the actual databases of Stack Overflow data we&#39;ll use in this tutorial are similar to but not identical to that. </p>
+
+<h4>Getting the database</h4>
+
+<p>You can download a copy of the SQLite version of the Stack Overflow database (only data for the year 2016) from <a href="http://www.stat.berkeley.edu/share/paciorek/tutorial-databases-data.zip">here</a> (or as part of the overall zip with all of the example datasets as discussed in the introduction of this tutorial). In the next section I&#39;ll assume the .db file is placed in the subdirectory of the repository called <code>data</code>.</p>
+
+<p>Note that all of the code used to download the data from the Stack Overflow website and to manipulate it to create a complete Postgres database and SQLite (year 2016 subset) database is in the <code>data/prep_stackoverflow</code> subdirectory of this repository.</p>
+
+<h3>2.3.2) Accessing SQL from other languages</h3>
+
+<p>Although DBMS have their own interfaces (we&#39;ll see a bit of this later), databases are commonly accessed from other programs. For data analysts this would often be Python or R, as seen next.</p>
+
+<p>Most of our examples of making SQL queries on a database will be done from R, but they could just as easily have been done from Python or other programs.</p>
+
+<h4>Using SQL from R</h4>
+
+<p>The <em>DBI</em> package provides a front-end for manipulating databases from a variety of DBMS (SQLite, MySQL, PostgreSQL, among others)
+Basically, you tell the package what DBMS is being used on the back-end, link to the actual database, and then you can use the standard functions in the package regardless of the back-end.</p>
+
+<p>With SQLite, R processes make calls against the stand-alone SQLite database (.db) file, so there are no SQLite-specific processes. With PostgreSQL, R processes call out to separate Postgres processes; these are started from the overall Postgres background process</p>
+
+<p>You can access and navigate an SQLite database from R as follows.</p>
+
+<pre><code class="r">library(RSQLite)
+drv &lt;- dbDriver(&quot;SQLite&quot;)
+dir &lt;- &#39;data&#39; # relative or absolute path to where the .db file is
+dbFilename &lt;- &#39;stackoverflow-2016.db&#39;
+db &lt;- dbConnect(drv, dbname = file.path(dir, dbFilename))
+dbGetQuery(db, &quot;select * from questions limit 5&quot;)  # simple query to get 5 rows from a table
+</code></pre>
+
+<pre><code>##   questionid        creationdate score viewcount
+## 1   34552550 2016-01-01 00:00:03     0       108
+## 2   34552551 2016-01-01 00:00:07     1       151
+## 3   34552552 2016-01-01 00:00:39     2      1942
+## 4   34552554 2016-01-01 00:00:50     0       153
+## 5   34552555 2016-01-01 00:00:51    -1        54
+##                                                                                   title
+## 1                                                                 Scope between methods
+## 2      Rails - Unknown Attribute - Unable to add a new field to a form on create/update
+## 3 Selenium Firefox webdriver won&#39;t load a blank page after changing Firefox preferences
+## 4                                                       Android Studio styles.xml Error
+## 5                         Java: reference to non-finial local variables inside a thread
+##   ownerid
+## 1 5684416
+## 2 2457617
+## 3 5732525
+## 4 5735112
+## 5 4646288
+</code></pre>
+
+<p>We can easily see the tables and their fields:</p>
+
+<pre><code class="r">dbListTables(db)
+</code></pre>
+
+<pre><code>## [1] &quot;answers&quot;          &quot;maxRepByQuestion&quot; &quot;questions&quot;       
+## [4] &quot;questionsAugment&quot; &quot;questions_tags&quot;   &quot;users&quot;
+</code></pre>
+
+<pre><code class="r">dbListFields(db, &quot;questions&quot;)
+</code></pre>
+
+<pre><code>## [1] &quot;questionid&quot;   &quot;creationdate&quot; &quot;score&quot;        &quot;viewcount&quot;   
+## [5] &quot;title&quot;        &quot;ownerid&quot;
+</code></pre>
+
+<pre><code class="r">dbListFields(db, &quot;answers&quot;)
+</code></pre>
+
+<pre><code>## [1] &quot;answerid&quot;     &quot;questionid&quot;   &quot;creationdate&quot; &quot;score&quot;       
+## [5] &quot;ownerid&quot;
+</code></pre>
+
+<p>One can either make the query and get the results in one go or make the query and separately fetch the results. Here we&#39;ve selected the first five rows (and all columns, based on the <code>*</code> wildcard) and brought them into R as a data frame.</p>
+
+<pre><code class="r">results &lt;- dbGetQuery(db, &#39;select * from questions limit 5&#39;)
+class(results)
+</code></pre>
+
+<pre><code>## [1] &quot;data.frame&quot;
+</code></pre>
+
+<pre><code class="r">query &lt;- dbSendQuery(db, &quot;select * from questions&quot;)
+results2 &lt;- fetch(query, 5)
+identical(results, results2)
+</code></pre>
+
+<pre><code>## [1] TRUE
+</code></pre>
+
+<pre><code class="r">dbClearResult(query)
+</code></pre>
+
+<p>To disconnect:</p>
+
+<pre><code class="r">dbDisconnect(db)
+</code></pre>
+
+<p>To access a PostgreSQL database instead (this assumes the database has been created and you have a username and password that allow you to access the particular database.</p>
+
+<pre><code class="r">library(RPostgreSQL)
+drv &lt;- dbDriver(&quot;PostgreSQL&quot;)
+db &lt;- dbConnect(drv, dbname = &#39;stackoverflow&#39;, user = &#39;paciorek&#39;, password = &#39;test&#39;)
+</code></pre>
+
+<p>Apart from the different manner of connecting, all of the queries above are the same regardless of whether the back-end DBMS is SQLite, PostgreSQL, etc.</p>
+
+<h4>Using SQL from Python</h4>
+
+<p>For SQLite:</p>
+
+<pre><code class="python">import sqlite3 as sq
+dir &lt;- &#39;data&#39; # relative or absolute path to where the .db file is
+dbFilename &lt;- &#39;stackoverflow-2016.db&#39;
+import os
+db = sq.connect(os.path.join(&#39;data&#39;, dbFilename))
+c = db.cursor()
+c.execute(&quot;select * from questions limit 5&quot;)  # simple query 
+results = c.fetchall() # retrieve results
+</code></pre>
+
+<p>To disconnect:</p>
+
+<pre><code>c.close()
+</code></pre>
+
+<p>Here&#39;s how you would connect to PostgreSQL instead:</p>
+
+<pre><code>import psycopg2 as pg
+db = pg.connect(&quot;dbname=&#39;stackoverflow&#39; user=&#39;paciorek&#39; host=&#39;localhost&#39; password=&#39;test&#39;)
+c = db.cursor()
+</code></pre>
+
+<h4>Questions</h4>
+
+<p><strong><em>Challenge</em></strong>: Return a few rows from the users, questions, answers, and tags tables so you can get a sense for what the entries in the tables are like.</p>
+
+<p><strong><em>Challenge</em></strong>: Find the youngest users in the database.</p>
+
+<h3>2.3.3) Simple joins</h3>
+
+<p>It turns out that the syntax of using multiple tables we&#39;ve seen can be viewed formally as a table join and could also be implemented using the JOIN keyword.</p>
+
+<p>The syntax generally looks like this (again the WHERE and ORDER BY are optional):</p>
+
+<pre><code>SELECT &lt;column(s)&gt; FROM &lt;table1&gt; JOIN &lt;table2&gt; ON &lt;columns to match on&gt;
+   WHERE &lt;condition(s) on column(s)&gt; ORDER BY &lt;column(s)&gt;
+</code></pre>
+
+<p>Let&#39;s see some joins using the different syntax on the Stack Overflow database. In particular let&#39;s select only the questions with the tag &ldquo;python&rdquo;.</p>
+
+<pre><code class="r">## a join without JOIN
+result1 &lt;- dbGetQuery(db, &quot;select * from questions, questions_tags where
+        questions.questionid = questions_tags.questionid and tag = &#39;python&#39;&quot;)
+head(result1)
+</code></pre>
+
+<pre><code>##   questionid        creationdate score viewcount
+## 1   34553559 2016-01-01 04:34:34     3        96
+## 2   34556493 2016-01-01 13:22:06     2        30
+## 3   34557898 2016-01-01 16:36:04     3       143
+## 4   34560088 2016-01-01 21:10:32     1       126
+## 5   34560213 2016-01-01 21:25:26     1       127
+## 6   34560740 2016-01-01 22:37:36     0       455
+##                                                                                           title
+## 1                                            Python nested loops only working on the first pass
+## 2                                        bool operator in for Timestamp in Series does not work
+## 3                                                       Pairwise haversine distance calculation
+## 4                                                          Stopwatch (chronometre) doesn&#39;t work
+## 5 How to set the type of a pyqtSignal (variable of class X) that takes a X instance as argument
+## 6                                                Flask: Peewee model_to_dict helper not working
+##   ownerid questionid    tag
+## 1  845642   34553559 python
+## 2 4458602   34556493 python
+## 3 2927983   34557898 python
+## 4 5736692   34560088 python
+## 5 5636400   34560213 python
+## 6 3262998   34560740 python
+</code></pre>
+
+<pre><code class="r">## a join with JOIN
+result2 &lt;- dbGetQuery(db, &quot;select * from questions join questions_tags on
+           questions.questionid = questions_tags.questionid where tag = &#39;python&#39;&quot;)
+
+identical(result1, result2)
+</code></pre>
+
+<pre><code>## [1] TRUE
+</code></pre>
+
+<p>Here&#39;s a three-way join with some additional use of aliases to abbreviate table names. What does this query ask for?</p>
+
+<pre><code class="r">result1 &lt;- dbGetQuery(db, &quot;select * from questions Q, questions_tags T, users U where
+        Q.questionid = T.questionid and
+        Q.ownerid = U.userid and
+        tag = &#39;python&#39; and
+        age &lt; 18&quot;)
+
+result2 &lt;- dbGetQuery(db, &quot;select * from questions Q
+        join questions_tags T on Q.questionid = T.questionid
+        join users U on Q.ownerid = U.userid where
+        tag = &#39;python&#39; and
+        age &lt; 18&quot;)
+
+identical(result1, result2)
+</code></pre>
+
+<pre><code>## [1] TRUE
+</code></pre>
+
+<p><strong><em>Challenge</em></strong>: Write a query that would return all the answers to questions with the Python tag.</p>
+
+<p><strong><em>Challenge</em></strong>: Write a query that would return the users who have answered a question with the Python tag.</p>
+
+<h3>2.3.4) Grouping / stratifying</h3>
+
+<p>A common pattern of operation is to stratify the dataset, i.e., collect it into mutually exclusive and exhaustive subsets. One would then generally do some operation on each subset. Here&#39;s a basic example where we count the occurrences of different tags. </p>
+
+<pre><code>dbGetQuery(db, &quot;select tag, count(*) as n from questions_tags group by tag order by n desc limit 100&quot;)
+</code></pre>
+
+<p><strong><em>Challenge</em></strong>: What specifically does that query do? Describe the table that would be returned.</p>
+
+<p>In general <code>group by</code> statement will involve some aggregation operation on the subsets. Options include: COUNT, MIN, MAX, AVG, SUM.</p>
+
+<p><strong><em>Challenge</em></strong>: Write a query that will count the number of answers for each question, returning the most answered questions. </p>
+
+<h3>2.3.5) Getting unique results (DISTINCT)</h3>
+
+<p>A useful SQL keyword is DISTINCT, which allows you to eliminate duplicate rows from any table (or remove duplicate values when one only has a single column or set of values).</p>
+
+<pre><code class="r">tagNames &lt;- dbGetQuery(db, &quot;select distinct tag from questions_tags&quot;)
+dbGetQuery(db, &quot;select count(distinct tag) from questions_tags&quot;)
+</code></pre>
+
+<pre><code>##   count(distinct tag)
+## 1               41006
+</code></pre>
+
+<h3>2.3.6) Indexes</h3>
+
+<p>An index is an ordering of rows based on one or more fields. DBMS use indexes to look up values quickly, either when filtering (if the index is involved in the WHERE condition) or when doing joins (if the index is involved in the JOIN condition).  So in general you want your tables to have indexes.</p>
+
+<p>DBMS use indexing to provide sub-linear time lookup. Without indexes, a database needs to scan through every row sequentially, which is called linear time lookup &ndash; if there are n rows, the lookup is \(O(n)\) in computational cost. With indexes, lookup may be logarithmic &ndash; O(log(n)) &ndash; (if using tree-based indexes) or constant time &ndash; O(1) &ndash; (if using hash-based indexes). A binary tree-based search is logarithmic; at each step through the tree you can eliminate half of the possibilities. </p>
+
+<p>Here&#39;s how we create an index, with some time comparison for a simple query.</p>
+
+<pre><code class="r">system.time(dbGetQuery(db, &quot;select * from questions where viewcount &gt; 10000&quot;))     # 10 seconds
+system.time(dbGetQuery(db, &quot;create index count_index on questions (viewcount)&quot;))  # 19 seconds
+system.time(dbGetQuery(db, &quot;select * from questions where viewcount &gt; 10000&quot;))    # 3 seconds
+</code></pre>
+
+<p>In other contexts, an index can save huge amounts of time. So if you&#39;re working with a database and speed is important, check to see if there are indexes.</p>
+
+<p>That being said, using indexes in a lookup is not always advantageous, as discussed in Section 2.6 on efficient SQL queries.</p>
+
+<h3>2.3.7) Temporary tables and views</h3>
+
+<p>You can think of a view as a temporary table that is the result of a query and can be used in subsequent queries. In any given query you can use both views and tables. The advantage is that they provide modularity in our querying. For example, if a given operation (portion of a query) is needed repeatedly, one could abstract that as a view and then make use of that view.</p>
+
+<p>Suppose we always want the age and displayname of question owners available. Once we have the view we can query it like a regular table.</p>
+
+<pre><code class="r">## note there is a creationdate in users too, hence disambiguation
+dbGetQuery(db, &quot;create view questionsAugment as select
+               questionid, questions.creationdate, score, viewcount, title, ownerid, age, displayname
+               from questions join users on questions.ownerid = users.userid&quot;)
+</code></pre>
+
+<pre><code>## data frame with 0 columns and 0 rows
+</code></pre>
+
+<pre><code class="r">dbGetQuery(db, &quot;select * from questionsAugment where age &lt; 15 limit 5&quot;)
+</code></pre>
+
+<pre><code>##   questionid        creationdate score viewcount
+## 1   38096075 2016-06-29 09:50:36     0        23
+## 2   38899284 2016-08-11 14:32:39     0        33
+## 3   40051364 2016-10-14 20:18:18     1        37
+## 4   37168422 2016-05-11 16:29:16     0       212
+## 5   37188786 2016-05-12 13:43:41     0        25
+##                                                                                      title
+## 1 Iterate over an enum, which saves classes, then init the classes and put them into a map
+## 2                                             Spark Framework puts HTML around my response
+## 3                                       OpenShift Maven does not use the correct JAVA_HOME
+## 4                                           Theming an ASP.net menu control with bootstrap
+## 5                             Using IIS7 Url rewrite module to redirect to another website
+##   ownerid age displayname
+## 1 3809164  14  ArsenArsen
+## 2 3809164  14  ArsenArsen
+## 3 3809164  14  ArsenArsen
+## 4 3932721  14         Bob
+## 5 3932721  14         Bob
+</code></pre>
+
+<p>One use of a view would be to create a mega table that stores all the information from multiple tables in the (unnormalized) form you might have if you simply had one data frame in R or Python.</p>
+
+<h3>2.3.8) Creating database tables</h3>
+
+<p>One can create tables from within the sqlite and psql command line interfaces (discussed later), but often one would do this from R or Python. Here&#39;s the syntax from R.</p>
+
+<pre><code>## Option 1: pass directly from CSV to database
+dbWriteTable(conn = db, name = &quot;student&quot;, value = &quot;student.csv&quot;, row.names = FALSE, header = TRUE)
+
+## Option 2: pass from data in an R data frame
+#student &lt;- data.frame(...)
+#student &lt;- read.csv(...)
+dbWriteTable(conn = db, name = &quot;student&quot;, value = student, row.names = FALSE, append = FALSE)
+</code></pre>
+
+<h2>2.4) More advanced SQL</h2>
+
+<h3>2.4.1) More on joins</h3>
+
+<p>We&#39;ve seen a bunch of joins but haven&#39;t discussed the full taxonomy of types of joins. There are various possibilities for how to do a join depending on whether there are rows in one table that do not match any rows in another table.</p>
+
+<p><em>Inner joins</em>: In database terminology an inner join is when the result has a row for each match of a row in one table with the rows in the second table, where the matching is done on the columns you indicate. If a row in one table corresponds to more than one row in another table, you get all of the matching rows in the second table, with the information from the first table duplicated for each of the resulting rows. For example in the Stack Overflow data, an inner join of questions and answers would pair each question with each of the answers to that question. However, questions without any answers or (if this were possible) answers without a corresponding question) would not be part of the result.</p>
+
+<p><em>Outer joins</em>: Outer joins add additional rows from one table that do not match any rows from the other table as follows. A <em>left outer join</em> gives all the rows from the first table but only those from the second table that match a row in the first table. A <em>right outer join</em> is the converse, while a <em>full outer join</em> includes at least one copy of all rows from both tables. So a left outer join of the Stack Overflow questions and answers tables would, in addition to the matched questions and their answers, include a row for each question without any answers, as would a full outer join. In this case there should be no answers that do not correspond to question, so a right outer join should be the same as an inner join. </p>
+
+<p><em>Cross joins</em>: A cross join gives the Cartesian product of the two tables, namely the pairwise combination of every row from each table, analogous to <code>expand.grid</code> in R. I.e., take a row from the first table and pair it with each row from the second table, then repeat that for all rows from the first table. Since cross joins pair each row in one table with all the rows in another table, the resulting table can be quite large (the product of the number of rows in the two tables). In the Stack Overflow database, a cross join would pair each question with every answer in the database, regardless of whether the answer is an answer to that question.</p>
+
+<p>Here&#39;s a table of the different kinds of joins:</p>
+
+<table><thead>
+<tr>
+<th>Type of join</th>
+<th>Rows from first table</th>
+<th>Rows from second table</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>inner (default)</td>
+<td>all that match on specified condition</td>
+<td>all that match on specified condition</td>
+</tr>
+<tr>
+<td>left outer</td>
+<td>all</td>
+<td>all that match first</td>
+</tr>
+<tr>
+<td>right outer</td>
+<td>all that match second</td>
+<td>all</td>
+</tr>
+<tr>
+<td>full outer</td>
+<td>all</td>
+<td>all</td>
+</tr>
+<tr>
+<td>cross</td>
+<td>all combined pairwise with second</td>
+<td>all combined pairwise with first</td>
+</tr>
+</tbody></table>
+
+<p>A &#39;natural&#39; join is an inner join that doesn&#39;t require you to specify the common columns between tables on which to enforce equality, but it&#39;s often good practice to not use a natural join and to explicitly indicate which columns are being matched on.</p>
+
+<p>Simply listing two or more tables separated by commas as we saw earlier is the same as a <em>cross join</em>. Alternatively, listing two or more tables separated by commas, followed by conditions that equate rows in one table to rows in another is the same as an <em>inner join</em>. </p>
+
+<p>In general, inner joins can be seen as a form of cross join followed by a condition that enforces matching between the rows of the table. More broadly, here are five equivalent joins:</p>
+
+<pre><code>select * from table1, table2 where table1.id = table2.id  ## without explicit JOIN
+select * from table1 cross join table2 where table1.id = table2.id 
+select * from table1 join table2 on table1.id = table2.id
+select * from table1 join table2 using(id)
+select * from table1 natural join table2
+</code></pre>
+
+<p>Note that in the last query the join would be based on all common columns, which could be a bit dangerous if you don&#39;t look carefully at the schema of both tables. Assuming <code>id</code> is the common column then the last of these queries is the same as the others.</p>
+
+<p><strong><em>Challenge</em></strong>: Create a view with one row for every question-tag pair, including questions without any tags.</p>
+
+<p><strong><em>Challenge</em></strong>: Write a query that would return the displaynames of all of the users who have <em>never</em> posted a question. The NULL keyword will come in handy &ndash; it&#39;s like <code>NA</code> in R. Hint: NULLs should be produced if you do an outer join.</p>
+
+<p><strong><em>Challenge</em></strong>: How many questions tagged with &#39;random-forest&#39; were unanswered? (You should need two different kinds of joins to answer this.)</p>
+
+<h3>2.4.2) Joining a table with itself (self joins)</h3>
+
+<p>Sometimes we want to query information across rows of the same table. For example supposed we want to analyze the time lags between when the same person posts a question. Do people tend to post in bursts or do they tend to post uniformly over the year? To do this we need contrasts between the times of the different posts. (I think this might also be possible using window functions in Postgres, not available in SQLite, but I haven&#39;t looked into that.)</p>
+
+<p>So we need to join two copies of the same table, which means dealing with resolving the multiple copies of each column.</p>
+
+<p>This would look like this:</p>
+
+<pre><code>dbGetQuery(db, &quot;create view question_contrasts as
+               select * from questions Q1 join questions Q2
+               on Q1.ownerid = Q2.ownerid&quot;)
+</code></pre>
+
+<p>That should create a new table (actually a view) with all pairs of questions asked by a single person.</p>
+
+<p>Actually, there&#39;s a problem here.</p>
+
+<p><strong><em>Challenge</em></strong>: What kinds of rows will we get that we don&#39;t want?</p>
+
+<p>A solution to that problem of having the same question paired with itself is:</p>
+
+<pre><code>dbGetQuery(db, &quot;create view question_contrasts as
+               select * from questions Q1 join questions Q2
+               on Q1.ownerid = Q2.ownerid&quot;
+               where Q1.creationdate != Q2.creationdate&quot;)
+</code></pre>
+
+<p><strong><em>Challenge</em></strong>: There&#39;s actually a further similar problem. What is the problem and how can we fix it by changing two characters in the query above? Hint, even as character strings, the creationdate column has an ordering.</p>
+
+<h3>2.4.3) Set operations: UNION, INTERSECT, EXCEPT</h3>
+
+<p>You can do set operations like union, intersection, and set difference using the UNION, INTERSECT, and EXCEPT keywords on tables that have the same schema (same column names and types), though most often these would be used on single columns (i.e., single-column tables).</p>
+
+<p>Note that one can often set up an equivalent query without using INTERSECT or UNION.</p>
+
+<p>Here&#39;s an example of a query that can be done with or without an intersection. Suppose we want to know the names of all individuals who have asked both an R question and a Python question. We can do this with INTERSECT:</p>
+
+<pre><code class="r">system.time(
+        result1 &lt;- dbGetQuery(db, &quot;select displayname, userid from
+               questions Q join users U on U.userid = Q.ownerid
+               join questions_tags T on Q.questionid = T.questionid
+               where tag = &#39;r&#39;
+               intersect
+               select displayname, userid from
+               questions Q join users U on U.userid = Q.ownerid
+               join questions_tags T on Q.questionid = T.questionid
+               where tag = &#39;python&#39;&quot;)
+               )
+</code></pre>
+
+<pre><code>##    user  system elapsed 
+##   9.500   2.188  29.081
+</code></pre>
+
+<p>Alternatively we can do a self-join. Note that the syntax gets complicated as we are using subqueries (discussed later) that are then joined.</p>
+
+<pre><code class="r">system.time(
+        result2 &lt;- dbGetQuery(db, &quot;select displayname, userid from
+               (questions Q1 join questions_tags T1
+               on Q1.questionid = T1.questionid)
+               join
+               (questions Q2 join questions_tags T2
+               on Q2.questionid = T2.questionid)
+               on Q1.ownerid = Q2.ownerid
+               join users on Q1.ownerid = users.userid
+               where T1.tag = &#39;r&#39; and T2.tag = &#39;python&#39;&quot;)
+               )
+</code></pre>
+
+<pre><code>##    user  system elapsed 
+##  17.960  15.768  54.447
+</code></pre>
+
+<pre><code class="r">identical(result1, result2)
+</code></pre>
+
+<pre><code>## [1] FALSE
+</code></pre>
+
+<p>Note that the second query will return duplicates where we have a person asking multiple R or Python queries. But we know how to solve that by including a DISTINCT:</p>
+
+<pre><code>select distinct displayname, userid from ...
+</code></pre>
+
+<p>Which is faster? The second one looks more involved in terms of the joins, so the timing results seen above make sense.</p>
+
+<p>Or we could use UNION or EXCEPT to find people who have asked either or only one type of question, respectively.</p>
+
+<p><strong><em>Challenge</em></strong>: Find the users who have asked only an R question and not a Python question.</p>
+
+<h3>2.4.4) String processing and creating new fields</h3>
+
+<p>In Postgres, in addition the basic use of LIKE to match character strings, one can regular expression syntax with SIMILAR TO and one can extract substrings with SUBSTRING.</p>
+
+<p>These keywords are not available in SQLite so the following can only be done in the Postgres instance of our example database. Here we&#39;ll look for all tags that are of the form &ldquo;r-&rdquo;, &ldquo;-r&rdquo;, &ldquo;r&rdquo; or &ldquo;-r-&rdquo;. SQL uses % as a wildcard (this is not standard regular expression syntax). </p>
+
+<pre><code class="r">dbGetQuery(db, &quot;select * from tags where tag SIMILAR TO &#39;r-%|%-r|r|%-r-%&#39;&quot;)
+</code></pre>
+
+<p>Postgres requires that the pattern to be extracted be surrounded by <code>#&quot;</code> (one could use another character in place of <code>#</code>), but for use from R we need to escape the double-quote with a backslash so it is treated as a part of the string passed to Postgres and not treated by R as indicating where the character string stops/starts. </p>
+
+<pre><code class="r">dbGetQuery(db, &quot;select substring(creationdate from &#39;#\&quot;[[:digit:]]{4}#\&quot;%&#39; for &#39;#&#39;) as year
+               from questions limit 3&quot;)
+</code></pre>
+
+<pre><code>## Error in rsqlite_send_query(conn@ptr, statement): near &quot;from&quot;: syntax error
+</code></pre>
+
+<p>The above example also illustrates the use of AS to create a new field based on manipulation of existing fields. AS (but not SUBSTRING) can be used in SQLite as well. Here&#39;s an example:</p>
+
+<pre><code class="r">dbGetQuery(db, &quot;select upvotes/1000 as upvote1000s from users limit 3&quot;)
+</code></pre>
+
+<pre><code>##   upvote1000s
+## 1           5
+## 2           0
+## 3           0
+</code></pre>
+
+<p><strong><em>Challenge</em></strong>: Process the creationdate field to create year, day, and month fields in a new view. Extra: do some research to figure out if there are tools for working with date-time strings that don&#39;t involve string processing like you just had to do.</p>
+
+<h3>2.4.5) Subqueries</h3>
+
+<p>Instead of a join, we can use subqueries as a way to combine information across tables (with the subquery involved in a WHERE statement or in a JOIN. For example, suppose we want to know the average number of UpVotes for users who have posted a question with the tag &ldquo;python&rdquo;.</p>
+
+<pre><code class="r">dbGetQuery(db, &quot;select avg(UpVotes) from users where userid in
+               (select distinct ownerid from
+               questions join questions_tags on questions.questionid = questions_tags.questionid
+               where tag = &#39;python&#39;
+               limit 5)&quot;)        
+</code></pre>
+
+<pre><code>##   avg(UpVotes)
+## 1           26
+</code></pre>
+
+<p>In some cases one can do a join rather than using a subquery, but in this example, it fails.</p>
+
+<p><strong><em>Challenge</em></strong>: What&#39;s wrong with the following query as an attempt to answer the question above? (See if you can figure it out before looking at the answer below.)</p>
+
+<pre><code>dbGetQuery(db, &quot;select avg(UpVotes) from questions, questions_tags, users
+               where questions.questionid = questions_tags.questionid and
+               questions.ownerid = users.userid and
+               tag = &#39;python&#39;&quot;)
+</code></pre>
+
+<p>For more details on subqueries, see the video on &ldquo;subqueries in where statements&rdquo; in this <a href="http://cs.stanford.edu/people/widom/DB-mooc.html">Introduction to Databases MOOC</a>.</p>
+
+<p>(Answer: In the subquery, we find the Ids of the users we are looking for and then average over the UpVotes of those individuals. In the join version we found all the questions that had a Python tag and averaged over the UpVotes of the individuals associated with those questions. So the latter includes multiple UpVotes values from individuals who have posted multiple Python questions.)</p>
+
+<p><strong><em>Challenge</em></strong>: Write a query that would return the users who have answered a question with the Python tag. We&#39;ve seen this challenge before, but do it now based on a subquery.</p>
+
+<p><strong><em>Challenge</em></strong>: How would you find all the answers associated with the user with the most upvotes?</p>
+
+<p><strong><em>Challenge</em></strong>: Create a frequency list of the tags used in the top 100 most answered questions. Note there is a way to do this with a JOIN and a way without a JOIN.</p>
+
+<p><strong><em>Challenge</em></strong>: Write a query that, for each question, will find the answer to that question written by the user with the highest reputation.</p>
+
+<p>We can use subqueries in the FROM clause to create a temporary table to use in a query. Here we&#39;ll create a new column and then filter based on that new column:</p>
+
+<pre><code>dbGetQuery(db, &quot;select * from
+               (select *, answercount + commentcount + favoritecount as reactioncount from answers)
+               where reactioncount &gt; 500&quot;)
+</code></pre>
+
+<p>(But note in the case above (at least in SQLite), we could also have created &#39;reactioncount&#39; in the initial SELECT clause.</p>
+
+<p>Finally one can use subqueries in the SELECT clause to create new variables, but we won&#39;t go into that here.</p>
+
+<h3>2.4.6) Complicated grouping queries</h3>
+
+<p>Here&#39;s an example of a complicated query involving aggregation in which we figure out the most popular tags amongst the most popular questions (in fact this is one possible answer to one of the previous challenges). Also note the subquery in the JOIN.</p>
+
+<pre><code>dbGetQuery(db, &quot;select T.tag, count(*) as n
+               from questions_tags T join
+               (select questionid from answers group by questionid
+               order by count(*) desc limit 100) most_answered
+               on T.questionid = most_answered.questionid
+               group by T.tag
+               order by n desc&quot;)
+</code></pre>
+
+<p>Ok, well that&#39;s pretty intimidating to try to just come up with that. A good strategy is probably to think about creating a view that is the result of the inner query and then have the outer query use that. You can then piece together the complicated query in a modular way. For big databases, you are likely to want to submit this as a single query and not two queries so that the SQL optimizer can determine the best way to do the operations. But you want to start with code that will give you the right answer!</p>
+
+<h2>2.5) Database management and command-line operation</h2>
+
+<p>We&#39;ll illustrate some basic database management using a different example dataset. This is some data on webtraffic to Wikipedia pages. Note that the input file used here involved some pre-processing relative to the data you get the directly from the Wikistats dataset available through Amazon Web Services (AWS) because in that dataset, the datetime information is part of the filename.</p>
+
+<h3>2.5.1) SQLite</h3>
+
+<h4>Setting up a database and using the SQLite command line</h4>
+
+<p>With SQLite you don&#39;t need to deal with all the permissions and administrative overhead because an SQLite database is simply a file that you can access without a password or connecting to a database server process.</p>
+
+<p>To start the SQLite interpreter in Linux:</p>
+
+<pre><code>sqlite3 wikistats.db
+</code></pre>
+
+<p>One can use much the same syntax as with the Postgres psql interpreter to create tables, e.g.,</p>
+
+<pre><code>create table webtraffic
+(date char(8), hour char(6), site varchar, page varchar, count integer, size double precision);
+.quit
+</code></pre>
+
+<h4>Populating a table</h4>
+
+<p>Here&#39;s an example of reading from multiple files into SQLite using the command line.
+We create a file <code>import.sql</code> that has the configuration for the import:</p>
+
+<pre><code>.separator &quot; &quot;
+.import /dev/stdin webtraffic
+</code></pre>
+
+<p>Then we can iterate through our files from the UNIX shell:</p>
+
+<pre><code>for file in $(ls part*gz); do
+    echo &quot;copying $file&quot;
+    gzip -cd $file | sqlite3 wikistats.db &#39;.read import.sql&#39;
+done
+</code></pre>
+
+<h4>Data cleaning</h4>
+
+<p>The problem with importing into SQLite is the presence of double quote (&ldquo;) characters that are not meant to delineate strings but are actually part of a field. In this case probably the easiest thing is simply to strip out those quotes from UNIX. Here we use <code>sed</code> to search and replace.</p>
+
+<pre><code class="bash">for file in $(ls *gz); do
+    gzip -cd $file | sed  &quot;s/\&quot;//g&quot; | gzip -c &gt; ../wikistats-fulllines/$file
+done
+</code></pre>
+
+<h3>2.5.2) PostgreSQL</h3>
+
+<h4>Setting up a database and using the Postgres command line</h4>
+
+<p>First make sure Postgres is installed on your machine.</p>
+
+<p>On Ubuntu, you can install Postgres easily via <code>apt-get</code>:</p>
+
+<pre><code>sudo apt-get install postgresql postgresql-contrib
+</code></pre>
+
+<p>Next we&#39;ll see how to set up a database. You&#39;ll generally need to operate as the <code>postgres</code> user for these sorts of manipulations. Of course if you&#39;re just a user accessing an existing database and existing tables, you don&#39;t need to worry about this.</p>
+
+<pre><code>sudo su - postgres # become the postgres user
+psql  # start postgres interpreter
+</code></pre>
+
+<p>Now from within the Postgres interpreter, you can create a database, tables within the database, and authenticate users to do things with those tables. You need to connect to a specific database to operate on it. </p>
+
+<p>In this case we&#39;ll be explicit about where on the disk filesystem the database is stored, but you probably only need to worry about this if you are creating a large database. </p>
+
+<pre><code>show data_directory;
+create tablespace dbspace location &#39;/var/tmp/pg&#39;;
+create database wikistats tablespace dbspace;
+create user paciorek with password &#39;test&#39;;
+grant all privileges on database wikistats to paciorek;
+</code></pre>
+
+<p>SQL allows various kinds of control over permissions to access and modify databases and tables as well. </p>
+
+<pre><code>\connect wikistats
+create table webtraffic (date char(8), hour char(6), site varchar, page varchar,
+       count integer, size double precision);
+grant all privileges on table webtraffic to paciorek;
+\quit
+</code></pre>
+
+<p>Note the use of <code>\</code> to do administrative tasks (as opposed to executing SQL syntax), and the use of <code>;</code> to end each statement. Without the semicolon, Postgres will return without doing anything.</p>
+
+<h4>Populating a table</h4>
+
+<p>Here&#39;s an example of importing a single file into Postgres from within the psql interpreter running as the special postgres user. In this case we have space-delimited text files. You can obtain the file <code>part-00000</code> as discussed in the introduction (you&#39;ll need to run <code>gunzip part-00000.gz</code> first).</p>
+
+<pre><code>\connect wikistats
+copy webtraffic from &#39;part-00000&#39; delimiter &#39; &#39;;
+</code></pre>
+
+<p>If one had CSV files, one could do the following</p>
+
+<pre><code>copy webtraffic from &#39;part-00000&#39; csv;
+</code></pre>
+
+<p>To actually handle the Wikistats input files, we need to deal with backslash characters occurring at the end of text for a given column in some rows. Ordinarily in standard Postgres &#39;text&#39; format (different from Postgres &#39;csv&#39; format), a backslash is used to &#39;quote&#39; characters that would usually be treated as row or column delimiters (i.e., preceding such a character by a backslash means it is treated as a character that is part of the field). But we just want the backslash treated as a character itself. So we need to tell Postgres not to treat a backslash as the quoting character. To do that we specify the <code>quote</code> character. However, the quote keyword is only provided when importing &#39;csv&#39; format.</p>
+
+<p>In &#39;csv&#39; format the double-quote character is by default treated as delineating the beginning and end of text in a field, but the Wikistats files have double-quotes as part of the fields. So we need to set the quote character as neither a double-quote nor a backslash. The following syntax does that by specifying that the quote character is a character (\b) that never actually appears in the file. The &#39;e&#39; part is so that Postgres treats \b as a single character, i.e., &#39;escaping&#39; the backslash, and the &#39;csv&#39; is because the quote keyword only works with the csv format, but note that by setting the delimiter to a space, it&#39;s not really a CSV file! </p>
+
+<pre><code>copy webtraffic from &#39;part-00000&#39; delimiter &#39; &#39; quote e&#39;\b&#39; csv;
+</code></pre>
+
+<p>Often you&#39;ll need to load data from a large number of possibly zipped text files. </p>
+
+<p>As an example of how you would load data in a case like that, here&#39;s some shell scripting that will iterate through multiple (gzipped) input files of Wikistats data, running as the regular user:</p>
+
+<pre><code>export PGPASSWORD=test  # set password via UNIX environment variable
+for file in $(ls part*gz); do  # loop thru files whose names start with &#39;part&#39; and end with &#39;gz&#39;
+    echo &quot;copying $file&quot;
+    ## unzip and then pass by UNIX pipe to psql run in non-interactive mode
+    gzip -cd $file |
+      psql -d wikistats -h localhost -U paciorek -p 5432 -c &quot;\copy webtraffic from stdin delimiter &#39; &#39; quote e&#39;\b&#39; csv&quot;
+done
+</code></pre>
+
+<p>Using <code>\copy</code> as above invokes the psql <code>copy</code> command (<code>copy</code> would invoke the standard SQL <code>copy</code> command), which allows one to operate as a regular user and to use relative paths. In turn <code>\copy</code> invokes <code>copy</code> in a specific way. </p>
+
+<h4>Data cleaning</h4>
+
+<p>One complication is that often the input files will have anomalies in them. Examples include missing columns for some rows, individual elements in a column that are not of the correct type (e.g., a string in a numeric column), and characters that can&#39;t be handled. In the Wikistats data case, one issue was lines without the full set of columns and another was the presence of a backslash character at the end of the text for a column.</p>
+
+<p>With large amounts of data or many files, this can be a hassle to deal with. UNIX shell commands can sometimes be quite helpful, including use of sed and awk. Or one might preprocess files in chunks using Python. </p>
+
+<p>For example the following shell scripting loop over Wikistats files ensures each row has 6 fields/columns by pulling out only rows with the full set of columns. I used this to process the input files before copying into Postgres as done above. Actually there was even more preprocessing because in the form of the data available from Amazon&#39;s storage service, the date/time information was part of the filename and not part of the data files. </p>
+
+<pre><code class="bash">for file in $(ls *gz); do
+    gzip -cd $file | grep &quot;^.* .* .* .* .* .*$&quot; | gzip -c &gt; ../wikistats-fulllines/$file
+done
+</code></pre>
+
+<h3>2.5.3) Database administration and configuration miscellanea</h3>
+
+<p>You can often get configuration information by making a query. For example, here&#39;s how one can get information on the cache size in SQLite or on various settings in Postgres.</p>
+
+<pre><code class="r"># SQLite
+dbGetQuery(db, &quot;pragma cache_size&quot;)
+dbGetQuery(db, &quot;pragma cache_size=90000&quot;)
+# sets cache size to ~90 GB, 1 KB/page, but not really relevant as
+# operating system should do disk caching automatically
+
+# Postgres
+dbGetQuery(db, &quot;select * from pg_settings&quot;)
+dbGetQuery(db, &quot;select * from pg_settings where name=&#39;dynamic_shared_memory_type&#39;&quot;) 
+</code></pre>
+
+<h2>2.6) Efficient SQL queries</h2>
+
+<h3>2.6.1) Overview</h3>
+
+<p>In general, your DBMS should examine your query and try to implement it in the fastest way possible. And as discussed above, putting an indexes on your tables will often speed things up substantially, but only for certain types of queries.</p>
+
+<p>Some tips for faster queries include:</p>
+
+<ul>
+<li>use indexes on fields used in WHERE and JOIN clauses
+
+<ul>
+<li>try to avoid wildcards at the start of LIKE string comparison when you have an index on the field (as this requires looking at all of the rows)</li>
+<li>similarly try to avoid using functions on indexed columns in a WHERE clause as this requires doing the calculation on all the rows in order to check the condition</li>
+</ul></li>
+<li>only select the columns you really need</li>
+<li>use a temporary table if you would otherwise carry out a query repeatedly on a large table</li>
+<li>use filtering (WHERE clauses) in inner statements when you have nested subqueries</li>
+<li>use LIMIT as seen in the examples here if you only need some of the rows a query returns</li>
+</ul>
+
+<h3>2.6.2) SQL query plans and EXPLAIN</h3>
+
+<p>You can actually examine the query plan that the system is going to use for a query:</p>
+
+<pre><code>dbGetQuery(db, &quot;explain select * from questions join questions_tags on
+               questions.questionid = questions_tags.questionid where tag like &#39;python&#39;&quot;)
+</code></pre>
+
+<p>Here&#39;s additional information on interpreting what you see: <a href="https://www.postgresql.org/docs/9.5/static/using-explain.html">https://www.postgresql.org/docs/9.5/static/using-explain.html</a>.</p>
+
+<p>The main thing to look for is to see if the query will be done by using an index or by sequential scan (i.e., looking at all the rows). </p>
+
+<h3>2.6.3) Index lookup vs. sequential scan</h3>
+
+<p>Using an index is good in that can go to the data needed very quickly based on random access to the disk locations of the data of interest, but if it requires the computer to examine a large number of rows, it may not be better than sequential scan. An advantage of sequential scan is that it will make good use of the CPU cache, reading chunks of data and then accessing the individual pieces of data quickly. </p>
+
+<p>Ideally you&#39;d do sequential scan of exactly the portion of the rows that  you need, which would be available in contiguous storage. </p>
+
+<h3>2.6.4) How indexes work</h3>
+
+<p>Indexes are often implemented using tree-based methods. For example in Postgres, b-tree indexes are used for indexes on things that have an ordering. Trees are basically like decision trees - at each node in the tree, there is a condition that sends one down the left or right branch. Eventually, one reaches the leaves of the tree, which have the actual values that one is looking for. Associated with each value is the address of where that row of data is stored. With tree-based index, the time cost of b-tree lookup is logarithmic (based on the binary lookup), so it does grow with the number of elements in the table, but it does so slowly. The lookup process is that given a value (which would often be referred to as a <code>key</code>), one walks down the tree based on comparing the value to the condition at each split in the tree until one finds the elements corresponding to the value and then getting the addresses for where the desired rows are stored. </p>
+
+<p>Here&#39;s some information on how such trees are constructed and searched: <a href="http://use-the-index-luke.com/sql/anatomy/the-tree">http://use-the-index-luke.com/sql/anatomy/the-tree</a></p>
+
+<p>In SQLite, indexes are implemented by creating a separate index table that maps from the value to the row index in the indexed table, allowing for fast lookup of a row. </p>
+
+<p>One downside of indexes is that creation of indexes can be very time-consuming. And if the database is updated frequently, this could be detrimental. </p>
+
+<h3>2.6.5) Disk caching</h3>
+
+<p>You might think that database queries will generally be slow (and slower than in-memory manipulation such as in R or Python when all the data can fit in memory) because the database stores the data on disk. However, as mentioned earlier the operating system will generally cache files/data in memory when it reads from disk. Then if that information is still in memory the next time it is needed, it will be much faster to access it the second time around. Other processes might need memory and &#39;invalidate&#39; the cache, but often once the data is read once, the database will be able to do queries quite quickly. This also means that even if you&#39;re using a database, you can benefit from a machine with a lot of memory if you have a large database (ideally a machine with rather more RAM than the size of the table(s) you&#39;ll be accessing). </p>
+
+<p>Given this, it generally won&#39;t be helpful to force your database to reside in memory (e.g., using :memory: for SQLite or putting the database on a RAM disk). </p>
+
+<h3>2.6.6) Parallelization and partitioning</h3>
+
+<p>To speed up your work, one might try to split up one&#39;s queries into multiple queries that you run in parallel. However, you&#39;re likely to have problems with parallel queries from a single R or Python session.</p>
+
+<p>However, multiple queries to the same database from separate R or Python sessions will generally run fine but can compete for access to disk/memory. That said, in some basic experiments, the slowdown was moderate, so one may be able to parallelize across processes in a manual fashion.</p>
+
+<p>As of version 9.6 of Postgres, there is some capability for doing parallel queries: 
+<a href="https://www.postgresql.org/docs/9.6/static/parallel-query.html">https://www.postgresql.org/docs/9.6/static/parallel-query.html</a>.</p>
+
+<p>Finally Postgres supports partitioning tables. Generally one would divide a large table into smaller tables based on unique values of a key. For example if your data had timetamps, you could partition into subtables for each month or each year. This would allow faster queries when considering data that reside on one or a small number of partitions and could also ease manual implementation of parallelization.  Here&#39;s some information:  <a href="https://www.postgresql.org/docs/current/static/ddl-partitioning.html">https://www.postgresql.org/docs/current/static/ddl-partitioning.html</a>.</p>
+
+<h1>3) Manipulating datasets in memory in R and Python</h1>
+
+<p>This section aims to provide an overview of data handling in R and Python. Given the scope of topics, this is not meant to be a detailed treatment of each topic.</p>
+
+<p>Note that what is referred to as split-apply-combine functionality in dplyr in R and in pandas in Python is the same concept as the use of SQL&#39;s GROUP BY combined with aggregation operations such as MIN, MAX, AVG, COUNT.</p>
+
+<p>You can obtain CSV files for the 2016 Stack Overflow <a href="">here (FIXME &ndash; create single zipped file)</a>.</p>
+
+<h2>3.1) Data frames in R</h2>
+
+<p>A data frame in R is essentially the same as a table in SQL. The notion of a data frame has been essential to the success of R and its existence inspired Python&#39;s Pandas package.</p>
+
+<p>R&#39;s data frames are stored in memory, but there are now packages (such as dplyr with an SQL backend, SparkR and h2o) that allow you to treat an external data source as if it were an actual R data frame, using familiar syntax to operate on the data frame.</p>
+
+<p>This tutorial assumes you&#39;re familiar with basic data frame functionality in R or Python, so I won&#39;t go into more details here.</p>
+
+<p>dplyr, which will be discussed later, allows you to operate on data frames using functionality that is similar to SQL, in particular selecting columns, filtering rows, aggregation operations on subsets, and joining multiple data frames.</p>
+
+<p>But base R syntax can be used for all of these operations too. Here&#39;s the base R syntax corresponding to SQL&#39;s SELECT, WHERE, GROUP BY, and JOIN functionality.</p>
+
+<pre><code class="r">users &lt;- read.csv(file.path(&#39;data&#39;, &#39;users-2016.csv&#39;))
+questions &lt;- read.csv(file.path(&#39;data&#39;, &#39;questions-2016.csv&#39;))
+users[ , c(&#39;userid&#39;, &#39;upvotes&#39;)] # select columns
+users[users$upvotes &gt; 10000, ]   # filter by row (i.e., SQL WHERE)
+aggregate(upvotes ~ age, data = users, FUN = median) # group by (i.e., aggregation)
+joined &lt;- merge(users, questions, by.x = &#39;userid&#39;, by.y = &#39;ownerid&#39;,
+    all.x = FALSE, all.y = FALSE)  # inner join
+</code></pre>
+
+<h2>3.2) Data frames in Python</h2>
+
+<p>The Pandas package has nice functionality for doing dataset manipulations akin to SQL queries including group by/aggregation operations, using a data structure called a DataFrame inspired by R&#39;s data frames. Furthermore, Pandas was designed from the start for computational efficiency, in contrast to standard data frames in R (but see below for newer R functionality that is much more efficient). </p>
+
+<p>Here are some examples:</p>
+
+<pre><code class="python">import pandas as pd
+import os
+users = pd.read_csv(os.path.join(&#39;data&#39;, &#39;users-2016.csv&#39;))
+questions = pd.read_csv(os.path.join(&#39;data&#39;, &#39;questions-2016.csv&#39;))
+type(users)
+users[[&#39;userid&#39;, &#39;upvotes&#39;]]   # select columns         
+users[users.upvotes &gt; 10000]   # filter by row (i.e., sql WHERE)
+users.groupby(&#39;age&#39;)[&#39;upvotes&#39;].agg({&#39;med&#39;: &#39;median&#39;, &#39;avg&#39;: &#39;mean&#39;}) # group by (i.e., aggregation)
+joined = pd.merge(users, questions, how= &#39;inner&#39;, left_on= &#39;userid&#39;,
+        right_on = &#39;ownerid&#39;)
+</code></pre>
+
+<h2>3.3) <code>data.table</code> in R</h2>
+
+<p>The <code>data.table</code> package provides a lot of functionality for fast manipulation of datasets in memory. data.table can do the standard SQL operations such as indexing, merges/joins, assignment, grouping, etc. Plus data.table objects are data frames (i.e., they inherit from data frames) so they are compatible with R code that uses data frames.</p>
+
+<p>If you&#39;ve got enough memory, data.table can be effective with pretty large datasets (e.g., 10s of gigabytes).</p>
+
+<p>To illustrate without the example taking too long, we&#39;ll only read in a subset of the Wikipedia webtraffic data.</p>
+
+<p>Let&#39;s read in the dataset, specifying the column classes so that fread() doesn&#39;t have to detect what they are (which will take additional time and might cause errors). Note that  we can read directly from a UNIX operation piped into R. </p>
+
+<pre><code class="r">library(data.table)
+colClasses &lt;- c(&#39;numeric&#39;, &#39;numeric&#39;, &#39;character&#39;, 
+           &#39;character&#39;, &#39;numeric&#39;, &#39;numeric&#39;)
+colNames &lt;- c(&#39;date&#39;, &#39;hour&#39;, &#39;site&#39;, &#39;page&#39;, &#39;count&#39;, &#39;size&#39;)
+system.time(wikiDT &lt;- fread(&#39;gzip -cd data/part-0000?.gz&#39;, 
+ col.names = colNames, colClasses = colClasses, header = FALSE))
+## 30 sec. for 300 MB zipped
+</code></pre>
+
+<p>Now let&#39;s do some basic subsetting. We&#39;ll see that setting a key (equivalent to setting an index in SQL) can improve lookup speed dramatically.</p>
+
+<pre><code class="r">## without a key (i.e., index)
+system.time(sub &lt;- subset(wikiDT, count == 635)) # .37 sec.
+system.time(setkey(wikiDT, count , size)) # 4 sec.
+
+## with a key (i.e., index)
+system.time(sub2 &lt;- wikiDT[.(635), ]) # essentially instantaneous
+</code></pre>
+
+<p>data.table has a lot of functionality and can be used to do a variety of sophisticated queries and manipulations (including aggregation operations), but it has its own somewhat involved syntax and concepts. The above just scratches the surface of what you can do with it. A different option for exploiting data.table is to use dplyr to interface with data.table tables. </p>
+
+<h2>3.4) dplyr</h2>
+
+<h3>3.4.1) dplyr overview</h3>
+
+<h4>Introduction</h4>
+
+<p>dplyr is part of the <a href="http://tidyverse.org/">tidyverse</a>, a set of R packages spearheaded by Hadley Wickham. You can think of dplyr as providing the functionality of SQL (selecting columns, filtering rows, transforming columns, aggregation, and joins) on R data frames using a clean syntax that is easier to use than base R operations.</p>
+
+<p>There&#39;s lots to dplyr, but here we&#39;ll just illustrate the basic operations by analogy with SQL.</p>
+
+<p>Here we&#39;ll read the data in and do some basic subsetting. In reading the data in we&#39;ll use another part of the tidyverse: the <code>readr</code> package, which provides <code>read_csv</code> as a faster version of <code>read.csv</code>. Sidenote: <code>read_csv</code> defaults to not using factors &ndash; those of you familiar with this issue will understand why I&#39;m mentioning it, but others can ignore this comment.</p>
+
+<pre><code class="r">library(dplyr)
+users &lt;- readr::read_csv(file.path(&#39;data&#39;, &#39;users-2016.csv&#39;))
+result &lt;- select(users, userid, displayname)  # select columns
+dim(result)
+</code></pre>
+
+<pre><code>## [1] 1104795       2
+</code></pre>
+
+<pre><code class="r">result &lt;- filter(users, age &lt; 15)             # filter by row (i.e., SQL WHERE)
+dim(result)
+</code></pre>
+
+<pre><code>## [1] 126  10
+</code></pre>
+
+<h4>Piping</h4>
+
+<p>dplyr is often combined with piping from the <code>magrittr</code> package, which allows you to build up a sequence of operations (from left to right), as if you were using UNIX pipes or reading a series of instructions. Here&#39;s a very simple example where we combine column selection and filtering in a readable way:</p>
+
+<pre><code class="r">result &lt;- users %&gt;% select(displayname, userid, age) %&gt;% filter(age &gt; 15)
+</code></pre>
+
+<p>What happens here is that the operations are run from left to right (except for the assignment into <code>result</code>) and the result of the left-hand side of a <code>%&gt;%</code> is passed into the right-hand side function as the first argument. So this one liner is equivalent to:</p>
+
+<pre><code class="r">tmp &lt;- select(users, displayname, userid, age)
+result2 &lt;- filter(tmp, age &gt; 15)
+identical(result, result2)
+</code></pre>
+
+<pre><code>## [1] TRUE
+</code></pre>
+
+<p>and also equivalent to:</p>
+
+<pre><code class="r">result3 &lt;- filter(select(users, displayname, userid, age), age &gt; 15)
+identical(result, result3)
+</code></pre>
+
+<pre><code>## [1] TRUE
+</code></pre>
+
+<p>We&#39;ll use pipes in the remainder of the dplyr examples.</p>
+
+<h4>Functionality</h4>
+
+<p>Here&#39;s how one can do stratified analysis with aggregation operations. In the dplyr world, this is known as split-apply-combine but in the SQL world this is just a GROUP BY with some aggregation operation.</p>
+
+<pre><code class="r">medianVotes &lt;- users %&gt;% group_by(age) %&gt;% summarize(
+                          median_upvotes = median(upvotes),
+                          median_downvotes = median(downvotes))
+head(medianVotes)
+</code></pre>
+
+<pre><code>## # A tibble: 6 × 3
+##     age median_upvotes median_downvotes
+##   &lt;int&gt;          &lt;dbl&gt;            &lt;dbl&gt;
+## 1    13           11.0                0
+## 2    14            0.5                0
+## 3    15            0.0                0
+## 4    16            3.0                0
+## 5    17            3.0                0
+## 6    18            3.0                0
+</code></pre>
+
+<p>You can also create new columns, sort, and do joins, as illustrated here:</p>
+
+<pre><code class="r">## create new columns
+users2 &lt;- users %&gt;% mutate(year = substring(creationdate, 1, 4),
+                           month = substring(creationdate, 6, 7))
+## sorting (here in descending (not the default) order by upvotes)
+users2 &lt;- users %&gt;% arrange(age, desc(upvotes))
+## joins
+questions &lt;- readr::read_csv(file.path(&#39;data&#39;, &#39;questions-2016.csv&#39;))
+questionsOfYouth &lt;- users %&gt;% filter(age &lt; 15) %&gt;%
+               inner_join(questions, by = c(&quot;userid&quot; = &quot;ownerid&quot;))
+head(questionsOfYouth)
+</code></pre>
+
+<pre><code>## # A tibble: 6 × 15
+##    userid      creationdate.x      lastaccessdate    location
+##     &lt;int&gt;              &lt;dttm&gt;              &lt;dttm&gt;       &lt;chr&gt;
+## 1 3809164 2014-07-06 08:20:52 2017-03-11 17:49:25      Serbia
+## 2 3809164 2014-07-06 08:20:52 2017-03-11 17:49:25      Serbia
+## 3 3809164 2014-07-06 08:20:52 2017-03-11 17:49:25      Serbia
+## 4 3932721 2014-08-12 09:21:21 2016-12-02 12:09:06 Bob&#39;s house
+## 5 3932721 2014-08-12 09:21:21 2016-12-02 12:09:06 Bob&#39;s house
+## 6 3932721 2014-08-12 09:21:21 2016-12-02 12:09:06 Bob&#39;s house
+## # ... with 11 more variables: reputation &lt;int&gt;,
+## #   displayname &lt;chr&gt;, upvotes &lt;int&gt;, downvotes &lt;int&gt;,
+## #   age &lt;int&gt;, accountid &lt;int&gt;, questionid &lt;int&gt;,
+## #   creationdate.y &lt;dttm&gt;, score &lt;int&gt;, viewcount &lt;int&gt;,
+## #   title &lt;chr&gt;
+</code></pre>
+
+<p><strong><em>Challenge</em></strong>: Why did I first filter and then do the join, rather than the reverse?</p>
+
+<p>The join functions include <code>inner_join</code>, <code>left_join</code>, <code>right_join</code>, <code>full_join</code>. I don&#39;t see any cross join functionality.</p>
+
+<p>In addition to operating directly on data frames, dplyr can also operate on databases and data.table objects as the back-end storage, as we&#39;ll see next.</p>
+
+<h4>Miscellanea</h4>
+
+<p>Note that dplyr and other packages in the tidyverse use a modified form of data frames. In some cases you may want to convert back to a standard data frame using <code>as.data.frame</code>. For example:</p>
+
+<pre><code class="r">as.data.frame(head(questionsOfYouth, 3))
+</code></pre>
+
+<pre><code>##    userid      creationdate.x      lastaccessdate location
+## 1 3809164 2014-07-06 08:20:52 2017-03-11 17:49:25   Serbia
+## 2 3809164 2014-07-06 08:20:52 2017-03-11 17:49:25   Serbia
+## 3 3809164 2014-07-06 08:20:52 2017-03-11 17:49:25   Serbia
+##   reputation displayname upvotes downvotes age accountid
+## 1        129  ArsenArsen      33         2  14   4707583
+## 2        129  ArsenArsen      33         2  14   4707583
+## 3        129  ArsenArsen      33         2  14   4707583
+##   questionid      creationdate.y score viewcount
+## 1   38096075 2016-06-29 09:50:36     0        23
+## 2   38899284 2016-08-11 14:32:39     0        33
+## 3   40051364 2016-10-14 20:18:18     1        37
+##                                                                                      title
+## 1 Iterate over an enum, which saves classes, then init the classes and put them into a map
+## 2                                             Spark Framework puts HTML around my response
+## 3                                       OpenShift Maven does not use the correct JAVA_HOME
+</code></pre>
+
+<p>Note that dplyr and other tidyverse packages use a lot of &quot;non-standard evaluation&rdquo;. In this context of non-standard evaluation, the thing to pay attention to is that the column names are not quoted. This means that one cannot use a variable to stand in for a column. So the following woudn&#39;t work because dplyr would literally look for a variable named &ldquo;colname&rdquo; in the data frame. As of recent versions of dplyr, there is a system called tidyeval for addressing this but I won&#39;t go into it further here.</p>
+
+<pre><code class="r">## this won&#39;t work because of non-standard evaluation! 
+myfun &lt;- function(df, colname) 
+  select(df, colname)
+myfun(questions, &#39;age&#39;)
+</code></pre>
+
+<pre><code>## Error: All select() inputs must resolve to integer column positions.
+## The following do not:
+## *  colname
+</code></pre>
+
+<h3>3.4.2) dplyr with SQL and databases</h3>
+
+<p>To connect to an SQLite or Postgres database we can use <code>src_sqlite</code> and <code>src_postgres</code>:</p>
+
+<pre><code class="r">stackoverflow &lt;- src_sqlite(file.path(&#39;data&#39;, &#39;stackoverflow-2016.db&#39;))
+users &lt;- tbl(stackoverflow, &#39;users&#39;)
+oldFolks &lt;- users %&gt;% filter(age &gt; 75)
+collect(oldFolks)
+</code></pre>
+
+<pre><code>## # A tibble: 481 × 10
+##    userid        creationdate      lastaccessdate
+##     &lt;int&gt;               &lt;chr&gt;               &lt;chr&gt;
+## 1     987 2008-08-11 12:14:17 2017-03-13 18:08:20
+## 2    4668 2008-09-05 04:08:05 2017-03-13 21:19:14
+## 3   17826 2008-09-18 15:12:29 2017-03-13 07:40:39
+## 4   18149 2008-09-18 19:25:22 2017-03-13 19:31:17
+## 5   18625 2008-09-19 07:46:06 2017-03-13 11:16:46
+## 6   25809 2008-10-07 13:02:17 2017-03-13 20:29:46
+## 7   33810 2008-11-03 23:47:11 2017-02-12 17:11:16
+## 8   51090 2009-01-03 03:48:53 2016-11-29 06:24:50
+## 9   60433 2009-01-29 23:32:25 2017-02-23 02:58:10
+## 10  62596 2009-02-04 20:11:52 2017-03-09 22:15:32
+## # ... with 471 more rows, and 7 more variables: location &lt;chr&gt;,
+## #   reputation &lt;int&gt;, displayname &lt;chr&gt;, upvotes &lt;int&gt;,
+## #   downvotes &lt;int&gt;, age &lt;int&gt;, accountid &lt;int&gt;
+</code></pre>
+
+<pre><code class="r">head(oldFolks)
+</code></pre>
+
+<pre><code>## Source:   query [?? x 10]
+## Database: sqlite 3.11.1 [data/stackoverflow-2016.db]
+## 
+##   userid        creationdate      lastaccessdate
+##    &lt;int&gt;               &lt;chr&gt;               &lt;chr&gt;
+## 1    987 2008-08-11 12:14:17 2017-03-13 18:08:20
+## 2   4668 2008-09-05 04:08:05 2017-03-13 21:19:14
+## 3  17826 2008-09-18 15:12:29 2017-03-13 07:40:39
+## 4  18149 2008-09-18 19:25:22 2017-03-13 19:31:17
+## 5  18625 2008-09-19 07:46:06 2017-03-13 11:16:46
+## 6  25809 2008-10-07 13:02:17 2017-03-13 20:29:46
+## # ... with 7 more variables: location &lt;chr&gt;, reputation &lt;int&gt;,
+## #   displayname &lt;chr&gt;, upvotes &lt;int&gt;, downvotes &lt;int&gt;,
+## #   age &lt;int&gt;, accountid &lt;int&gt;
+</code></pre>
+
+<p>The <code>collect</code> statement after the filtering is needed because dplyr uses lazy evaluation when interfacing with databases &ndash; it only does the query and return results when the results are needed.</p>
+
+<h3>3.4.3) dplyr with data.table</h3>
+
+<p>Similarly you can use dplyr with data tables (i.e., from data.table). We&#39;ll take our existing <code>wikiDT</code> data table that we read in using <code>fread</code> and manipulate it using dplyr syntax.</p>
+
+<pre><code class="r">system.time(sub &lt;- wikiDT %&gt;% filter(count==635)) # 0.1 sec.
+</code></pre>
+
+<h2>3.5) Using SQL with R data frames: <code>sqldf</code></h2>
+
+<p>Finally the sqldf package provides the ability to use SQL queries on R data frames (via <code>sqldf</code>) and on-the-fly when reading from CSV files (via <code>read.csv.sql</code>). The latter can help you avoid reading in the entire
+dataset into memory in R if you just need a subset of it.</p>
+
+<p>The basic sequence of operations that happens is that the data frame (if using <code>sqldf</code>) or the file (if using <code>read.csv.sql</code>) is read temporarily into a database and then the requested query is performed on the database, returning the result as a regular R data frame.</p>
+
+<p>The following illustrates usage but the <code>read.csv.sql</code> part of the code won&#39;t work in practice on this particular example input file, because sqldf regards quotes as part of the text and not as delineating fields. The CSVs for the Stack Overflow data all have quotes distinguishing fields because there are commas within some fields. </p>
+
+<pre><code class="r">library(sqldf)
+## sqldf
+users &lt;- read.csv(file.path(&#39;data&#39;,&#39;users-2016.csv&#39;))
+youngUsers &lt;- sqldf(&quot;select * from users where age &lt; 15&quot;)
+
+## read.csv.sql with data read into an in-memory database
+youngUsers &lt;- read.csv.sql(file.path(&#39;data&#39;, &#39;users-2016.csv&#39;),  
+      sql = &quot;select * from file where age &lt; 15&quot;,
+      dbname = NULL, header = TRUE)
+## read.csv.sql with data read into temporary database on disk
+youngUsers &lt;- read.csv.sql(file.path(&#39;data&#39;, &#39;users-2016.csv&#39;),  
+      sql = &quot;select * from file where age &lt; 15&quot;,
+      dbname = tempfile(), header = TRUE)
+</code></pre>
+
+<h2>3.6) Speed comparisons</h2>
+
+<p>There is some benchmarking of some of the R and Python tools discussed in this section <a href="https://github.com/Rdatatable/data.table/wiki/Benchmarks-%3A-Grouping">here</a>.</p>
+
+<h1>4) Manipulating datasets not in memory in R</h1>
+
+<h2>4.1) ff package</h2>
+
+<p>ff stores datasets in columnar format, with one file per column, on disk, so is not limited by memory (with the caveat below). It then provides fast access to the dataset from R.</p>
+
+<p>To create the disk-based ff dataset, you&#39;ll need to first read in the data from its original home. Note the arguments are similar to those for <code>read.table</code> and <code>read.csv</code>. <code>read.table.ffdf</code> reads the data in chunks.</p>
+
+<pre><code class="r">library(ff)
+colClasses &lt;- c(&#39;numeric&#39;,&#39;numeric&#39;,&#39;character&#39;, &#39;character&#39;,&#39;numeric&#39;,&#39;numeric&#39;)
+colClasses[colClasses == &#39;character&#39;] &lt;- &#39;factor&#39;  # &#39;character&#39; not allowed in ff
+## read in Wikistats data
+wikiff &lt;- read.table.ffdf(file = pipe(&quot;gzip -cd data/0000?gz&quot;),
+        colClasses = colClasses, sep = &#39; &#39;)
+</code></pre>
+
+<p>Now, one can save the ff dataset into permanent storage on disk that can be much more quickly loaded than the original reading of the data above.</p>
+
+<pre><code class="r">ffsave(wikiff, file = &#39;wikistats&#39;)
+rm(wikiff)
+</code></pre>
+
+<p>Here&#39;s how one loads the dataset back in.</p>
+
+<pre><code class="r">ffload(&#39;wikistats&#39;)
+</code></pre>
+
+<p>In the above operations, we wrote a copy of the file in the ff binary format that can be read more quickly back into R than the original reading of the CSV using <code>ffsave</code> and <code>ffload</code>. Also note the reduced size of the binary format file compared to the original CSV. It&#39;s good to be aware of where the binary ff file is stored given that for large datasets, it will be large. With ff (I think bigmemory is different in how it handles this) it appears to be stored in <code>/tmp</code> in an R temporary directory. Note that as we work with large files we need to be more aware of the filesystem, making sure in this case that /tmp has enough space. </p>
+
+<p>To use ff effectively, you want to use functions designed to manipulate ff objects; otherwise R will convert the ff dataset into a standard data frame and defeat the purpose as this will put the entire dataset in memory.
+You can look at the ff and ffbase packages to see what functions are available using <code>library(help = ff)</code> and <code>library(help = ffbase)</code>. Notice that there is an <code>merge.ff</code> function for joins. Here we use the ff-specific table function:</p>
+
+<pre><code class="r">table.ff(wikiff$hour)
+</code></pre>
+
+<h4>Miscellanea</h4>
+
+<p>Note that a copy of an ff object appears to be a shallow copy: if you modify the copy it will change the data in the original object.</p>
+
+<p>Note that <code>ff</code> stores factor levels <em>in memory</em>, so if one has many factor levels, that can be a limitation. Furthermore, character columns are not allowed, so one is forced to use factors. Thus with textual data or the like, one can easily run into this limitation. With the Wikistats data, this is a big problem. </p>
+
+<p>Also, I&#39;ve encountered problems when there are more than about 1000 columns because each column is a separate file and there can be limitations in R on how many files it has open at once.</p>
+
+<h2>4.2) LaF package</h2>
+
+<p>The LaF package is designed to quickly read in data from CSV and FWF (fixed-width format) input files, efficiently handling cases where you only want some of the rows or columns. It requires unzipped text files as input, so one can&#39;t unzip input files on the fly via piping.</p>
+
+<pre><code>colClasses &lt;- c(&#39;numeric&#39;,&#39;numeric&#39;,&#39;character&#39;, &#39;character&#39;,&#39;numeric&#39;,&#39;numeric&#39;)
+colNames &lt;- c(&#39;date&#39;, &#39;hour&#39;, &#39;site&#39;, &#39;page&#39;, &#39;count&#39;, &#39;size&#39;)
+## read in Wikistats data
+datLaF &lt;- laf_open_csv(file.path(&#39;data&#39;, &#39;part-0000.txt&#39;), sep = &#39; &#39;,
+       column_types = colClasses, column_names = colNames)  ## returns immediately
+sub &lt;- datLaf[dat$count[] == 635,]
+</code></pre>
+
+<p>If you run this you&#39;ll see that the <code>laf_open_csv</code> took no time, indicating LaF is using lazy evaluation.</p>
+
+<h3>4.3) bigmemory for matrices</h3>
+
+<p><code>bigmemory</code> is similar to ff in providing the ability to load datasets into R without having
+them in memory, but rather stored in clever ways on disk that allow for fast access.
+ bigmemory provides a <code>big.matrix</code> class, so it appears to be
+limited to datasets with a single type for all the variables. However,
+one nice feature is that one can use <code>big.matrix</code> objects with foreach
+(one of R&#39;s parallelization tools) without
+passing a copy of the matrix to each worker. Rather the workers can
+access the matrix stored on disk.</p>
+
+<p>The <code>biglm</code> package provides the ability to fit linear models and GLMs to big datasets, with
+integration with ff and bigmemory.</p>
+
+<h3>4.4) pbdR for manipulating matrices across multiple machines (distributed computing)</h3>
+
+<p><a href="https://rbigdata.github.io/">pbdR</a> provides a suite of packages for doing computations (particularly linear algebra) where the data and the computations are both distributed across multiple machines. More details are available in my <a href="http://statistics.berkeley.edu/computing/training/tutorials">distributed computing tutorial</a></p>
+
+<h1>5) Online (batch) processing of data in R and Python</h1>
+
+<p>When data are too big to fit in memory, one may want to preprocess data in batches, only reading in chunks of data that can fit in memory before doing some computation or writing back out to disk and then reading in the next chunk. When taking this approach, you want to ensure that the code you are using will be able to skip directly to the point in the file where it should read the next chunk of data from (randomly accessing memory) rather than reading all the data up to the point of interest and simply discarding the initial data.</p>
+
+<p>Not surprisingly there is a ton more functionality than shown below (in both Python and R) for reading chunks from files as well as skipping ahead in a file via a file connection or stream. </p>
+
+<h2>5.1) Online processing in R</h2>
+
+<p>In R, various input functions can read in a subset of a file or can skip ahead. In general the critical step is to use a <em>connection</em> rather than directly opening the file, as this will allow one to efficiently read the data in in chunks.</p>
+
+<p>I&#39;ve put these in separate chunks as a reminder that for more accurate time comparisons they should be run in separate R sessions as there are some caching effects (though it&#39;s surprising that closing R has an effect as I would think the file would be cached by the OS regardless).</p>
+
+<p>First we&#39;ll see that skipping ahead when not using a connection is costly &ndash; R needs to read all the earlier rows before getting to the data of interest:</p>
+
+<pre><code class="r">fn &lt;- file.path(&#39;data&#39;, &#39;questions-2016.csv&#39;)
+system.time(dat1 &lt;- read.csv(fn, nrows = 100000, header = TRUE))  # 2.0 sec.
+system.time(dat2 &lt;- read.csv(fn, nrows = 100000, skip = 100001, header = FALSE)) # 2.5 sec.
+system.time(dat3 &lt;- read.csv(fn, nrows = 1, skip = 100001, header = FALSE)) # 0.5 sec.
+system.time(dat4 &lt;- read.csv(fn, nrows = 100000, skip = 1000001, header = FALSE)) # 9.3 sec.
+</code></pre>
+
+<p>If we use a connection, this cost is avoided (although there is still a cost to skipping ahead compared to reading in chunks, picking up where the last chunk left off):</p>
+
+<pre><code class="r">fn &lt;- file.path(&#39;data&#39;, &#39;questions-2016.csv&#39;)
+con &lt;- file(fn, open = &#39;r&#39;)
+system.time(dat1c &lt;- read.csv(con, nrows = 100000, header = TRUE)) # 1.4 sec.
+system.time(dat2c &lt;- read.csv(con, nrows = 100000, header = FALSE)) # 1.4 sec.
+system.time(dat3c &lt;- read.csv(con, nrows = 1, header = FALSE)) # .001 sec.
+system.time(dat5c &lt;- read.csv(con, skip = 100000, nrows = 1, header = FALSE)) # .5 sec
+</code></pre>
+
+<p>You can use <code>gzfile</code>, <code>bzfile</code>, <code>url</code>, and <code>pipe</code> to open connections to zipped files, files on the internet, and inputs processed through UNIX-style piping.  </p>
+
+<p><code>read_csv</code> is much faster and seems to be able to skip ahead efficiently even though it is not using a connection (which surprises me given that with a CSV file you don&#39;t know how big each line is so one would think one needs to process through each line in some fashion).</p>
+
+<pre><code class="r">library(readr)
+fn &lt;- file.path(&#39;data&#39;, &#39;questions-2016.csv&#39;)
+system.time(dat1r &lt;- read_csv(fn, n_max = 100000, col_names = TRUE))   # 0.2 sec.
+system.time(dat2r &lt;- read_csv(fn, n_max = 100000, skip = 100001, col_names = FALSE)) # 0.3 sec
+system.time(dat3r &lt;- read_csv(fn, n_max = 1, skip = 200001, col_names = FALSE)) # 0.1 sec
+system.time(dat4r &lt;- read_csv(fn, n_max = 100000, skip = 1000001, col_names = FALSE)) # 0.6 sec
+</code></pre>
+
+<p>Note that <code>read_csv</code> can handle zipped inputs, but does not handle a standard text file connection. </p>
+
+<h2>5.2) Online processing in Python</h2>
+
+<p>Pandas&#39; <code>read_csv</code> has similar functionality in terms of reading a fixed number of rows and skipping rows, and it can decompress zipped files on the fly. </p>
+
+<pre><code class="python">import pandas as pd
+import timeit
+fn = os.path.join(&#39;data&#39;, &#39;users-2016.csv&#39;)
+
+## here&#39;s the approach I&#39;d recommend, as it&#39;s what &#39;chunksize&#39; is intended for
+start_time = timeit.default_timer()
+chunks = pd.read_csv(fn, chunksize = 100000, header = 0) # 0.003 sec.
+elapsed = timeit.default_timer() - start_time
+elapsed
+type(chunks)
+
+## read first chunk
+start_time = timeit.default_timer()
+dat1c = chunks.get_chunk()  
+elapsed = timeit.default_timer() - start_time
+elapsed  # 0.2 sec.
+
+## read next chunk
+start_time = timeit.default_timer()
+dat2c = chunks.get_chunk()  # 0.25 sec.
+elapsed = timeit.default_timer() - start_time
+elapsed  # 0.2 sec.
+
+## this also works but is less elegant
+start_time = timeit.default_timer()
+dat1 = pd.read_csv(fn, header = 0, nrows = 100000)  
+elapsed = timeit.default_timer() - start_time
+elapsed  # 0.3 sec.
+
+start_time = timeit.default_timer()
+dat2 = pd.read_csv(fn, nrows = 100000, header = None, skiprows=100001)  
+elapsed = timeit.default_timer() - start_time
+elapsed  # 0.3 sec.
+</code></pre>
+
+<h1>6) Appendices</h1>
+
+<h2>6.1) UNIX tools for examining disk access (I/O) and memory use</h2>
+
+<h3>6.1.1) I/O</h3>
+
+<p><code>iotop</code> shows disk input/output in real time on a per-process basis, while iostat shows overall disk use. </p>
+
+<pre><code class="bash">iotop    # shows usage in real time
+iostat 1 # shows usage every second
+</code></pre>
+
+<h3>6.1.2) Memory</h3>
+
+<p>To see how much memory is available, one needs to have a clear understanding of disk caching. As discussed above, the operating system will generally cache files/data in memory when it reads from disk. Then if that information is still in memory the next time it is needed, it will be much faster to access it the second time around. While the cached information is using memory, that same memory is immediately available to other processes, so the memory is available even though it is in use. </p>
+
+<p>We can see this via <code>free -h</code> (the -h is for &#39;human-readable&#39;, i.e. show in GB (G)).</p>
+
+<pre><code>              total        used        free      shared  buff/cache   available
+Mem:           251G        998M        221G        2.6G         29G        247G
+Swap:          7.6G        210M        7.4G
+</code></pre>
+
+<p>You&#39;ll generally be interested in the <code>Memory</code> row. (See below for some comments on <code>Swap</code>.) The <code>shared</code> column is complicated and probably won&#39;t be of use to you. The <code>buff/cache</code> column shows how much space is used for disk caching and related purposes but is actually available. Hence the <code>available</code> column is the sum of the <code>free</code> and <code>buff/cache</code> columns (more or less). In this case only about 1 GB is in use (indicated in the <code>used</code> column). </p>
+
+<p><code>top</code> and <code>vmstat</code> both show overall memory use, but remember that the amount available is the amount free plus any buffer/cache usage. 
+Here is some example output from vmstat:</p>
+
+<pre><code>procs -----------memory---------- ---swap-- -----io---- -system-- ------cpu-----
+ r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st
+ 1  0 215140 231655120 677944 30660296    0    0     1     2    0    0 18  0 82  0  0
+</code></pre>
+
+<p>It shows 232 GB free and 31 GB used for cache and therefore available, for a total of 263 GB available.</p>
+
+<p>Here are some example lines from top:</p>
+
+<pre><code>KiB Mem : 26413715+total, 23180236+free,   999704 used, 31335072 buff/cache
+KiB Swap:  7999484 total,  7784336 free,   215148 used. 25953483+avail Mem 
+</code></pre>
+
+<p>We see that this machine has 264 GB RAM (the total column in the Mem row), with 259.5 GB available (232 GB free plus 31 GB buff/cache as seen in the Mem row). (I realize the numbers don&#39;t quite add up for reasons I don&#39;t fully understand, but we probably don&#39;t need to worry about that degree of exactness.) Only 1 GB is in use.  </p>
+
+<p><code>swap</code> is essentially the reverse of disk caching. It is disk space that is used for memory when the machine runs out of physical memory. You never want your machine to be using swap for memory because your jobs will slow to a crawl. Here the swap line in both free and top shows 8 GB swap space, with very little in use, as desired. </p>
+
+<h2>6.2) Remote access to PostgreSQL databases</h2>
+
+<p>If you want to connect to a Postgres database running on a different machine, here&#39;s one approach that involves SSH port forwarding. First, on your machine, set up the port forwarding where 63333 should be an unused port on your local machine and PostgresHostMachine is the machine on which the database is running.</p>
+
+<pre><code>ssh -L 63333:localhost:5432 yourUserName@PostgresHostMachine
+</code></pre>
+
+<p>Then you can connect by specifying the port on your local machine, with the example here being from R:</p>
+
+<pre><code>db &lt;- dbConnect(drv, dbname = &#39;wikistats&#39;, user = &#39;yourUserName&#39;, 
+   password = &#39;yourPassword&#39;, host = &#39;localhost&#39;, port = 63333)
+</code></pre>
+
+<h2>6.3) SAS</h2>
+
+<p>SAS generally handles large datasets well, storing them on disk and therefore able to handle datasets that won&#39;t fit in memory. Many people have success using SAS for large datasets. </p>
+
+<p>Here&#39;s  a very basic example for reading in the Wikistats data.</p>
+
+<pre><code>filename mydata pipe &quot;gzip -cd data/part-0000?.gz&quot;;
+
+data subfile;
+infile mydata;
+length page $ 150;
+informat date hour site page count size;
+input date hour site $ page $ count size;
+run ;
+</code></pre>
+
+<p>Note when I did this with the full Wikistats data I have available to me (part-00000.gz through part-00395.gz), it created a 164 GB file so storage is less efficient in this case than storing in a database (~70GB), or storing in gzipped format (~12GB). </p>
+
+<p>Here&#39;s a basic query:</p>
+
+<pre><code>data subfile2;
+    set subfile;
+    if  count = 635;
+run;
+</code></pre>
+
+<p>That particular query took 12 minutes, by comparison with 5-6 minutes in SQL without an index and before any disk caching has occurred. </p>
+
+<h1>7) References</h1>
+
+<p>In addition to various material found online, including various software manuals and vignettes, much of the SQL material was based on the following two sources:</p>
+
+<ul>
+<li>The Stanford online <a href="http://cs.stanford.edu/people/widom/DB-mooc.html">Introduction to Databases course</a> (see also the <a href="https://lagunita.stanford.edu/courses/DB/2014/SelfPaced/about">mini-courses version of the course</a>).</li>
+<li>Harrison Dekker&#39;s materials from a <a href="https://github.com/uc-data-services/sql-workshop-2016">Statistics short course</a> he taught in January 2016: </li>
+</ul>
+
+</body>
+
+</html>

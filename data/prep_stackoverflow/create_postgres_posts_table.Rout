@@ -1,0 +1,426 @@
+
+R version 3.4.0 (2017-04-21) -- "You Stupid Darkness"
+Copyright (C) 2017 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> # Read posts.xml and create the questions, questions_tags, answers, and tags tables
+> 
+> library("xml2")
+> library("dplyr")
+
+Attaching package: ‘dplyr’
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+> library("stringr")
+> library("RPostgreSQL")
+Loading required package: DBI
+> 
+> drv <- dbDriver("PostgreSQL")
+> con <- dbConnect(drv, 
++                  dbname = "stackoverflow", 
++                  user = 'paciorek', 
++                  password = 'test')
+> 
+> 
+> iodir = '/scratch/users/paciorek/stackoverflow'
+> inputfile <- "Posts.xml"
+> 
+> dat <- file(description = file.path(iodir, inputfile), open = "r")
+> invisible(readLines(con = dat, n = 2))
+> max_iters <- 5000
+> actual_iter <- 0
+> chunk_size <- 500
+> total_posts <- 0
+> total_questions <- 0
+> last.rowid <- 0
+> while (TRUE) {
++   
++   actual_iter <- actual_iter + 1
++   if (actual_iter %% 1000 == 0) {
++     message("iter ", actual_iter)
++     message("total_posts ", total_posts)
++     message("total_questions ", total_questions)
++   }
++   
++   tmplines <- readLines(con = dat, n = chunk_size, encoding = "UTF-8")
++   
++   if (length(tmplines) == 0) {
++     message("bye!")
++     break
++   } 
++   
++   if (str_detect(tmplines[length(tmplines)], "</posts>")) {
++     message("Yay last chunk!")
++     tmplines <- tmplines[-length(tmplines)]
++   }
++   
++   total_posts <- total_posts + length(tmplines)
++   
++   x <- read_html(paste(tmplines, collapse = ""))
++   
++   rows <- x %>% xml_find_first("body") %>% xml_find_all("row")
++   
++   posttypeids <- x %>%  xml_find_all("body") %>% xml_find_all("row") %>% xml_attr("posttypeid")
++ 
++   # build and save the 'questions' table  
++   qrows <- rows[posttypeids == "1"]
++   
++   total_questions <- total_questions + length(rows)
++   
++   df <- data_frame(questionid = qrows %>% xml_attr("id"),
++                    creationdate = qrows %>% xml_attr("creationdate"),
++                    score = qrows %>% xml_attr("score"),
++                    viewcount = qrows %>% xml_attr("viewcount"),
++                    title = qrows %>% xml_attr("title"),
++                    ownerid = qrows %>% xml_attr("owneruserid"),
++                    tags = qrows %>% xml_attr("tags"))
++ 	df$questionid <- as.numeric(df$questionid)			   
++ 	df$creationdate <- format(df$creationdate, format="%Y-%m-%d %H:%M:%S" )
++ 	df$score <- as.numeric(df$score)
++ 	df$viewcount <- as.numeric(df$viewcount)
++ 	df$ownerid <- as.numeric(df$ownerid)
++ 	
++ 	
++ 	dbWriteTable(conn = con, name = "questions", as.data.frame(df[,c(1:6)]),
++               row.names = FALSE, append = TRUE)
++ 
++ 	# parse the tags out from the questions and save in the questions_tags table  
++   df2 <- df %>% select(questionid, tags) %>% group_by(questionid) %>% do({
++     data_frame(tag = str_split(.$tags, "<|>") %>% unlist() %>% setdiff(c("")))
++   }) %>% ungroup()
++   df2$questionid <- as.numeric(df2$questionid)
++   
++   # create a row id that to use as primary key
++   start <- last.rowid + 1
++   end <- last.rowid + nrow(df2)
++   df2$rowid <- c(start:end)
++   last.rowid <- end
++   
++   # rename the columns
++   names(df2) <- c("questionid", "tag", "rowid")
++   
++   # write the data frame to the db
++   dbWriteTable(conn = con, name = "questions_tags", as.data.frame(df2),
++                row.names = FALSE, append = TRUE)
++   
++ # build the 'answers' table
++   arows <- rows[posttypeids == "2"]
++   
++   df3 <- data_frame(answerid = arows %>% xml_attr("id"),
++                    questionid = arows %>% xml_attr("parentid"),
++                    creationdate = arows %>% xml_attr("creationdate"),
++                    score = arows %>% xml_attr("score"),
++                    ownerid = arows %>% xml_attr("owneruserid"))
++   
++   df3$answerid <- as.numeric(df3$answerid)			   
++   df3$creationdate <- format(df3$creationdate, format="%Y-%m-%d %H:%M:%S" )
++   df3$score <- as.numeric(df3$score)
++   df3$questionid <- as.numeric(df3$questionid)
++   df3$ownerid <- as.numeric(df3$ownerid)
++   
++   dbWriteTable(conn = con, name = "answers", as.data.frame(df3),
++                row.names = FALSE, append = TRUE)
++ }
+iter 1000
+total_posts 499500
+total_questions 499500
+iter 2000
+total_posts 999500
+total_questions 999500
+iter 3000
+total_posts 1499500
+total_questions 1499500
+iter 4000
+total_posts 1999500
+total_questions 1999500
+iter 5000
+total_posts 2499500
+total_questions 2499500
+iter 6000
+total_posts 2999500
+total_questions 2999500
+iter 7000
+total_posts 3499500
+total_questions 3499500
+iter 8000
+total_posts 3999500
+total_questions 3999500
+iter 9000
+total_posts 4499500
+total_questions 4499500
+iter 10000
+total_posts 4999500
+total_questions 4999500
+iter 11000
+total_posts 5499500
+total_questions 5499500
+iter 12000
+total_posts 5999500
+total_questions 5999500
+iter 13000
+total_posts 6499500
+total_questions 6499500
+iter 14000
+total_posts 6999500
+total_questions 6999500
+iter 15000
+total_posts 7499500
+total_questions 7499500
+iter 16000
+total_posts 7999500
+total_questions 7999500
+iter 17000
+total_posts 8499500
+total_questions 8499500
+iter 18000
+total_posts 8999500
+total_questions 8999500
+iter 19000
+total_posts 9499500
+total_questions 9499500
+iter 20000
+total_posts 9999500
+total_questions 9999500
+iter 21000
+total_posts 10499500
+total_questions 10499500
+iter 22000
+total_posts 10999500
+total_questions 10999500
+iter 23000
+total_posts 11499500
+total_questions 11499500
+iter 24000
+total_posts 11999500
+total_questions 11999500
+iter 25000
+total_posts 12499500
+total_questions 12499500
+iter 26000
+total_posts 12999500
+total_questions 12999500
+iter 27000
+total_posts 13499500
+total_questions 13499500
+iter 28000
+total_posts 13999500
+total_questions 13999500
+iter 29000
+total_posts 14499500
+total_questions 14499500
+iter 30000
+total_posts 14999500
+total_questions 14999500
+iter 31000
+total_posts 15499500
+total_questions 15499500
+iter 32000
+total_posts 15999500
+total_questions 15999500
+iter 33000
+total_posts 16499500
+total_questions 16499500
+iter 34000
+total_posts 16999500
+total_questions 16999500
+iter 35000
+total_posts 17499500
+total_questions 17499500
+iter 36000
+total_posts 17999500
+total_questions 17999500
+iter 37000
+total_posts 18499500
+total_questions 18499500
+iter 38000
+total_posts 18999500
+total_questions 18999500
+iter 39000
+total_posts 19499500
+total_questions 19499500
+iter 40000
+total_posts 19999500
+total_questions 19999500
+iter 41000
+total_posts 20499500
+total_questions 20499500
+iter 42000
+total_posts 20999500
+total_questions 20999500
+iter 43000
+total_posts 21499500
+total_questions 21499500
+iter 44000
+total_posts 21999500
+total_questions 21999500
+iter 45000
+total_posts 22499500
+total_questions 22499500
+iter 46000
+total_posts 22999500
+total_questions 22999500
+iter 47000
+total_posts 23499500
+total_questions 23499500
+iter 48000
+total_posts 23999500
+total_questions 23999500
+iter 49000
+total_posts 24499500
+total_questions 24499500
+iter 50000
+total_posts 24999500
+total_questions 24999500
+iter 51000
+total_posts 25499500
+total_questions 25499500
+iter 52000
+total_posts 25999500
+total_questions 25999500
+iter 53000
+total_posts 26499500
+total_questions 26499500
+iter 54000
+total_posts 26999500
+total_questions 26999500
+iter 55000
+total_posts 27499500
+total_questions 27499500
+iter 56000
+total_posts 27999500
+total_questions 27999500
+iter 57000
+total_posts 28499500
+total_questions 28499500
+iter 58000
+total_posts 28999500
+total_questions 28999500
+iter 59000
+total_posts 29499500
+total_questions 29499500
+iter 60000
+total_posts 29999500
+total_questions 29999500
+iter 61000
+total_posts 30499500
+total_questions 30499500
+iter 62000
+total_posts 30999500
+total_questions 30999500
+iter 63000
+total_posts 31499500
+total_questions 31499500
+iter 64000
+total_posts 31999500
+total_questions 31999500
+iter 65000
+total_posts 32499500
+total_questions 32499500
+iter 66000
+total_posts 32999500
+total_questions 32999500
+iter 67000
+total_posts 33499500
+total_questions 33499500
+iter 68000
+total_posts 33999500
+total_questions 33999500
+iter 69000
+total_posts 34499500
+total_questions 34499500
+Yay last chunk!
+bye!
+Warning message:
+In readLines(con = dat, n = chunk_size, encoding = "UTF-8") :
+  incomplete final line found on '/scratch/users/paciorek/stackoverflow/Posts.xml'
+> close(dat)
+> 
+> ### Modify some default data types and add primary key and indices
+> 
+>  # 'questions_tags'
+> dbGetQuery(con, "ALTER TABLE questions_tags ALTER COLUMN questionid TYPE integer;")
+NULL
+> dbGetQuery(con, "ALTER TABLE questions_tags ADD PRIMARY KEY (rowid)")
+NULL
+> dbGetQuery(con, "CREATE INDEX ON questions_tags (questionid)")
+NULL
+> dbGetQuery(con, "CREATE INDEX ON questions_tags (tagid)")
+Error in postgresqlExecStatement(conn, statement, ...) : 
+  RS-DBI driver: (could not Retrieve the result : ERROR:  column "tagid" does not exist
+)
+NULL
+Warning message:
+In postgresqlQuickSQL(conn, statement, ...) :
+  Could not create executeCREATE INDEX ON questions_tags (tagid)
+> 
+> # 'questions'
+> dbGetQuery(con, "ALTER TABLE questions ALTER COLUMN questionid TYPE integer;")
+NULL
+> dbGetQuery(con, "ALTER TABLE questions ALTER COLUMN score TYPE integer;")
+NULL
+> dbGetQuery(con, "ALTER TABLE questions ALTER COLUMN viewcount TYPE integer;")
+NULL
+> dbGetQuery(con, "ALTER TABLE questions ADD PRIMARY KEY (questionid)")
+NULL
+> dbGetQuery(con, "CREATE INDEX ON questions (ownerid)")
+NULL
+> 
+> # 'answers'
+> dbGetQuery(con, "ALTER TABLE answers ALTER COLUMN answerid TYPE integer;")
+NULL
+> dbGetQuery(con, "ALTER TABLE answers ALTER COLUMN questionid TYPE integer;")
+NULL
+> dbGetQuery(con, "ALTER TABLE answers ALTER COLUMN score TYPE integer;")
+NULL
+> dbGetQuery(con, "ALTER TABLE answers ALTER COLUMN ownerid TYPE integer;")
+NULL
+> dbGetQuery(con, "ALTER TABLE answers ADD PRIMARY KEY (answerid)")
+NULL
+> dbGetQuery(con, "CREATE INDEX ON answers (ownerid)")
+NULL
+> dbGetQuery(con, "CREATE INDEX ON answers (questionid)")
+NULL
+> 
+> ### Create the 'tags' table
+>  # grab the tags via a query
+> df4 <- dbGetQuery(con, "select distinct tag 
++                   from questions_tags
++                   order by tag")
+> 
+>  # add an id field
+> df4$tagid <- c(1:nrow(df4))
+> 
+>  # add to the db
+> dbWriteTable(conn = con, name = "tags", as.data.frame(df4),
++              row.names = FALSE, append = TRUE)
+[1] TRUE
+> 
+>  # add a column to hold a tagid
+> dbGetQuery(con, "ALTER TABLE questions_tags ADD COLUMN tagid integer")
+NULL
+> 
+>  # populate the new column with tagids (this is apparently the postgres way to do it)
+> dbGetQuery(con,"UPDATE questions_tags SET tagid = t.tagid
++            FROM tags as t
++            WHERE questions_tags.tag = t.tag")

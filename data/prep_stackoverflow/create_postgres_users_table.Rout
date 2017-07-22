@@ -1,0 +1,149 @@
+
+R version 3.4.0 (2017-04-21) -- "You Stupid Darkness"
+Copyright (C) 2017 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> # Read Users.xml and create the users table
+> 
+> source('connect-pg.R')
+
+Attaching package: ‘dplyr’
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+Loading required package: DBI
+> 
+> iodir = '/scratch/users/paciorek/stackoverflow'
+> inputfile <- "Users.xml"
+> 
+> dat <- file(description = file.path(iodir, inputfile), open = "r")
+> invisible(readLines(con = dat, n = 2))
+> max_iters <- 5000
+> actual_iter <- 0
+> chunk_size <- 500
+> total_posts <- 0
+> while (TRUE) {
++   
++   actual_iter <- actual_iter + 1
++   if (actual_iter %% 1000 == 0) {
++     message("iter ", actual_iter)
++     message("total_posts ", total_posts)
++   }
++   
++   tmplines <- readLines(con = dat, n = chunk_size, encoding = "UTF-8")
++   
++   if (length(tmplines) == 0) {
++     message("bye!")
++     break
++   } 
++   
++   if (str_detect(tmplines[length(tmplines)], "</users>")) {
++     message("Yay last chunk!")
++     tmplines <- tmplines[-length(tmplines)]
++   }
++   
++   total_posts <- total_posts + length(tmplines)
++   
++   x <- read_html(paste(tmplines, collapse = ""))
++   
++   rows <- x %>% xml_find_first("body") %>% xml_find_all("row")
++   
++   df <- data_frame(userid = rows %>% xml_attr("id"),
++                    creationdate = rows %>% xml_attr("creationdate"),
++                    lastaccessdate = rows %>% xml_attr("lastaccessdate"),
++                    location = rows %>% xml_attr("location"),
++                    reputation = rows %>% xml_attr("reputation"),
++                    displayname = rows %>% xml_attr("displayname"),
++                    upvotes = rows %>% xml_attr("upvotes"),
++                    downvotes = rows %>% xml_attr("downvotes"),
++                    age = rows %>% xml_attr("age"),
++                    accountid = rows %>% xml_attr("accountid"))
++ 	
++   df$userid <- as.numeric(df$userid)			   
++   df$reputation <- as.numeric(df$reputation)	
++   df$upvotes <- as.numeric(df$upvotes)
++   df$downvotes <- as.numeric(df$downvotes)
++   df$age <- as.numeric(df$age)
++   df$accountid <- as.numeric(df$accountid)
++   
++   dbWriteTable(conn = con, name = "users", as.data.frame(df),
++               row.names = FALSE, append = TRUE)
++   
++ }
+iter 1000
+total_posts 499500
+iter 2000
+total_posts 999500
+iter 3000
+total_posts 1499500
+iter 4000
+total_posts 1999500
+iter 5000
+total_posts 2499500
+iter 6000
+total_posts 2999500
+iter 7000
+total_posts 3499500
+iter 8000
+total_posts 3999500
+iter 9000
+total_posts 4499500
+iter 10000
+total_posts 4999500
+iter 11000
+total_posts 5499500
+iter 12000
+total_posts 5999500
+iter 13000
+total_posts 6499500
+Yay last chunk!
+bye!
+Warning message:
+In readLines(con = dat, n = chunk_size, encoding = "UTF-8") :
+  incomplete final line found on '/scratch/users/paciorek/stackoverflow/Users.xml'
+> close(dat)
+> 
+> ### Modify some default data types and add primary key
+> dbGetQuery(con, "ALTER TABLE users ALTER COLUMN userid TYPE integer;")
+NULL
+> dbGetQuery(con, "ALTER TABLE users ALTER COLUMN reputation TYPE integer;")
+NULL
+> dbGetQuery(con, "ALTER TABLE users ALTER COLUMN upvotes TYPE integer;")
+NULL
+> dbGetQuery(con, "ALTER TABLE users ALTER COLUMN downvotes TYPE integer;")
+NULL
+> dbGetQuery(con, "ALTER TABLE users ALTER COLUMN age TYPE integer;")
+NULL
+> dbGetQuery(con, "ALTER TABLE users ALTER COLUMN accountid TYPE integer;")
+NULL
+> dbGetQuery(con, "ALTER TABLE users ADD PRIMARY KEY (userid)")
+NULL
+> 
+> 
+> dbDisconnect(con)
+[1] TRUE
+> 
+> 
+> proc.time()
+   user  system elapsed 
+1766.48    3.78 2040.37 
