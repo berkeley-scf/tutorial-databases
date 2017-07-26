@@ -15,12 +15,6 @@ library(DBI)
 SLOWEVAL <- TRUE
 ```
 
-Todo:
- -  post zipped data and update links here
- -  repeat cleaning steps for Wikistats
- -  test docker and BCE
-
-
 # 0) This Tutorial
 
 This tutorial covers tools for manipulating large datasets, including those living in SQL databases or in data frames and related objects in R and Python. The focus is on querying rather than creating and administering databases as the intended audience is for statisticians/data analysis/data scientists who are carrying out analyses. A major emphasis is on how to do queries efficiently and how to use SQL effectively. At the moment, this tutorial is somewhat more focused on R than Python, but the manipulation of databases from R and Python are very similar because the core reliance is on SQL.
@@ -45,10 +39,10 @@ Solutions to the SQL challenges are available on request.
 
 ## Using PostgreSQL on Mac or Windows
 
-To replicate the (non-essential) PostgreSQL administration portion of this tutorial, you'll need access to a machine on which you can run a PostgreSQL server. While there are a variety of ways to do this, this tutorial assumes that you are running PostgreSQL on an Ubuntu Linux machine. If you are a Windows or Mac user, there are several options for accessing a Linux environment:
+To replicate the (non-essential) PostgreSQL administration portion of this tutorial, you'll need access to a machine on which you can run a PostgreSQL server. While there are a variety of ways to do this, this tutorial assumes that you are running PostgreSQL on an Ubuntu (or Debian) Linux machine. If you are a Windows or Mac user, there are several options for accessing a Linux environment:
 
-- You could run Ubuntu in a Docker container; Docker can be installed on Windows or Mac.
-- You use an Ubuntu Linux virtual machine (VM) developed here at Berkeley, the [Berkeley Common Environment (BCE)](http://bce.berkeley.edu). BCE can be run through VirtualBox on your computer. 
+- You could run Ubuntu in a Docker container; Docker can be installed on Windows or Mac. Once you've installed Docker and have access to a terminal command line, please see the commands in `docker.sh` in this repository. 
+- You use an Ubuntu Linux virtual machine (VM) developed here at Berkeley, the [Berkeley Common Environment (BCE)](http://bce.berkeley.edu). BCE can be run through VirtualBox on your computer.  Once you've installed VirtualBox and started a BCE virtual machine and have access to a terminal command line, please see the commands in `bce.sh` in this repository. 
 - You can run an Amazon EC2 instance - either running BCE or by simply starting up an Amazon EC2 instance using a image that supports R and/or Python and then installing PostgreSQL as discussed in this tutorial.
 
 This tutorial by Christopher Paciorek is licensed under a Creative Commons Attribution 3.0 Unported License (CC BY).

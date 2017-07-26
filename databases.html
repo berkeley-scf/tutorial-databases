@@ -210,13 +210,7 @@ hr {
 
 <p>Chris Paciorek, Department of Statistics, UC Berkeley</p>
 
-<p>Todo:</p>
-
-<ul>
-<li> post zipped data and update links here</li>
-<li> repeat cleaning steps for Wikistats</li>
-<li> test docker and BCE</li>
-</ul>
+<p>Last updated: July 2017</p>
 
 <h1>0) This Tutorial</h1>
 
@@ -231,7 +225,7 @@ hr {
 
 <p>Alternatively you can simply download a <a href="https://github.com/berkeley-scf/tutorial-databases/archive/master.zip">zip file</a> containing all the materials.</p>
 
-<p>The example data files are not part of the Github repository. You can get the example data files (Stack Overflow data and Wikipedia webtraffic data) <a href="http://www.stat.berkeley.edu/share/paciorek/tutorial-databases-data.zip">here</a>.</p>
+<p>The example data files are not part of the Github repository. You can get the example data files (both Stack Overflow data and Wikipedia webtraffic data) <a href="http://www.stat.berkeley.edu/share/paciorek/tutorial-databases-data.zip">here</a>.</p>
 
 <p>To create this HTML document, simply compile the corresponding R Markdown file in R as follows on the command line (or execute this R code within R or RStudio):</p>
 
@@ -242,12 +236,12 @@ hr {
 
 <h2>Using PostgreSQL on Mac or Windows</h2>
 
-<p>To replicate the (non-essential) PostgreSQL administration portion of this tutorial, you&#39;ll need access to a machine on which you can run a PostgreSQL server. While there are a variety of ways to do this, this tutorial assumes that you are running PostgreSQL on an Ubuntu Linux machine. If you are a Windows or Mac user, there are several options:</p>
+<p>To replicate the (non-essential) PostgreSQL administration portion of this tutorial, you&#39;ll need access to a machine on which you can run a PostgreSQL server. While there are a variety of ways to do this, this tutorial assumes that you are running PostgreSQL on an Ubuntu (or Debian) Linux machine. If you are a Windows or Mac user, there are several options for accessing a Linux environment:</p>
 
 <ul>
-<li>You could run Ubuntu in a Docker container; Docker can be installed on Windows or Mac.</li>
-<li>You use an Ubuntu Linux virtual machine (VM) developed here at Berkeley, the <a href="http://bce.berkeley.edu">Berkeley Common Environment (BCE)</a>. BCE can be run through VirtualBox on your computer. </li>
-<li>You can run an Amazon EC2 instance - either running BCE or by simply starting up an Amazon EC2 instance using a image that supports R and/or Python and then install PostgreSQL as discussed in this tutorial.</li>
+<li>You could run Ubuntu in a Docker container; Docker can be installed on Windows or Mac. Once you&#39;ve installed Docker and have access to a terminal command line, please see the commands in <code>docker.sh</code> in this repository. </li>
+<li>You use an Ubuntu Linux virtual machine (VM) developed here at Berkeley, the <a href="http://bce.berkeley.edu">Berkeley Common Environment (BCE)</a>. BCE can be run through VirtualBox on your computer.  Once you&#39;ve installed VirtualBox and started a BCE virtual machine and have access to a terminal command line, please see the commands in <code>bce.sh</code> in this repository. </li>
+<li>You can run an Amazon EC2 instance - either running BCE or by simply starting up an Amazon EC2 instance using a image that supports R and/or Python and then installing PostgreSQL as discussed in this tutorial.</li>
 </ul>
 
 <p>This tutorial by Christopher Paciorek is licensed under a Creative Commons Attribution 3.0 Unported License (CC BY).</p>
@@ -258,7 +252,7 @@ hr {
 
 <p>The techniques and tools discussed here are designed for datasets in the range of gigabytes to tens of gigabytes, though they may scale to larger if you have a machine with a lot of memory or simply have enough disk space and are willing to wait. If you have 10s of gigabytes of data, you&#39;ll be better off if your machine has 10s of GBs of memory, as discussed in this tutorial. </p>
 
-<p>If you&#39;re scaling to 100s of GBs, terabytes or petabytes, tools such as Spark may be your best bet, or possibly carefully administered databases. Those topics are beyond the scope of this tutorial. However, this tutorial will be useful if you&#39;re doing SQL queries on Spark datasets or professionally administered databases.</p>
+<p>If you&#39;re scaling to 100s of GBs, terabytes or petabytes, tools such as Spark may be your best bet, or possibly carefully-administered databases. Those topics are beyond the scope of this tutorial. However, this tutorial will be useful if you&#39;re doing SQL queries on Spark datasets or professionally-administered databases.</p>
 
 <h2>1.2) Memory vs. disk</h2>
 
@@ -272,7 +266,7 @@ hr {
 <li> general internet access</li>
 </ul>
 
-<p>For our purposes here the key question is whether the data resides in memory or on disk, but when considering Spark and distributed systems, one gets into moving data across the network between machines. </p>
+<p>For our purposes here the key question is whether the data resides in memory or on disk, but when considering Spark and distributed systems, one gets into issues of moving data across the network between machines. </p>
 
 <p>Formally, databases are stored on disk, while R and Python store datasets in memory. This would suggest that databases will be slow to access their data but will be able to store more data than can be loaded into an R or Python session. However, databases can be quite fast due in part to disk caching by the operating system as well as careful implementation of good algorithms for database operations. For more information about disk caching see Section 2.6.5.</p>
 
@@ -282,17 +276,17 @@ hr {
 
 <h2>2.1) Overview of databases</h2>
 
-<p>Basically, standard SQL databases are a collection of rectangular format datasets (<em>tables</em>, also called <em>relations</em>). Some of these tables have fields in common so it makes sense to merge (i.e., join) information from multiple tables. E.g., you might have a database with a table of student information, a table of teacher information and a table of school information. </p>
+<p>Basically, standard SQL databases are <em>relational</em> databases that are a collection of rectangular format datasets (<em>tables</em>, also called <em>relations</em>), with each table similar to R or Pandas data frames, in that a table is made up of columns, which are called <em>fields</em> or <em>attributes</em>, each containing a single <em>type</em> (numeric, character, date, currency, enumerated (i.e., categorical), &hellip;) and rows or records containing the observations for one entity. Some of these tables generally have fields in common so it makes sense to merge (i.e., join) information from multiple tables. E.g., you might have a database with a table of student information, a table of teacher information and a table of school information.</p>
 
-<p>A relational database stores data as a set of tables (or relations), which are rather similar to R or Pandas data frames, in that a table is made up of columns, which are called <em>fields</em> or <em>attributes</em>, each containing a single <em>type</em> (numeric, character, date, currency, enumerated (i.e., categorical), &hellip;) and rows or records containing the observations for one entity. One principle of databases is that if a set of fields contain duplicated information about a given category, you can more efficiently store information about each level of the category in a separate table; consider information about people living in a state and information about each state - you don&#39;t want to include variables that only vary by state in the table containing information about individuals (at least until you&#39;re doing the actual analysis that needs the information in a single table). Or consider students nested within classes nested within schools.</p>
+<p>One principle of databases is that if a set of fields contain duplicated information about a given category, you can more efficiently store information about each level of the category in a separate table. Consider information about people living in a state and information about each state - you don&#39;t want to include variables that only vary by state in the table containing information about individuals (at least until you&#39;re doing the actual analysis that needs the information in a single table). Or consider students nested within classes nested within schools.</p>
 
 <p>Databases are set up to allow for fast querying and merging (called joins in database terminology). </p>
 
-<p>You can interact with databases in a variety of database systems (DBMS=database management system) (some systems are SQLite, MySQL, PostgreSQL, Oracle, Access). We&#39;ll concentrate on accessing data in a database rather than management of databases. SQL is the Structured Query Language and is a special-purpose high-level language for managing databases and making queries. Variations on SQL are used in many different DBMS.</p>
+<p>You can interact with databases in a variety of database systems (DBMS=database management system). Some popular systems are SQLite, MySQL, PostgreSQL, Oracle and Microsoft Access. We&#39;ll concentrate on accessing data in a database rather than management of databases. SQL is the Structured Query Language and is a special-purpose high-level language for managing databases and making queries. Variations on SQL are used in many different DBMS.</p>
 
 <p>Queries are the way that the user gets information (often simply subsets of tables or information merged across tables). The result of an SQL query is in general another table, though in some cases it might have only one row and/or one column.</p>
 
-<p>Many DBMS have a client-server model. Clients connect to the server, with some authentication, and make requests.</p>
+<p>Many DBMS have a client-server model. Clients connect to the server, with some authentication, and make requests (i.e., queries).</p>
 
 <p>There are often multiple ways to interact with a DBMS, including directly using command line tools provided by the DBMS or via Python or R, among others. </p>
 
@@ -415,12 +409,12 @@ select * from questions where viewcount &gt; 100000
 
 <p>There are a lot of problems with this.</p>
 
-<ul>
+<ol>
 <li>&#39;n&#39; needs to be the maximum number of classes a student might take. If one ambitious student takes many classes, there will be a lot of empty data slots.</li>
 <li>All the information about individual teachers (department, age, etc.) is repeated many times, meaning we use more storage than we need to.</li>
 <li>If we want to look at the data on a per teacher basis, this is very poorly organized for that.</li>
 <li>If one wants to change certain information (such as the age of a teacher) one needs to do it in many locations, which can result in errors and is inefficient. </li>
-</ul>
+</ol>
 
 <p>It would get even worse if there was a field related to teachers for which a given teacher could have multiple values (e.g., teachers could be in multiple departments). This would lead to even more redundancy - each student-class-teacher combination would be crossed with all of the departments for the teacher (so-called multivalued dependency in database theory).</p>
 
@@ -437,7 +431,7 @@ select * from questions where viewcount &gt; 100000
 <li>teacher age</li>
 </ul>
 
-<p>This has some advantages relative to our original organization in terms of not having empty data slots, but it doesn&#39;t solve the other issues above.</p>
+<p>This has some advantages relative to our original organization in terms of not having empty data slots, but it doesn&#39;t solve the other three issues above.</p>
 
 <p>Instead, a natural way to order this database is with the following tables.</p>
 
@@ -482,13 +476,13 @@ select * from questions where viewcount &gt; 100000
 
 <p>A key is a field or collection of fields that give(s) a unique value for every row/observation. A table in a database should then have a primary key that is the main unique identifier used by the DBMS. Foreign keys are columns in one table that give the value of the primary key in another table. When information from multiple tables is joined together, the matching of a row from one table to a row in another table is generally done by equating the primary key in one table with a foreign key in a different table.</p>
 
-<p>In our educational example, the primary keys would presumably be: Student.ID, Teacher.ID, Class.ID, and {ClassAssignment.studentID, ClassAssignment.class_ID}.</p>
+<p>In our educational example, the primary keys would presumably be: Student.ID, Teacher.ID, Class.ID, and for ClassAssignment two fields: {ClassAssignment.studentID, ClassAssignment.class_ID}.</p>
 
 <p>Some examples of foreign keys would be:</p>
 
 <ul>
 <li>student_ID as the foreign key in ClassAssignment for joining with Student on Student.ID</li>
-<li>teacher_ID as foreign key in Class for joining with Teacher based on Teacher.ID</li>
+<li>teacher_ID as the foreign key in Class for joining with Teacher based on Teacher.ID</li>
 <li>class_ID as the foreign key in ClassAssignment for joining with Class based on Class.ID</li>
 </ul>
 
@@ -516,25 +510,25 @@ select * from questions where viewcount &gt; 100000
 
 <h3>2.3.1) Stack Overflow example database</h3>
 
-<p>I&#39;ve obtained data from <a href="https://stackoverflow.com">Stack Overflow</a>, the popular website for asking coding questions, and placed it into a normalized database. The SQLite version (also in CSVs as one CSV per table) has metadata on all of the questions and answers posted in 2016.</p>
+<p>I&#39;ve obtained data from <a href="https://stackoverflow.com">Stack Overflow</a>, the popular website for asking coding questions, and placed it into a normalized database. The SQLite version (also in CSVs as one CSV per table) has metadata (i.e., it lacks the actual text of the questions and answers) on all of the questions and answers posted in 2016.</p>
 
 <p>We&#39;ll explore SQL functionality using this example database. </p>
 
-<p>Now let&#39;s consider Stack Overflow question/answer data. Each question may have multiple answers and each question may have multiple (topic) tags.</p>
+<p>Now let&#39;s consider the Stack Overflow data. Each question may have multiple answers and each question may have multiple (topic) tags.</p>
 
-<p>If we tried to put this into a single table, the fields could look like this if we have one row per questions:</p>
+<p>If we tried to put this into a single table, the fields could look like this if we have one row per question:</p>
 
 <ul>
 <li>question ID</li>
 <li>ID of user submitting question</li>
-<li>question</li>
+<li>question title</li>
 <li>tag 1</li>
 <li>tag 2 </li>
 <li>&hellip;</li>
 <li>tag n</li>
-<li>answer 1</li>
+<li>answer 1 ID</li>
 <li>ID of user submitting answer 1</li>
-<li>answer 2</li>
+<li>answer 2 ID</li>
 <li>ID of user submitting answer 2 </li>
 <li>&hellip;</li>
 </ul>
@@ -544,12 +538,12 @@ select * from questions where viewcount &gt; 100000
 <ul>
 <li>question ID</li>
 <li>ID of user submitting question</li>
-<li>question</li>
+<li>question title</li>
 <li>tag 1</li>
 <li>tag 2</li>
 <li>&hellip;</li>
 <li>tag n</li>
-<li>answer</li>
+<li>answer ID</li>
 <li>ID of user submitting</li>
 </ul>
 
@@ -557,13 +551,15 @@ select * from questions where viewcount &gt; 100000
 
 <p><strong><em>Question</em></strong>: How would you devise a schema to normalize the data. I.e., what set of tables do you think we should create?</p>
 
-<p>Don&#39;t peek until after you&#39;ve thought about it, but you can view one <a href="figures/normalized_example.png">reasonable schema here</a>. The lines between tables indicate the relationship of foreign keys in one table to primary keys in another table. The schema in the actual databases of Stack Overflow data we&#39;ll use in this tutorial are similar to but not identical to that. </p>
+<p>Don&#39;t peek until after you&#39;ve thought about it, but you can view one <a href="figures/normalized_example.png">reasonable schema here</a>. The lines between tables indicate the relationship of foreign keys in one table to primary keys in another table. The schema in the actual databases of Stack Overflow data we&#39;ll use in this tutorial is similar to but not identical to that. </p>
 
 <h4>Getting the database</h4>
 
-<p>You can download a copy of the SQLite version of the Stack Overflow database (only data for the year 2016) from <a href="http://www.stat.berkeley.edu/share/paciorek/tutorial-databases-data.zip">here</a> (or as part of the overall zip with all of the example datasets as discussed in the introduction of this tutorial). In the next section I&#39;ll assume the .db file is placed in the subdirectory of the repository called <code>data</code>.</p>
+<p>You can download a copy of the SQLite version of the Stack Overflow database (only data for the year 2016) from <a href="http://www.stat.berkeley.edu/share/paciorek/tutorial-databases-data.zip">here</a> as part of the overall zip with all of the example datasets as discussed in the introduction of this tutorial. </p>
 
-<p>Note that all of the code used to download the data from the Stack Overflow website and to manipulate it to create a complete Postgres database and SQLite (year 2016 subset) database is in the <code>data/prep_stackoverflow</code> subdirectory of this repository.</p>
+<p>In the next section I&#39;ll assume the .db file is placed in the subdirectory of the repository called <code>data</code>.</p>
+
+<p>Note that all of the code used to download the data from the Stack Overflow website and to manipulate it to create a complete Postgres database and (for the year 2016 only) an SQLite database and CSVs for each table is in the <code>data/prep_stackoverflow</code> subdirectory of this repository.</p>
 
 <h3>2.3.2) Accessing SQL from other languages</h3>
 
@@ -573,7 +569,7 @@ select * from questions where viewcount &gt; 100000
 
 <h4>Using SQL from R</h4>
 
-<p>The <em>DBI</em> package provides a front-end for manipulating databases from a variety of DBMS (SQLite, MySQL, PostgreSQL, among others)
+<p>The <em>DBI</em> package provides a front-end for manipulating databases from a variety of DBMS (SQLite, MySQL, PostgreSQL, among others).
 Basically, you tell the package what DBMS is being used on the back-end, link to the actual database, and then you can use the standard functions in the package regardless of the back-end.</p>
 
 <p>With SQLite, R processes make calls against the stand-alone SQLite database (.db) file, so there are no SQLite-specific processes. With PostgreSQL, R processes call out to separate Postgres processes; these are started from the overall Postgres background process</p>
@@ -648,15 +644,15 @@ identical(results, results2)
 <pre><code>## [1] TRUE
 </code></pre>
 
-<pre><code class="r">dbClearResult(query)
+<pre><code class="r">dbClearResult(query)  # clear to prepare for another query
 </code></pre>
 
-<p>To disconnect:</p>
+<p>To disconnect from the database:</p>
 
 <pre><code class="r">dbDisconnect(db)
 </code></pre>
 
-<p>To access a PostgreSQL database instead (this assumes the database has been created and you have a username and password that allow you to access the particular database.</p>
+<p>To access a PostgreSQL database instead, you can do the following, assuming the database has been created and you have a username and password that allow you to access the particular database.</p>
 
 <pre><code class="r">library(RPostgreSQL)
 drv &lt;- dbDriver(&quot;PostgreSQL&quot;)
@@ -774,14 +770,16 @@ identical(result1, result2)
 
 <h3>2.3.4) Grouping / stratifying</h3>
 
-<p>A common pattern of operation is to stratify the dataset, i.e., collect it into mutually exclusive and exhaustive subsets. One would then generally do some operation on each subset. Here&#39;s a basic example where we count the occurrences of different tags. </p>
+<p>A common pattern of operation is to stratify the dataset, i.e., collect it into mutually exclusive and exhaustive subsets. One would then generally do some operation on each subset. In SQL this is done with the GROUP BY keyword.</p>
+
+<p>Here&#39;s a basic example where we count the occurrences of different tags. </p>
 
 <pre><code>dbGetQuery(db, &quot;select tag, count(*) as n from questions_tags group by tag order by n desc limit 100&quot;)
 </code></pre>
 
 <p><strong><em>Challenge</em></strong>: What specifically does that query do? Describe the table that would be returned.</p>
 
-<p>In general <code>group by</code> statement will involve some aggregation operation on the subsets. Options include: COUNT, MIN, MAX, AVG, SUM.</p>
+<p>In general <code>GROUP BY</code> statements will involve some aggregation operation on the subsets. Options include: COUNT, MIN, MAX, AVG, SUM.</p>
 
 <p><strong><em>Challenge</em></strong>: Write a query that will count the number of answers for each question, returning the most answered questions. </p>
 
@@ -829,7 +827,10 @@ dbGetQuery(db, &quot;create view questionsAugment as select
 <pre><code>## data frame with 0 columns and 0 rows
 </code></pre>
 
-<pre><code class="r">dbGetQuery(db, &quot;select * from questionsAugment where age &lt; 15 limit 5&quot;)
+<pre><code class="r">## don&#39;t be confused by the &quot;data frame with 0 columns and 0 rows&quot; message --
+## it just means that nothing is returned to R; the view _has_ been created
+
+dbGetQuery(db, &quot;select * from questionsAugment where age &lt; 15 limit 5&quot;)
 </code></pre>
 
 <pre><code>##   questionid        creationdate score viewcount
@@ -856,7 +857,7 @@ dbGetQuery(db, &quot;create view questionsAugment as select
 
 <h3>2.3.8) Creating database tables</h3>
 
-<p>One can create tables from within the sqlite and psql command line interfaces (discussed later), but often one would do this from R or Python. Here&#39;s the syntax from R.</p>
+<p>One can create tables from within the <code>sqlite</code> and <code>psql</code> command line interfaces (discussed later), but often one would do this from R or Python. Here&#39;s the syntax from R.</p>
 
 <pre><code>## Option 1: pass directly from CSV to database
 dbWriteTable(conn = db, name = &quot;student&quot;, value = &quot;student.csv&quot;, row.names = FALSE, header = TRUE)
@@ -873,7 +874,7 @@ dbWriteTable(conn = db, name = &quot;student&quot;, value = student, row.names =
 
 <p>We&#39;ve seen a bunch of joins but haven&#39;t discussed the full taxonomy of types of joins. There are various possibilities for how to do a join depending on whether there are rows in one table that do not match any rows in another table.</p>
 
-<p><em>Inner joins</em>: In database terminology an inner join is when the result has a row for each match of a row in one table with the rows in the second table, where the matching is done on the columns you indicate. If a row in one table corresponds to more than one row in another table, you get all of the matching rows in the second table, with the information from the first table duplicated for each of the resulting rows. For example in the Stack Overflow data, an inner join of questions and answers would pair each question with each of the answers to that question. However, questions without any answers or (if this were possible) answers without a corresponding question) would not be part of the result.</p>
+<p><em>Inner joins</em>: In database terminology an inner join is when the result has a row for each match of a row in one table with the rows in the second table, where the matching is done on the columns you indicate. If a row in one table corresponds to more than one row in another table, you get all of the matching rows in the second table, with the information from the first table duplicated for each of the resulting rows. For example in the Stack Overflow data, an inner join of questions and answers would pair each question with each of the answers to that question. However, questions without any answers or (if this were possible) answers without a corresponding question would not be part of the result.</p>
 
 <p><em>Outer joins</em>: Outer joins add additional rows from one table that do not match any rows from the other table as follows. A <em>left outer join</em> gives all the rows from the first table but only those from the second table that match a row in the first table. A <em>right outer join</em> is the converse, while a <em>full outer join</em> includes at least one copy of all rows from both tables. So a left outer join of the Stack Overflow questions and answers tables would, in addition to the matched questions and their answers, include a row for each question without any answers, as would a full outer join. In this case there should be no answers that do not correspond to question, so a right outer join should be the same as an inner join. </p>
 
@@ -919,11 +920,11 @@ dbWriteTable(conn = db, name = &quot;student&quot;, value = student, row.names =
 
 <p>Simply listing two or more tables separated by commas as we saw earlier is the same as a <em>cross join</em>. Alternatively, listing two or more tables separated by commas, followed by conditions that equate rows in one table to rows in another is the same as an <em>inner join</em>. </p>
 
-<p>In general, inner joins can be seen as a form of cross join followed by a condition that enforces matching between the rows of the table. More broadly, here are five equivalent joins:</p>
+<p>In general, inner joins can be seen as a form of cross join followed by a condition that enforces matching between the rows of the table. More broadly, here are five equivalent joins that all perform the equivalent of an inner join:</p>
 
-<pre><code>select * from table1, table2 where table1.id = table2.id  ## without explicit JOIN
+<pre><code>select * from table1 join table2 on table1.id = table2.id ## explicit inner join
+select * from table1, table2 where table1.id = table2.id  ## without explicit JOIN
 select * from table1 cross join table2 where table1.id = table2.id 
-select * from table1 join table2 on table1.id = table2.id
 select * from table1 join table2 using(id)
 select * from table1 natural join table2
 </code></pre>
@@ -959,7 +960,7 @@ select * from table1 natural join table2
 
 <pre><code>dbGetQuery(db, &quot;create view question_contrasts as
                select * from questions Q1 join questions Q2
-               on Q1.ownerid = Q2.ownerid&quot;
+               on Q1.ownerid = Q2.ownerid
                where Q1.creationdate != Q2.creationdate&quot;)
 </code></pre>
 
@@ -987,7 +988,7 @@ select * from table1 natural join table2
 </code></pre>
 
 <pre><code>##    user  system elapsed 
-##   9.500   2.188  29.081
+##  10.228   2.968  45.619
 </code></pre>
 
 <p>Alternatively we can do a self-join. Note that the syntax gets complicated as we are using subqueries (discussed later) that are then joined.</p>
@@ -1006,7 +1007,7 @@ select * from table1 natural join table2
 </code></pre>
 
 <pre><code>##    user  system elapsed 
-##  17.960  15.768  54.447
+##  17.696  14.056  46.578
 </code></pre>
 
 <pre><code class="r">identical(result1, result2)
@@ -1035,13 +1036,10 @@ select * from table1 natural join table2
 <pre><code class="r">dbGetQuery(db, &quot;select * from tags where tag SIMILAR TO &#39;r-%|%-r|r|%-r-%&#39;&quot;)
 </code></pre>
 
-<p>Postgres requires that the pattern to be extracted be surrounded by <code>#&quot;</code> (one could use another character in place of <code>#</code>), but for use from R we need to escape the double-quote with a backslash so it is treated as a part of the string passed to Postgres and not treated by R as indicating where the character string stops/starts. </p>
+<p>To extract substrings we use SUBSTRING. Postgres requires that the pattern to be extracted be surrounded by <code>#&quot;</code> (one could use another character in place of <code>#</code>), but for use from R we need to escape the double-quote with a backslash so it is treated as a part of the string passed to Postgres and not treated by R as indicating where the character string stops/starts. </p>
 
 <pre><code class="r">dbGetQuery(db, &quot;select substring(creationdate from &#39;#\&quot;[[:digit:]]{4}#\&quot;%&#39; for &#39;#&#39;) as year
                from questions limit 3&quot;)
-</code></pre>
-
-<pre><code>## Error in rsqlite_send_query(conn@ptr, statement): near &quot;from&quot;: syntax error
 </code></pre>
 
 <p>The above example also illustrates the use of AS to create a new field based on manipulation of existing fields. AS (but not SUBSTRING) can be used in SQLite as well. Here&#39;s an example:</p>
@@ -1059,17 +1057,15 @@ select * from table1 natural join table2
 
 <h3>2.4.5) Subqueries</h3>
 
-<p>Instead of a join, we can use subqueries as a way to combine information across tables (with the subquery involved in a WHERE statement or in a JOIN. For example, suppose we want to know the average number of UpVotes for users who have posted a question with the tag &ldquo;python&rdquo;.</p>
+<p>Instead of a join, we can use subqueries as a way to combine information across tables, with the subquery involved in a WHERE statement or in a JOIN. For example, suppose we want to know the average number of UpVotes for users who have posted a question with the tag &ldquo;python&rdquo;.</p>
 
 <pre><code class="r">dbGetQuery(db, &quot;select avg(UpVotes) from users where userid in
                (select distinct ownerid from
                questions join questions_tags on questions.questionid = questions_tags.questionid
-               where tag = &#39;python&#39;
-               limit 5)&quot;)        
+               where tag = &#39;python&#39;&quot;)        
 </code></pre>
 
-<pre><code>##   avg(UpVotes)
-## 1           26
+<pre><code>## Error in rsqlite_send_query(conn@ptr, statement): near &quot;&#39;python&#39;&quot;: syntax error
 </code></pre>
 
 <p>In some cases one can do a join rather than using a subquery, but in this example, it fails.</p>
@@ -1118,11 +1114,11 @@ select * from table1 natural join table2
                order by n desc&quot;)
 </code></pre>
 
-<p>Ok, well that&#39;s pretty intimidating to try to just come up with that. A good strategy is probably to think about creating a view that is the result of the inner query and then have the outer query use that. You can then piece together the complicated query in a modular way. For big databases, you are likely to want to submit this as a single query and not two queries so that the SQL optimizer can determine the best way to do the operations. But you want to start with code that will give you the right answer!</p>
+<p>Ok, well that&#39;s pretty intimidating to try to just come up with that. A good strategy is probably to think about creating a view that is the result of the inner query and then have the outer query use that. You can then piece together the complicated query in a modular way. For big databases, you are likely to want to submit this as a single query and not two queries so that the SQL optimizer can determine the best way to do the operations. But you want to start with code that you&#39;re confident will give you the right answer!</p>
 
 <h2>2.5) Database management and command-line operation</h2>
 
-<p>We&#39;ll illustrate some basic database management using a different example dataset. This is some data on webtraffic to Wikipedia pages. Note that the input file used here involved some pre-processing relative to the data you get the directly from the Wikistats dataset available through Amazon Web Services (AWS) because in that dataset, the datetime information is part of the filename.</p>
+<p>We&#39;ll illustrate some basic database management using a different example dataset. This is some data on webtraffic to Wikipedia pages. Note that the input file used here involved some pre-processing relative to the data you get the directly from the Wikistats dataset available through Amazon Web Services (AWS) because in the data posted on AWS, the datetime information is part of the filename.</p>
 
 <h3>2.5.1) SQLite</h3>
 
@@ -1130,12 +1126,12 @@ select * from table1 natural join table2
 
 <p>With SQLite you don&#39;t need to deal with all the permissions and administrative overhead because an SQLite database is simply a file that you can access without a password or connecting to a database server process.</p>
 
-<p>To start the SQLite interpreter in Linux:</p>
+<p>To start the SQLite interpreter in Linux, either operating on or creating a database named <code>wikistats.db</code>:</p>
 
 <pre><code>sqlite3 wikistats.db
 </code></pre>
 
-<p>One can use much the same syntax as with the Postgres psql interpreter to create tables, e.g.,</p>
+<p>Here&#39;s the syntax to create a table:</p>
 
 <pre><code>create table webtraffic
 (date char(8), hour char(6), site varchar, page varchar, count integer, size double precision);
@@ -1151,7 +1147,7 @@ We create a file <code>import.sql</code> that has the configuration for the impo
 .import /dev/stdin webtraffic
 </code></pre>
 
-<p>Then we can iterate through our files from the UNIX shell:</p>
+<p>Then we can iterate through our files from the UNIX shell, piping the output of gzip to the <code>sqlite3</code> interpreter:</p>
 
 <pre><code>for file in $(ls part*gz); do
     echo &quot;copying $file&quot;
@@ -1161,12 +1157,14 @@ done
 
 <h4>Data cleaning</h4>
 
-<p>The problem with importing into SQLite is the presence of double quote (&ldquo;) characters that are not meant to delineate strings but are actually part of a field. In this case probably the easiest thing is simply to strip out those quotes from UNIX. Here we use <code>sed</code> to search and replace.</p>
+<p>The problem in this example with importing into SQLite is the presence of double quote (&ldquo;) characters that are not meant to delineate strings but are actually part of a field. In this case probably the easiest thing is simply to strip out those quotes from UNIX. Here we use <code>sed</code> to search and replace to create versions of the input files that don&#39;t have the quotes.</p>
 
 <pre><code class="bash">for file in $(ls *gz); do
-    gzip -cd $file | sed  &quot;s/\&quot;//g&quot; | gzip -c &gt; ../wikistats-fulllines/$file
+    gzip -cd $file | sed  &quot;s/\&quot;//g&quot; | gzip -c &gt; ../wikistats-cleaned/$file
 done
 </code></pre>
+
+<p>If you want to read the data into SQLite yourself, you <em>will</em> need to do something about the quotes; I haven&#39;t stripped them out of the files.</p>
 
 <h3>2.5.2) PostgreSQL</h3>
 
@@ -1185,7 +1183,7 @@ done
 psql  # start postgres interpreter
 </code></pre>
 
-<p>Now from within the Postgres interpreter, you can create a database, tables within the database, and authenticate users to do things with those tables. You need to connect to a specific database to operate on it. </p>
+<p>Now from within the Postgres interpreter, you can create a database, tables within the database, and authenticate users to do things with those tables. </p>
 
 <p>In this case we&#39;ll be explicit about where on the disk filesystem the database is stored, but you probably only need to worry about this if you are creating a large database. </p>
 
@@ -1196,7 +1194,9 @@ create user paciorek with password &#39;test&#39;;
 grant all privileges on database wikistats to paciorek;
 </code></pre>
 
-<p>SQL allows various kinds of control over permissions to access and modify databases and tables as well. </p>
+<p>SQL allows various kinds of control over permissions to access and modify databases and tables as well.</p>
+
+<p>Now let&#39;s create a table in the database, after first connecting to the specific database so as to operate on it. </p>
 
 <pre><code>\connect wikistats
 create table webtraffic (date char(8), hour char(6), site varchar, page varchar,
@@ -1220,23 +1220,19 @@ copy webtraffic from &#39;part-00000&#39; delimiter &#39; &#39;;
 <pre><code>copy webtraffic from &#39;part-00000&#39; csv;
 </code></pre>
 
-<p>To actually handle the Wikistats input files, we need to deal with backslash characters occurring at the end of text for a given column in some rows. Ordinarily in standard Postgres &#39;text&#39; format (different from Postgres &#39;csv&#39; format), a backslash is used to &#39;quote&#39; characters that would usually be treated as row or column delimiters (i.e., preceding such a character by a backslash means it is treated as a character that is part of the field). But we just want the backslash treated as a character itself. So we need to tell Postgres not to treat a backslash as the quoting character. To do that we specify the <code>quote</code> character. However, the quote keyword is only provided when importing &#39;csv&#39; format.</p>
-
-<p>In &#39;csv&#39; format the double-quote character is by default treated as delineating the beginning and end of text in a field, but the Wikistats files have double-quotes as part of the fields. So we need to set the quote character as neither a double-quote nor a backslash. The following syntax does that by specifying that the quote character is a character (\b) that never actually appears in the file. The &#39;e&#39; part is so that Postgres treats \b as a single character, i.e., &#39;escaping&#39; the backslash, and the &#39;csv&#39; is because the quote keyword only works with the csv format, but note that by setting the delimiter to a space, it&#39;s not really a CSV file! </p>
+<p>To actually handle the Wikistats input files, we need to deal with backslash characters occurring at the end of text for a given column in some rows. Ordinarily in standard Postgres &#39;text&#39; format (different from Postgres &#39;csv&#39; format), a backslash is used to &#39;quote&#39; characters that would usually be treated as row or column delimiters (i.e., preceding such a character by a backslash means it is treated as a character that is part of the field). But we just want the backslash treated as a character itself. So we need to tell Postgres not to treat a backslash as the quoting character. To do that we specify the <code>quote</code> character. However, the quote keyword is only provided when importing &#39;csv&#39; format. In &#39;csv&#39; format the double-quote character is by default treated as delineating the beginning and end of text in a field, but the Wikistats files have double-quotes as part of the fields. So we need to set the quote character as neither a double-quote nor a backslash. The following syntax does that by specifying that the quote character is a character (\b) that never actually appears in the file. The &#39;e&#39; part is so that Postgres treats \b as a single character, i.e., &#39;escaping&#39; the backslash, and the &#39;csv&#39; is because the quote keyword only works with the csv format, but note that by setting the delimiter to a space, it&#39;s not really a CSV file! </p>
 
 <pre><code>copy webtraffic from &#39;part-00000&#39; delimiter &#39; &#39; quote e&#39;\b&#39; csv;
 </code></pre>
 
-<p>Often you&#39;ll need to load data from a large number of possibly zipped text files. </p>
-
-<p>As an example of how you would load data in a case like that, here&#39;s some shell scripting that will iterate through multiple (gzipped) input files of Wikistats data, running as the regular user:</p>
+<p>Often you&#39;ll need to load data from a large number of possibly zipped text files. As an example of how you would load data in a case like that, here&#39;s some shell scripting that will iterate through multiple (gzipped) input files of Wikistats data, running as the regular user:</p>
 
 <pre><code>export PGPASSWORD=test  # set password via UNIX environment variable
 for file in $(ls part*gz); do  # loop thru files whose names start with &#39;part&#39; and end with &#39;gz&#39;
-    echo &quot;copying $file&quot;
-    ## unzip and then pass by UNIX pipe to psql run in non-interactive mode
-    gzip -cd $file |
-      psql -d wikistats -h localhost -U paciorek -p 5432 -c &quot;\copy webtraffic from stdin delimiter &#39; &#39; quote e&#39;\b&#39; csv&quot;
+  echo &quot;copying $file&quot;
+  ## unzip and then pass by UNIX pipe to psql run in non-interactive mode
+  gzip -cd $file |
+    psql -d wikistats -h localhost -U paciorek -p 5432 -c &quot;\copy webtraffic from stdin delimiter &#39; &#39; quote e&#39;\b&#39; csv&quot;
 done
 </code></pre>
 
@@ -1254,6 +1250,8 @@ done
     gzip -cd $file | grep &quot;^.* .* .* .* .* .*$&quot; | gzip -c &gt; ../wikistats-fulllines/$file
 done
 </code></pre>
+
+<p>Note that this restriction to rows with a full set of fields has already been done in the data files I provide to you.</p>
 
 <h3>2.5.3) Database administration and configuration miscellanea</h3>
 
@@ -1293,7 +1291,7 @@ dbGetQuery(db, &quot;select * from pg_settings where name=&#39;dynamic_shared_me
 
 <h3>2.6.2) SQL query plans and EXPLAIN</h3>
 
-<p>You can actually examine the query plan that the system is going to use for a query:</p>
+<p>You can actually examine the query plan that the system is going to use for a query using the EXPLAIN keyword:</p>
 
 <pre><code>dbGetQuery(db, &quot;explain select * from questions join questions_tags on
                questions.questionid = questions_tags.questionid where tag like &#39;python&#39;&quot;)
@@ -1311,7 +1309,7 @@ dbGetQuery(db, &quot;select * from pg_settings where name=&#39;dynamic_shared_me
 
 <h3>2.6.4) How indexes work</h3>
 
-<p>Indexes are often implemented using tree-based methods. For example in Postgres, b-tree indexes are used for indexes on things that have an ordering. Trees are basically like decision trees - at each node in the tree, there is a condition that sends one down the left or right branch. Eventually, one reaches the leaves of the tree, which have the actual values that one is looking for. Associated with each value is the address of where that row of data is stored. With tree-based index, the time cost of b-tree lookup is logarithmic (based on the binary lookup), so it does grow with the number of elements in the table, but it does so slowly. The lookup process is that given a value (which would often be referred to as a <code>key</code>), one walks down the tree based on comparing the value to the condition at each split in the tree until one finds the elements corresponding to the value and then getting the addresses for where the desired rows are stored. </p>
+<p>Indexes are often implemented using tree-based methods. For example in Postgres, b-tree indexes are used for indexes on things that have an ordering. Trees are basically like decision trees - at each node in the tree, there is a condition that sends one down the left or right branch. Eventually, one reaches the leaves of the tree, which have the actual values that one is looking for. Associated with each value is the address of where that row of data is stored. With a tree-based index, the time cost of b-tree lookup is logarithmic (based on the binary lookup), so it does grow with the number of elements in the table, but it does so slowly. The lookup process is that given a value (which would often be referred to as a <code>key</code>), one walks down the tree based on comparing the value to the condition at each split in the tree until one finds the elements corresponding to the value and then getting the addresses for where the desired rows are stored. </p>
 
 <p>Here&#39;s some information on how such trees are constructed and searched: <a href="http://use-the-index-luke.com/sql/anatomy/the-tree">http://use-the-index-luke.com/sql/anatomy/the-tree</a></p>
 
@@ -1323,7 +1321,7 @@ dbGetQuery(db, &quot;select * from pg_settings where name=&#39;dynamic_shared_me
 
 <p>You might think that database queries will generally be slow (and slower than in-memory manipulation such as in R or Python when all the data can fit in memory) because the database stores the data on disk. However, as mentioned earlier the operating system will generally cache files/data in memory when it reads from disk. Then if that information is still in memory the next time it is needed, it will be much faster to access it the second time around. Other processes might need memory and &#39;invalidate&#39; the cache, but often once the data is read once, the database will be able to do queries quite quickly. This also means that even if you&#39;re using a database, you can benefit from a machine with a lot of memory if you have a large database (ideally a machine with rather more RAM than the size of the table(s) you&#39;ll be accessing). </p>
 
-<p>Given this, it generally won&#39;t be helpful to force your database to reside in memory (e.g., using :memory: for SQLite or putting the database on a RAM disk). </p>
+<p>Given this, it generally won&#39;t be helpful to force your database to reside in memory (e.g., using <code>:memory:</code> for SQLite or putting the database on a RAM disk). </p>
 
 <h3>2.6.6) Parallelization and partitioning</h3>
 
@@ -1342,13 +1340,13 @@ dbGetQuery(db, &quot;select * from pg_settings where name=&#39;dynamic_shared_me
 
 <p>Note that what is referred to as split-apply-combine functionality in dplyr in R and in pandas in Python is the same concept as the use of SQL&#39;s GROUP BY combined with aggregation operations such as MIN, MAX, AVG, COUNT.</p>
 
-<p>You can obtain CSV files for the 2016 Stack Overflow <a href="">here (FIXME &ndash; create single zipped file)</a>.</p>
+<p>The CSV files for the 2016 Stack Overflow data used in the examples below can be obtained <a href="http://www.stat.berkeley.edu/share/paciorek/tutorial-databases-data.zip">here</a>.</p>
 
 <h2>3.1) Data frames in R</h2>
 
 <p>A data frame in R is essentially the same as a table in SQL. The notion of a data frame has been essential to the success of R and its existence inspired Python&#39;s Pandas package.</p>
 
-<p>R&#39;s data frames are stored in memory, but there are now packages (such as dplyr with an SQL backend, SparkR and h2o) that allow you to treat an external data source as if it were an actual R data frame, using familiar syntax to operate on the data frame.</p>
+<p>R&#39;s data frames are stored in memory, but there are now packages (such as dplyr with an SQL backend, <code>SparkR</code> and <code>h2o</code>) that allow you to treat an external data source as if it were an actual R data frame, using familiar syntax to operate on the data frame.</p>
 
 <p>This tutorial assumes you&#39;re familiar with basic data frame functionality in R or Python, so I won&#39;t go into more details here.</p>
 
