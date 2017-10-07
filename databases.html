@@ -210,7 +210,7 @@ hr {
 
 <p>Chris Paciorek, Department of Statistics, UC Berkeley</p>
 
-<p>Last updated: July 2017</p>
+<p>Last updated: October 2017</p>
 
 <h1>0) This Tutorial</h1>
 
@@ -544,14 +544,14 @@ select * from questions where viewcount &gt; 100000
 <li>&hellip;</li>
 <li>tag n</li>
 <li>answer ID</li>
-<li>ID of user submitting</li>
+<li>ID of user submitting answer</li>
 </ul>
 
 <p>As we&#39;ve discussed neither of those schema is particularly desirable. </p>
 
 <p><strong><em>Question</em></strong>: How would you devise a schema to normalize the data. I.e., what set of tables do you think we should create?</p>
 
-<p>Don&#39;t peek until after you&#39;ve thought about it, but you can view one <a href="figures/normalized_example.png">reasonable schema here</a>. The lines between tables indicate the relationship of foreign keys in one table to primary keys in another table. The schema in the actual databases of Stack Overflow data we&#39;ll use in this tutorial is similar to but not identical to that. </p>
+<p>Don&#39;t peek until after you&#39;ve thought about it, but you can view one <a href="normalized_example.png">reasonable schema here</a>. The lines between tables indicate the relationship of foreign keys in one table to primary keys in another table. The schema in the actual databases of Stack Overflow data we&#39;ll use in this tutorial is similar to but not identical to that. </p>
 
 <h4>Getting the database</h4>
 
@@ -988,7 +988,7 @@ select * from table1 natural join table2
 </code></pre>
 
 <pre><code>##    user  system elapsed 
-##  10.228   2.968  45.619
+##  10.436   2.724  37.335
 </code></pre>
 
 <p>Alternatively we can do a self-join. Note that the syntax gets complicated as we are using subqueries (discussed later) that are then joined.</p>
@@ -1007,7 +1007,7 @@ select * from table1 natural join table2
 </code></pre>
 
 <pre><code>##    user  system elapsed 
-##  17.696  14.056  46.578
+##  18.616  15.080  58.982
 </code></pre>
 
 <pre><code class="r">identical(result1, result2)
@@ -1478,7 +1478,7 @@ identical(result, result3)
 head(medianVotes)
 </code></pre>
 
-<pre><code>## # A tibble: 6 × 3
+<pre><code>## # A tibble: 6 x 3
 ##     age median_upvotes median_downvotes
 ##   &lt;int&gt;          &lt;dbl&gt;            &lt;dbl&gt;
 ## 1    13           11.0                0
@@ -1503,7 +1503,7 @@ questionsOfYouth &lt;- users %&gt;% filter(age &lt; 15) %&gt;%
 head(questionsOfYouth)
 </code></pre>
 
-<pre><code>## # A tibble: 6 × 15
+<pre><code>## # A tibble: 6 x 15
 ##    userid      creationdate.x      lastaccessdate    location
 ##     &lt;int&gt;              &lt;dttm&gt;              &lt;dttm&gt;       &lt;chr&gt;
 ## 1 3809164 2014-07-06 08:20:52 2017-03-11 17:49:25      Serbia
@@ -1558,9 +1558,7 @@ myfun &lt;- function(df, colname)
 myfun(questions, &#39;age&#39;)
 </code></pre>
 
-<pre><code>## Error: All select() inputs must resolve to integer column positions.
-## The following do not:
-## *  colname
+<pre><code>## Error: Strings must match column names. Unknown columns: age
 </code></pre>
 
 <h3>3.4.2) dplyr with SQL and databases</h3>
@@ -1573,18 +1571,18 @@ oldFolks &lt;- users %&gt;% filter(age &gt; 75)
 collect(oldFolks)
 </code></pre>
 
-<pre><code>## # A tibble: 481 × 10
+<pre><code>## # A tibble: 481 x 10
 ##    userid        creationdate      lastaccessdate
 ##     &lt;int&gt;               &lt;chr&gt;               &lt;chr&gt;
-## 1     987 2008-08-11 12:14:17 2017-03-13 18:08:20
-## 2    4668 2008-09-05 04:08:05 2017-03-13 21:19:14
-## 3   17826 2008-09-18 15:12:29 2017-03-13 07:40:39
-## 4   18149 2008-09-18 19:25:22 2017-03-13 19:31:17
-## 5   18625 2008-09-19 07:46:06 2017-03-13 11:16:46
-## 6   25809 2008-10-07 13:02:17 2017-03-13 20:29:46
-## 7   33810 2008-11-03 23:47:11 2017-02-12 17:11:16
-## 8   51090 2009-01-03 03:48:53 2016-11-29 06:24:50
-## 9   60433 2009-01-29 23:32:25 2017-02-23 02:58:10
+##  1    987 2008-08-11 12:14:17 2017-03-13 18:08:20
+##  2   4668 2008-09-05 04:08:05 2017-03-13 21:19:14
+##  3  17826 2008-09-18 15:12:29 2017-03-13 07:40:39
+##  4  18149 2008-09-18 19:25:22 2017-03-13 19:31:17
+##  5  18625 2008-09-19 07:46:06 2017-03-13 11:16:46
+##  6  25809 2008-10-07 13:02:17 2017-03-13 20:29:46
+##  7  33810 2008-11-03 23:47:11 2017-02-12 17:11:16
+##  8  51090 2009-01-03 03:48:53 2016-11-29 06:24:50
+##  9  60433 2009-01-29 23:32:25 2017-02-23 02:58:10
 ## 10  62596 2009-02-04 20:11:52 2017-03-09 22:15:32
 ## # ... with 471 more rows, and 7 more variables: location &lt;chr&gt;,
 ## #   reputation &lt;int&gt;, displayname &lt;chr&gt;, upvotes &lt;int&gt;,
@@ -1594,9 +1592,9 @@ collect(oldFolks)
 <pre><code class="r">head(oldFolks)
 </code></pre>
 
-<pre><code>## Source:   query [?? x 10]
-## Database: sqlite 3.11.1 [data/stackoverflow-2016.db]
-## 
+<pre><code>## # Source:   lazy query [?? x 10]
+## # Database: sqlite 3.11.1
+## #   [/accounts/gen/vis/paciorek/staff/tutorials/tutorial-databases/data/stackoverflow-2016.db]
 ##   userid        creationdate      lastaccessdate
 ##    &lt;int&gt;               &lt;chr&gt;               &lt;chr&gt;
 ## 1    987 2008-08-11 12:14:17 2017-03-13 18:08:20

@@ -5,7 +5,7 @@ Querying and manipulating databases and datasets in R and Python
 
 Chris Paciorek, Department of Statistics, UC Berkeley
 
-Last updated: July 2017
+Last updated: October 2017
 
 ```{r setup, include=FALSE}
 options(replace.assign=TRUE, width=65)
@@ -309,13 +309,13 @@ or like this if we have one row per question-answer pair:
  - ...
  - tag n
  - answer ID
- - ID of user submitting
+ - ID of user submitting answer
 
 As we've discussed neither of those schema is particularly desirable. 
 
 ***Question***: How would you devise a schema to normalize the data. I.e., what set of tables do you think we should create?
 
-Don't peek until after you've thought about it, but you can view one [reasonable schema here](figures/normalized_example.png). The lines between tables indicate the relationship of foreign keys in one table to primary keys in another table. The schema in the actual databases of Stack Overflow data we'll use in this tutorial is similar to but not identical to that. 
+Don't peek until after you've thought about it, but you can view one [reasonable schema here](normalized_example.png). The lines between tables indicate the relationship of foreign keys in one table to primary keys in another table. The schema in the actual databases of Stack Overflow data we'll use in this tutorial is similar to but not identical to that. 
 
 
 #### Getting the database
