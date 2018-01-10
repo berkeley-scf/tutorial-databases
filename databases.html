@@ -988,7 +988,7 @@ select * from table1 natural join table2
 </code></pre>
 
 <pre><code>##    user  system elapsed 
-##  10.436   2.724  37.335
+##  11.991   2.567  26.564
 </code></pre>
 
 <p>Alternatively we can do a self-join. Note that the syntax gets complicated as we are using subqueries (discussed later) that are then joined.</p>
@@ -1007,7 +1007,7 @@ select * from table1 natural join table2
 </code></pre>
 
 <pre><code>##    user  system elapsed 
-##  18.616  15.080  58.982
+##  21.528  19.404  52.588
 </code></pre>
 
 <pre><code class="r">identical(result1, result2)
@@ -1853,8 +1853,12 @@ KiB Swap:  7999484 total,  7784336 free,   215148 used. 25953483+avail Mem
 
 <p>If you want to connect to a Postgres database running on a different machine, here&#39;s one approach that involves SSH port forwarding. First, on your machine, set up the port forwarding where 63333 should be an unused port on your local machine and PostgresHostMachine is the machine on which the database is running.</p>
 
+<p>For Linux/Mac, from the terminal:</p>
+
 <pre><code>ssh -L 63333:localhost:5432 yourUserName@PostgresHostMachine
 </code></pre>
+
+<p>Using Putty on Windows, go to &#39;Connection -&gt; SSH -&gt; Tunnels&#39; and put &#39;63333&#39; as the &#39;Source port&#39; and &#39;127.0.0.1:5432&#39; as the &#39;Destination&#39;. Click &#39;Add&#39; and then connect to the machine via Putty.</p>
 
 <p>Then you can connect by specifying the port on your local machine, with the example here being from R:</p>
 

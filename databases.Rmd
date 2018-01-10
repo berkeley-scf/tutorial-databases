@@ -1465,9 +1465,14 @@ We see that this machine has 264 GB RAM (the total column in the Mem row), with 
 ## 6.2) Remote access to PostgreSQL databases
 
 If you want to connect to a Postgres database running on a different machine, here's one approach that involves SSH port forwarding. First, on your machine, set up the port forwarding where 63333 should be an unused port on your local machine and PostgresHostMachine is the machine on which the database is running.
+
+For Linux/Mac, from the terminal:
+
 ```
 ssh -L 63333:localhost:5432 yourUserName@PostgresHostMachine
 ```
+
+Using Putty on Windows, go to 'Connection -> SSH -> Tunnels' and put '63333' as the 'Source port' and '127.0.0.1:5432' as the 'Destination'. Click 'Add' and then connect to the machine via Putty.
 
 Then you can connect by specifying the port on your local machine, with the example here being from R:
 ```

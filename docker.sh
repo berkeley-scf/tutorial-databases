@@ -9,12 +9,17 @@
 ## If you follow the steps below you will be in a a Docker container in which you can create a PostgreSQL database, add data to the database and then access it from R, we do in the tutorial. 
 
 
-## Run a container with R already installed, starting a bash shell terminal session in the container.
-docker run --rm -ti  rocker/r-base /bin/bash
+## Run a container with R already installed, starting a bash shell terminal session in the container. Also forward port 5432 on the container to local port 63333 for later use.
+docker run --rm -p 63333:5432 -ti  rocker/r-base /bin/bash
 
 ## install Postgres and SSH/SCP (the latter for copying files into the container)
 apt-get install postgresql postgresql-contrib libpq-dev
 apt-get install openssh-client
+
+## If you want to be able to connect to postgres from outside the container, do these steps:
+PG_VER=10  # modify as needed
+echo -e "host\tall\t\tall\t\t0.0.0.0/0\t\tmd5" >> /etc/postgresql/PG_VER/main/pg_hba.conf
+sed -i "s/#listen_addresses = 'localhost'/listen_addresses = '*'/" /etc/postgresql/PG_VER/main/postgresql.conf
 
 ## start the postgres server process
 /etc/init.d/postgresql start
@@ -27,11 +32,11 @@ scp paciorek@smeagol.berkeley.edu:~/share/tutorial-databases-data.zip /data/.
 su - postgres
 psql
 
-## now run commands shown in databases.html to create a database and tables and put data in the tables
+## now run commands shown in databases.html to create a database and tables and put data in the tables, but as we'll be acting as the 'docker' user below, make sure to create a 'docker' postgres user.
 
 exit
 
-## now one can setup R to use Postgres
+## Connecting to the database from within the container:
 Rscript -e "install.packages('RPostgreSQL')"
 
 ## Now switch to a non-root user (to mimic how you would usually be operating) and then run R
@@ -39,3 +44,9 @@ sudo su - docker
 R
 ## now connect to database via R (or Python if you have a container with Python installed) as seen in databases.html
 
+
+## Connecting to the database from outside the container:
+## from within R, connect as:
+drv <- dbDriver("PostgreSQL")
+db <- dbConnect(drv, dbname = 'wikistats', user = 'docker',
+                password = 'test', port = 63333, host = 'localhost')
