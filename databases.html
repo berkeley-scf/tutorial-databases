@@ -988,10 +988,10 @@ select * from table1 natural join table2
 </code></pre>
 
 <pre><code>##    user  system elapsed 
-##  11.991   2.567  26.564
+##  11.239   2.773  26.674
 </code></pre>
 
-<p>Alternatively we can do a self-join. Note that the syntax gets complicated as we are using subqueries (discussed later) that are then joined.</p>
+<p>Alternatively we can do a self-join. Note that the syntax gets complicated as we are doing multiple joins.</p>
 
 <pre><code class="r">system.time(
         result2 &lt;- dbGetQuery(db, &quot;select displayname, userid from
@@ -1007,7 +1007,7 @@ select * from table1 natural join table2
 </code></pre>
 
 <pre><code>##    user  system elapsed 
-##  21.528  19.404  52.588
+##  20.540  18.326  51.288
 </code></pre>
 
 <pre><code class="r">identical(result1, result2)
@@ -1057,15 +1057,20 @@ select * from table1 natural join table2
 
 <h3>2.4.5) Subqueries</h3>
 
-<p>Instead of a join, we can use subqueries as a way to combine information across tables, with the subquery involved in a WHERE statement or in a JOIN. For example, suppose we want to know the average number of UpVotes for users who have posted a question with the tag &ldquo;python&rdquo;.</p>
+<h4>Subqueries in the WHERE statement</h4>
+
+<p>Instead of a join, we can use subqueries as a way to combine information across tables, with the subquery involved in a WHERE statement. The subquery creates a set and we then can check for inclusion in (or exclusion from with <code>not in</code>) that set.</p>
+
+<p>For example, suppose we want to know the average number of UpVotes for users who have posted a question with the tag &ldquo;python&rdquo;.</p>
 
 <pre><code class="r">dbGetQuery(db, &quot;select avg(UpVotes) from users where userid in
                (select distinct ownerid from
                questions join questions_tags on questions.questionid = questions_tags.questionid
-               where tag = &#39;python&#39;&quot;)        
+               where tag = &#39;python&#39;)&quot;)       
 </code></pre>
 
-<pre><code>## Error in rsqlite_send_query(conn@ptr, statement): near &quot;&#39;python&#39;&quot;: syntax error
+<pre><code>##   avg(UpVotes)
+## 1      70.7917
 </code></pre>
 
 <p>In some cases one can do a join rather than using a subquery, but in this example, it fails.</p>
@@ -1090,14 +1095,18 @@ select * from table1 natural join table2
 
 <p><strong><em>Challenge</em></strong>: Write a query that, for each question, will find the answer to that question written by the user with the highest reputation.</p>
 
-<p>We can use subqueries in the FROM clause to create a temporary table to use in a query. Here we&#39;ll create a new column and then filter based on that new column:</p>
+<h4>Subqueries in the FROM statement</h4>
 
-<pre><code>dbGetQuery(db, &quot;select * from
-               (select *, answercount + commentcount + favoritecount as reactioncount from answers)
-               where reactioncount &gt; 500&quot;)
+<p>We can use subqueries in the FROM statement to create a temporary table to use in a query. Here we&#39;ll do it in the context of a join. What does the following do?</p>
+
+<pre><code>dbGetQuery(db, &quot;select * from questions Q join questions_tags T on
+               Q.questionid = T.questionid join
+               (select max(viewcount) as maxview, tag from questions Q2
+               join questions_tags T2 on Q2.questionid = T2.questionid
+               group by tag) M on M.tag = T.tag
+               where viewcount &gt;= maxview
+               order by viewcount desc limit 10&quot;)
 </code></pre>
-
-<p>(But note in the case above (at least in SQLite), we could also have created &#39;reactioncount&#39; in the initial SELECT clause.</p>
 
 <p>Finally one can use subqueries in the SELECT clause to create new variables, but we won&#39;t go into that here.</p>
 

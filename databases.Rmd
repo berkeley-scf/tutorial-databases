@@ -660,7 +660,7 @@ system.time(
                )
 ```
 
-Alternatively we can do a self-join. Note that the syntax gets complicated as we are using subqueries (discussed later) that are then joined.
+Alternatively we can do a self-join. Note that the syntax gets complicated as we are doing multiple joins.
 
 ```{r, eval=TRUE}
 system.time(
@@ -718,13 +718,17 @@ dbGetQuery(db, "select upvotes/1000 as upvote1000s from users limit 3")
 
 ### 2.4.5) Subqueries
 
-Instead of a join, we can use subqueries as a way to combine information across tables, with the subquery involved in a WHERE statement or in a JOIN. For example, suppose we want to know the average number of UpVotes for users who have posted a question with the tag "python".
+#### Subqueries in the WHERE statement
+
+Instead of a join, we can use subqueries as a way to combine information across tables, with the subquery involved in a WHERE statement. The subquery creates a set and we then can check for inclusion in (or exclusion from with `not in`) that set.
+
+For example, suppose we want to know the average number of UpVotes for users who have posted a question with the tag "python".
 
 ```{r, eval=TRUE}
 dbGetQuery(db, "select avg(UpVotes) from users where userid in
                (select distinct ownerid from
                questions join questions_tags on questions.questionid = questions_tags.questionid
-               where tag = 'python'")        
+               where tag = 'python')")       
 ```
 
 In some cases one can do a join rather than using a subquery, but in this example, it fails.
@@ -752,16 +756,19 @@ For more details on subqueries, see the video on "subqueries in where statements
 
 ***Challenge***: Write a query that, for each question, will find the answer to that question written by the user with the highest reputation.
 
+#### Subqueries in the FROM statement
 
-We can use subqueries in the FROM clause to create a temporary table to use in a query. Here we'll create a new column and then filter based on that new column:
+We can use subqueries in the FROM statement to create a temporary table to use in a query. Here we'll do it in the context of a join. What does the following do?
 
 ```
-dbGetQuery(db, "select * from
-               (select *, answercount + commentcount + favoritecount as reactioncount from answers)
-               where reactioncount > 500")
-```
-
-(But note in the case above (at least in SQLite), we could also have created 'reactioncount' in the initial SELECT clause.
+dbGetQuery(db, "select * from questions Q join questions_tags T on
+               Q.questionid = T.questionid join
+               (select max(viewcount) as maxview, tag from questions Q2
+               join questions_tags T2 on Q2.questionid = T2.questionid
+               group by tag) M on M.tag = T.tag
+               where viewcount >= maxview
+               order by viewcount desc limit 10")
+```    
 
 Finally one can use subqueries in the SELECT clause to create new variables, but we won't go into that here.
 

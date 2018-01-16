@@ -4,7 +4,7 @@ library(stringr)
 library(RPostgreSQL)
 
 drv <- dbDriver("PostgreSQL")
-db <- dbConnect(drv, 
+con <- dbConnect(drv, 
                  dbname = "stackoverflow", 
                  user = 'paciorek', 
                  password = 'test')
