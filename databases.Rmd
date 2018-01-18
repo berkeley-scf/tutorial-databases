@@ -973,9 +973,11 @@ Some tips for faster queries include:
 
 ### 2.6.2) SQL query plans and EXPLAIN
 
-You can actually examine the query plan that the system is going to use for a query using the EXPLAIN keyword:
+You can actually examine the query plan that the system is going to use for a query using the EXPLAIN keyword. I'd suggest trying this in Postgres as the output is more interpretable than SQLite.
 
 ```
+dbGetQuery(db, "explain select * from questions join questions_tags on
+               questions.questionid = questions_tags.questionid")
 dbGetQuery(db, "explain select * from questions join questions_tags on
                questions.questionid = questions_tags.questionid where tag like 'python'")
 ```

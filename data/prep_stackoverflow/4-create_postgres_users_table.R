@@ -3,8 +3,6 @@
 ## in existing postgres database
 source('connect_postgres.R')
 
-source('connect-pg.R')
-
 iodir = '/scratch/users/paciorek/stackoverflow'
 inputfile <- "Users.xml"
 

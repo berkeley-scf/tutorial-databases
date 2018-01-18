@@ -988,7 +988,7 @@ select * from table1 natural join table2
 </code></pre>
 
 <pre><code>##    user  system elapsed 
-##  11.239   2.773  26.674
+##  12.177   2.732  27.424
 </code></pre>
 
 <p>Alternatively we can do a self-join. Note that the syntax gets complicated as we are doing multiple joins.</p>
@@ -1007,7 +1007,7 @@ select * from table1 natural join table2
 </code></pre>
 
 <pre><code>##    user  system elapsed 
-##  20.540  18.326  51.288
+##  21.240  20.107  55.476
 </code></pre>
 
 <pre><code class="r">identical(result1, result2)
@@ -1300,9 +1300,11 @@ dbGetQuery(db, &quot;select * from pg_settings where name=&#39;dynamic_shared_me
 
 <h3>2.6.2) SQL query plans and EXPLAIN</h3>
 
-<p>You can actually examine the query plan that the system is going to use for a query using the EXPLAIN keyword:</p>
+<p>You can actually examine the query plan that the system is going to use for a query using the EXPLAIN keyword. I&#39;d suggest trying this in Postgres as the output is more interpretable than SQLite.</p>
 
 <pre><code>dbGetQuery(db, &quot;explain select * from questions join questions_tags on
+               questions.questionid = questions_tags.questionid&quot;)
+dbGetQuery(db, &quot;explain select * from questions join questions_tags on
                questions.questionid = questions_tags.questionid where tag like &#39;python&#39;&quot;)
 </code></pre>
 
