@@ -18,15 +18,17 @@ apt-get install openssh-client
 
 ## If you want to be able to connect to postgres from outside the container, do these steps:
 PG_VER=10  # modify as needed
-echo -e "host\tall\t\tall\t\t0.0.0.0/0\t\tmd5" >> /etc/postgresql/PG_VER/main/pg_hba.conf
-sed -i "s/#listen_addresses = 'localhost'/listen_addresses = '*'/" /etc/postgresql/PG_VER/main/postgresql.conf
+echo -e "host\tall\t\tall\t\t0.0.0.0/0\t\tmd5" >> /etc/postgresql/${PG_VER}/main/pg_hba.conf
+sed -i "s/#listen_addresses = 'localhost'/listen_addresses = '*'/" /etc/postgresql/${PG_VER}/main/postgresql.conf
 
 ## start the postgres server process
 /etc/init.d/postgresql start
 
 ## get the data into the container
 mkdir /data
-scp paciorek@smeagol.berkeley.edu:~/share/tutorial-databases-data.zip /data/.
+cd /data
+wget https://www.stat.berkeley.edu/share/paciorek/tutorial-databases-data.zip
+unzip tutorial-databases-data.zip
 
 ## switch to be the postgres user and create the database and add data
 su - postgres
