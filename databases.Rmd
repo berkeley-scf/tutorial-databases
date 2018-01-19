@@ -967,7 +967,7 @@ Some tips for faster queries include:
     - try to avoid wildcards at the start of LIKE string comparison when you have an index on the field (as this requires looking at all of the rows)
     - similarly try to avoid using functions on indexed columns in a WHERE clause as this requires doing the calculation on all the rows in order to check the condition
  - only select the columns you really need
- - use a temporary table if you would otherwise carry out a query repeatedly on a large table
+ - create (temporary) tables to store intermediate results that you need to query repeatedly
  - use filtering (WHERE clauses) in inner statements when you have nested subqueries
  - use LIMIT as seen in the examples here if you only need some of the rows a query returns
 

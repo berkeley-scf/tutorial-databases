@@ -988,7 +988,7 @@ select * from table1 natural join table2
 </code></pre>
 
 <pre><code>##    user  system elapsed 
-##  12.177   2.732  27.424
+##  11.830   2.603  27.231
 </code></pre>
 
 <p>Alternatively we can do a self-join. Note that the syntax gets complicated as we are doing multiple joins.</p>
@@ -1007,7 +1007,7 @@ select * from table1 natural join table2
 </code></pre>
 
 <pre><code>##    user  system elapsed 
-##  21.240  20.107  55.476
+##  21.265  20.280  62.761
 </code></pre>
 
 <pre><code class="r">identical(result1, result2)
@@ -1293,7 +1293,7 @@ dbGetQuery(db, &quot;select * from pg_settings where name=&#39;dynamic_shared_me
 <li>similarly try to avoid using functions on indexed columns in a WHERE clause as this requires doing the calculation on all the rows in order to check the condition</li>
 </ul></li>
 <li>only select the columns you really need</li>
-<li>use a temporary table if you would otherwise carry out a query repeatedly on a large table</li>
+<li>create (temporary) tables to store intermediate results that you need to query repeatedly</li>
 <li>use filtering (WHERE clauses) in inner statements when you have nested subqueries</li>
 <li>use LIMIT as seen in the examples here if you only need some of the rows a query returns</li>
 </ul>
