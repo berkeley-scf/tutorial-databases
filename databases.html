@@ -210,7 +210,7 @@ hr {
 
 <p>Chris Paciorek, Department of Statistics, UC Berkeley</p>
 
-<p>Last updated: October 2017</p>
+<p>Last updated: January 2020</p>
 
 <h1>0) This Tutorial</h1>
 
@@ -225,7 +225,7 @@ hr {
 
 <p>Alternatively you can simply download a <a href="https://github.com/berkeley-scf/tutorial-databases/archive/master.zip">zip file</a> containing all the materials.</p>
 
-<p>The example data files are not part of the Github repository. You can get the example data files (both Stack Overflow data and Wikipedia webtraffic data) <a href="http://www.stat.berkeley.edu/share/paciorek/tutorial-databases-data.zip">here</a>.</p>
+<p>The example data files are not part of the Github repository. You can get the example data files (both Stack Overflow data and Wikipedia webtraffic data for the year 2016) <a href="http://www.stat.berkeley.edu/share/paciorek/tutorial-databases-data.zip">here</a>.</p>
 
 <p>To create this HTML document, simply compile the corresponding R Markdown file in R as follows on the command line (or execute this R code within R or RStudio):</p>
 
@@ -240,9 +240,11 @@ hr {
 
 <ul>
 <li>You could run Ubuntu in a Docker container; Docker can be installed on Windows or Mac. Once you&#39;ve installed Docker and have access to a terminal command line, please see the commands in <code>docker.sh</code> in this repository. </li>
-<li>You use an Ubuntu Linux virtual machine (VM) developed here at Berkeley, the <a href="http://bce.berkeley.edu">Berkeley Common Environment (BCE)</a>. BCE can be run through VirtualBox on your computer.  Once you&#39;ve installed VirtualBox and started a BCE virtual machine and have access to a terminal command line, please see the commands in <code>bce.sh</code> in this repository. </li>
-<li>You can run an Amazon EC2 instance - either running BCE or by simply starting up an Amazon EC2 instance using a image that supports R and/or Python and then installing PostgreSQL as discussed in this tutorial.</li>
+<li>You could run an Amazon EC2/Google Cloud/Azure virtual machine instance, using a image that supports R and/or Python and then installing PostgreSQL as discussed in this tutorial.</li>
+<li>You could try to use an Ubuntu Linux virtual machine (VM) developed here at Berkeley, the <a href="http://bce.berkeley.edu">Berkeley Common Environment (BCE)</a>, though this is no longer maintained/supported. BCE can be run through VirtualBox on your computer.  Once you&#39;ve installed VirtualBox and started a BCE virtual machine and have access to a terminal command line, please see the commands in <code>bce.sh</code> in this repository.</li>
 </ul>
+
+<p>Also note that in recent years the big cloud providers have created specific database services, so you are using a cloud provider, you&#39;d probably want to take advantage of those rather than &#39;manually&#39; running a database via a virtual machine. </p>
 
 <p>This tutorial by Christopher Paciorek is licensed under a Creative Commons Attribution 3.0 Unported License (CC BY).</p>
 
@@ -294,11 +296,11 @@ hr {
 
 <p>There are a variety of relational database management systems (DBMS). Some that are commonly used by the intended audience of this tutorial are SQLite, PostgreSQL, and mySQL. We&#39;ll concentrate on SQLite (because it is simple to use on a single machine) and PostgreSQL (because is is a popular open-source DBMS that is a good representative of a client-server model and has some functionality that SQLite lacks).</p>
 
-<p>SQLite is quite nice in terms of being self-contained - there is no server-client model, just a single file on your hard drive that stores the database and to which you can connect to using the SQLite shell, R, Python, etc.  However, it does not have some useful functionality that other DBMS have. For example, you can&#39;t use <code>ALTER TABLE</code> to modify column types or drop columns. It also doesn&#39;t support <a href="https://www.postgresql.org/docs/9.6/static/functions-window.html">window functions</a>.</p>
+<p>SQLite is quite nice in terms of being self-contained - there is no server-client model, just a single file on your hard drive that stores the database and to which you can connect to using the SQLite shell, R, Python, etc.  However, it does not have some useful functionality that other DBMS have. For example, you can&#39;t use <code>ALTER TABLE</code> to modify column types or drop columns. </p>
 
 <h3>2.1.2) NoSQL databases</h3>
 
-<p>NoSQL (not only SQL) systems have to do with working with datasets that are not well-handled in traditional DBMS, and not specifically about the use or non-use of SQL itself. In particular data might not fit well within the rectangular row-column data model of one or more tables in a database. And one might be in a context where a full DBMS is not needed. Or one might have more data or need faster responses than can be well-handled by standard DBMS.</p>
+<p>NoSQL (not only SQL) systems have to do with working with datasets that are not handled well in traditional DBMS, and not specifically about the use or non-use of SQL itself. In particular data might not fit well within the rectangular row-column data model of one or more tables in a database. And one might be in a context where a full DBMS is not needed. Or one might have more data or need faster responses than can be handled well by standard DBMS.</p>
 
 <p>While these systems tend to scale better, they generally don&#39;t have a declarative query language so you end up having to do more programming yourself. For example in the Stanford database course referenced at the end of this tutorial, the noSQL video gives the example of web log data that records visits to websites. One might have the data in the form of files and not want to go through the trouble of data cleaning and extracting fields from unstructured text. In addition, one may need to do only simple queries that involve looking at each record separately and therefore can be easily done in parallel, which noSQL systems tend to be designed to do. Or one might have document data, such as Wikipedia pages, where the unstructured text on each page is not really suited for a DBMS. </p>
 
@@ -328,7 +330,7 @@ hr {
 
 <pre><code>## find the largest viewcounts in the questions table
 select distinct viewcount from questions order by viewcount desc limit 20
-## now get the questions that are viewed the most
+## get the questions that are viewed the most
 select * from questions where viewcount &gt; 100000
 </code></pre>
 
@@ -371,7 +373,7 @@ select * from questions where viewcount &gt; 100000
 
 <p>For comparisons in a WHERE clause, some common syntax for setting conditions includes LIKE (for patterns), =, &gt;, &lt;, &gt;=, &lt;=, !=.</p>
 
-<p>Some other keywords are: DISTINCT, ON, JOIN, GROUP BY, AS, USING, UNION, INTERSECT, SIMILAR TO. </p>
+<p>Some other keywords are: DISTINCT, ON, JOIN, GROUP BY, AS, USING, UNION, INTERSECT, SIMILAR TO, SUBSTR in SQLite and SUBSTRING in PostgreSQL. </p>
 
 <h3>2.2.2.) Schema and normalization</h3>
 
@@ -418,7 +420,7 @@ select * from questions where viewcount &gt; 100000
 
 <p>It would get even worse if there was a field related to teachers for which a given teacher could have multiple values (e.g., teachers could be in multiple departments). This would lead to even more redundancy - each student-class-teacher combination would be crossed with all of the departments for the teacher (so-called multivalued dependency in database theory).</p>
 
-<p>An alternative organization of the data would be to have each row represent the enrollment of a student in a class.</p>
+<p>An alternative organization of the data would be to have each row represent the enrollment of a student in a class, with as many rows per student as the number of classes the student is taking.</p>
 
 <ul>
 <li>student ID</li>
@@ -490,18 +492,19 @@ select * from questions where viewcount &gt; 100000
 
 <p>Suppose we want a result that has the grades of all students in 9th grade. For this we need information from the Student table (to determine grade level) and information from the ClassAssignment table (to determine the class grade). More specifically we need a query that joins &#39;Student&#39; with &#39;ClassAssignment&#39; based on &#39;Student.ID&#39; and &#39;ClassAssignment.student_ID&#39; and filters the rows based on &#39;Student.grade_level&#39;:</p>
 
-<pre><code>SELECT Student.ID, grade FROM Student, ClassAssignment WHERE Student.ID = ClassAssignment.student_ID 
-          and Student.grade_level = 9;
+<pre><code>SELECT Student.ID, grade FROM Student, ClassAssignment
+       WHERE Student.ID = ClassAssignment.student_ID 
+         AND Student.grade_level = 9;
 </code></pre>
 
-<p>If we wanted to include information about the teachers who gave those grades we&#39;d also join in the Teacher and Class tables. It would look something like this:</p>
+<p>If we wanted to include information about the teachers who gave those grades we&#39;d also join in the Teacher and Class tables. (We need the Class table to be able to match from ClassAssignment to Teacher.) It would look something like this:</p>
 
 <pre><code>SELECT Student.ID, grade, Teacher.name, Teacher.department FROM 
        Student, ClassAssignment, Teacher, Class
-       WHERE Student.ID = ClassAssignment.student_ID AND
-       ClassAssignment.class_ID = Class.ID AND
-       Class.teacher_ID = teacher.ID AND 
-       Student.grade_level = 9;
+       WHERE Student.ID = ClassAssignment.student_ID
+         AND ClassAssignment.class_ID = Class.ID 
+         AND Class.teacher_ID = teacher.ID
+         AND Student.grade_level = 9;
 </code></pre>
 
 <p>Note that both of these queries are <em>joins</em> (specifically <em>inner joins</em>), which are like <code>merge()</code> in R. We  don&#39;t specifically use the JOIN keyword, but one could do these queries explicitly using JOIN, as we&#39;ll see later.</p>
@@ -559,7 +562,7 @@ select * from questions where viewcount &gt; 100000
 
 <p>In the next section I&#39;ll assume the .db file is placed in the subdirectory of the repository called <code>data</code>.</p>
 
-<p>Note that all of the code used to download the data from the Stack Overflow website and to manipulate it to create a complete Postgres database and (for the year 2016 only) an SQLite database and CSVs for each table is in the <code>data/prep_stackoverflow</code> subdirectory of this repository.</p>
+<p>Note that all of the code used to download the data from the Stack Overflow website and to manipulate it to create a complete Postgres database and (for the year 2016 only) an SQLite database and CSVs for each table is in the <code>data/prep_stackoverflow</code> subdirectory of this repository. Note that as of January 2020, <a href="https://archive.org/download/stackexchange">the data are still be kept up to date online</a>.</p>
 
 <h3>2.3.2) Accessing SQL from other languages</h3>
 
@@ -609,8 +612,8 @@ dbGetQuery(db, &quot;select * from questions limit 5&quot;)  # simple query to g
 <pre><code class="r">dbListTables(db)
 </code></pre>
 
-<pre><code>## [1] &quot;answers&quot;          &quot;maxRepByQuestion&quot; &quot;questions&quot;       
-## [4] &quot;questionsAugment&quot; &quot;questions_tags&quot;   &quot;users&quot;
+<pre><code>## [1] &quot;answers&quot;        &quot;questions&quot;      &quot;questions_tags&quot;
+## [4] &quot;users&quot;
 </code></pre>
 
 <pre><code class="r">dbListFields(db, &quot;questions&quot;)
@@ -637,7 +640,16 @@ class(results)
 </code></pre>
 
 <pre><code class="r">query &lt;- dbSendQuery(db, &quot;select * from questions&quot;)
-results2 &lt;- fetch(query, 5)
+query
+</code></pre>
+
+<pre><code>## &lt;SQLiteResult&gt;
+##   SQL  select * from questions
+##   ROWS Fetched: 0 [incomplete]
+##        Changed: 0
+</code></pre>
+
+<pre><code class="r">results2 &lt;- fetch(query, 5)
 identical(results, results2)
 </code></pre>
 
@@ -683,7 +695,7 @@ results = c.fetchall() # retrieve results
 <p>Here&#39;s how you would connect to PostgreSQL instead:</p>
 
 <pre><code>import psycopg2 as pg
-db = pg.connect(&quot;dbname=&#39;stackoverflow&#39; user=&#39;paciorek&#39; host=&#39;localhost&#39; password=&#39;test&#39;)
+db = pg.connect(&quot;dbname = &#39;stackoverflow&#39; user = &#39;paciorek&#39; host = &#39;localhost&#39; password = &#39;test&#39;&quot;)
 c = db.cursor()
 </code></pre>
 
@@ -705,10 +717,20 @@ c = db.cursor()
 
 <p>Let&#39;s see some joins using the different syntax on the Stack Overflow database. In particular let&#39;s select only the questions with the tag &ldquo;python&rdquo;.</p>
 
+<pre><code class="r">## a join with JOIN
+result1 &lt;- dbGetQuery(db, &quot;select * from questions join questions_tags 
+           on questions.questionid = questions_tags.questionid where tag = &#39;python&#39;&quot;)
+
+identical(result1, result2)
+</code></pre>
+
+<pre><code>## Error in identical(result1, result2): object &#39;result2&#39; not found
+</code></pre>
+
 <pre><code class="r">## a join without JOIN
-result1 &lt;- dbGetQuery(db, &quot;select * from questions, questions_tags where
-        questions.questionid = questions_tags.questionid and tag = &#39;python&#39;&quot;)
-head(result1)
+result2 &lt;- dbGetQuery(db, &quot;select * from questions, questions_tags
+        where questions.questionid = questions_tags.questionid and tag = &#39;python&#39;&quot;)
+head(result2)
 </code></pre>
 
 <pre><code>##   questionid        creationdate score viewcount
@@ -725,38 +747,27 @@ head(result1)
 ## 4                                                          Stopwatch (chronometre) doesn&#39;t work
 ## 5 How to set the type of a pyqtSignal (variable of class X) that takes a X instance as argument
 ## 6                                                Flask: Peewee model_to_dict helper not working
-##   ownerid questionid    tag
-## 1  845642   34553559 python
-## 2 4458602   34556493 python
-## 3 2927983   34557898 python
-## 4 5736692   34560088 python
-## 5 5636400   34560213 python
-## 6 3262998   34560740 python
-</code></pre>
-
-<pre><code class="r">## a join with JOIN
-result2 &lt;- dbGetQuery(db, &quot;select * from questions join questions_tags on
-           questions.questionid = questions_tags.questionid where tag = &#39;python&#39;&quot;)
-
-identical(result1, result2)
-</code></pre>
-
-<pre><code>## [1] TRUE
+##   ownerid questionid..7    tag
+## 1  845642      34553559 python
+## 2 4458602      34556493 python
+## 3 2927983      34557898 python
+## 4 5736692      34560088 python
+## 5 5636400      34560213 python
+## 6 3262998      34560740 python
 </code></pre>
 
 <p>Here&#39;s a three-way join with some additional use of aliases to abbreviate table names. What does this query ask for?</p>
 
-<pre><code class="r">result1 &lt;- dbGetQuery(db, &quot;select * from questions Q, questions_tags T, users U where
-        Q.questionid = T.questionid and
-        Q.ownerid = U.userid and
-        tag = &#39;python&#39; and
-        age &lt; 18&quot;)
-
-result2 &lt;- dbGetQuery(db, &quot;select * from questions Q
+<pre><code class="r">result1 &lt;- dbGetQuery(db, &quot;select * from questions Q
         join questions_tags T on Q.questionid = T.questionid
-        join users U on Q.ownerid = U.userid where
-        tag = &#39;python&#39; and
-        age &lt; 18&quot;)
+        join users U on Q.ownerid = U.userid
+        where tag = &#39;python&#39; and age &lt; 18&quot;)
+
+result2 &lt;- dbGetQuery(db, &quot;select * from questions Q, questions_tags T, users U
+        where Q.questionid = T.questionid 
+          and Q.ownerid = U.userid
+          and tag = &#39;python&#39; 
+          and age &lt; 18&quot;)
 
 identical(result1, result2)
 </code></pre>
@@ -774,12 +785,21 @@ identical(result1, result2)
 
 <p>Here&#39;s a basic example where we count the occurrences of different tags. </p>
 
-<pre><code>dbGetQuery(db, &quot;select tag, count(*) as n from questions_tags group by tag order by n desc limit 100&quot;)
+<pre><code>dbGetQuery(db, &quot;select tag, count(*) as n from questions_tags
+                group by tag order by n desc limit 100&quot;)
 </code></pre>
 
 <p><strong><em>Challenge</em></strong>: What specifically does that query do? Describe the table that would be returned.</p>
 
 <p>In general <code>GROUP BY</code> statements will involve some aggregation operation on the subsets. Options include: COUNT, MIN, MAX, AVG, SUM.</p>
+
+<p>Note that to filter the result of a grouping operation, we need to use <code>having</code> rather than <code>where</code>.</p>
+
+<p>Also note the use of <code>as</code> to define a name for the new column.</p>
+
+<pre><code>dbGetQuery(db, &quot;select tag, count(*) as n from questions_tags
+                group by tag having n &gt; 100000 limit 10&quot;)
+</code></pre>
 
 <p><strong><em>Challenge</em></strong>: Write a query that will count the number of answers for each question, returning the most answered questions. </p>
 
@@ -803,9 +823,11 @@ dbGetQuery(db, &quot;select count(distinct tag) from questions_tags&quot;)
 
 <p>Here&#39;s how we create an index, with some time comparison for a simple query.</p>
 
-<pre><code class="r">system.time(dbGetQuery(db, &quot;select * from questions where viewcount &gt; 10000&quot;))     # 10 seconds
-system.time(dbGetQuery(db, &quot;create index count_index on questions (viewcount)&quot;))  # 19 seconds
-system.time(dbGetQuery(db, &quot;select * from questions where viewcount &gt; 10000&quot;))    # 3 seconds
+<pre><code class="r">system.time(dbGetQuery(db, &quot;select * from questions where viewcount &gt; 10000&quot;))     # 2.4 seconds
+system.time(dbExecute(db, &quot;create index count_index on questions (viewcount)&quot;))  # 5.6 seconds
+system.time(dbGetQuery(db, &quot;select * from questions where viewcount &gt; 10000&quot;))    # 0.9 seconds
+## restore earlier state by removing index
+system.time(dbExecute(db, &quot;drop index count_index&quot;))
 </code></pre>
 
 <p>In other contexts, an index can save huge amounts of time. So if you&#39;re working with a database and speed is important, check to see if there are indexes.</p>
@@ -819,15 +841,15 @@ system.time(dbGetQuery(db, &quot;select * from questions where viewcount &gt; 10
 <p>Suppose we always want the age and displayname of question owners available. Once we have the view we can query it like a regular table.</p>
 
 <pre><code class="r">## note there is a creationdate in users too, hence disambiguation
-dbGetQuery(db, &quot;create view questionsAugment as select
-               questionid, questions.creationdate, score, viewcount, title, ownerid, age, displayname
+dbExecute(db, &quot;create view questionsAugment as
+               select questionid, questions.creationdate, score, viewcount, title, ownerid, age, displayname
                from questions join users on questions.ownerid = users.userid&quot;)
 </code></pre>
 
-<pre><code>## data frame with 0 columns and 0 rows
+<pre><code>## [1] 0
 </code></pre>
 
-<pre><code class="r">## don&#39;t be confused by the &quot;data frame with 0 columns and 0 rows&quot; message --
+<pre><code class="r">## don&#39;t be confused by the &quot;0&quot; response --
 ## it just means that nothing is returned to R; the view _has_ been created
 
 dbGetQuery(db, &quot;select * from questionsAugment where age &lt; 15 limit 5&quot;)
@@ -863,8 +885,10 @@ dbGetQuery(db, &quot;select * from questionsAugment where age &lt; 15 limit 5&qu
 dbWriteTable(conn = db, name = &quot;student&quot;, value = &quot;student.csv&quot;, row.names = FALSE, header = TRUE)
 
 ## Option 2: pass from data in an R data frame
-#student &lt;- data.frame(...)
-#student &lt;- read.csv(...)
+## First create your data frame:
+# student &lt;- data.frame(...)
+## or
+# student &lt;- read.csv(...)
 dbWriteTable(conn = db, name = &quot;student&quot;, value = student, row.names = FALSE, append = FALSE)
 </code></pre>
 
@@ -929,7 +953,7 @@ select * from table1 join table2 using(id)
 select * from table1 natural join table2
 </code></pre>
 
-<p>Note that in the last query the join would be based on all common columns, which could be a bit dangerous if you don&#39;t look carefully at the schema of both tables. Assuming <code>id</code> is the common column then the last of these queries is the same as the others.</p>
+<p>Note that in the last query the join would be based on all common columns, which could be a bit dangerous if you don&#39;t look carefully at the schema of both tables. Assuming <code>id</code> is the common column, then the last of these queries is the same as the others.</p>
 
 <p><strong><em>Challenge</em></strong>: Create a view with one row for every question-tag pair, including questions without any tags.</p>
 
@@ -939,7 +963,7 @@ select * from table1 natural join table2
 
 <h3>2.4.2) Joining a table with itself (self joins)</h3>
 
-<p>Sometimes we want to query information across rows of the same table. For example supposed we want to analyze the time lags between when the same person posts a question. Do people tend to post in bursts or do they tend to post uniformly over the year? To do this we need contrasts between the times of the different posts. (I think this might also be possible using window functions in Postgres, not available in SQLite, but I haven&#39;t looked into that.)</p>
+<p>Sometimes we want to query information across rows of the same table. For example supposed we want to analyze the time lags between when the same person posts a question. Do people tend to post in bursts or do they tend to post uniformly over the year? To do this we need contrasts between the times of the different posts. (One can also address this using window functions, discussed later.)</p>
 
 <p>So we need to join two copies of the same table, which means dealing with resolving the multiple copies of each column.</p>
 
@@ -988,7 +1012,7 @@ select * from table1 natural join table2
 </code></pre>
 
 <pre><code>##    user  system elapsed 
-##  11.830   2.603  27.231
+##   8.419   2.952  28.753
 </code></pre>
 
 <p>Alternatively we can do a self-join. Note that the syntax gets complicated as we are doing multiple joins.</p>
@@ -1007,7 +1031,7 @@ select * from table1 natural join table2
 </code></pre>
 
 <pre><code>##    user  system elapsed 
-##  21.265  20.280  62.761
+##  17.560  16.517  50.264
 </code></pre>
 
 <pre><code class="r">identical(result1, result2)
@@ -1024,6 +1048,8 @@ select * from table1 natural join table2
 <p>Which is faster? The second one looks more involved in terms of the joins, so the timing results seen above make sense.</p>
 
 <p>Or we could use UNION or EXCEPT to find people who have asked either or only one type of question, respectively.</p>
+
+<p><strong><em>Challenge</em></strong>: Find the users who have asked either an R question or a Python question.</p>
 
 <p><strong><em>Challenge</em></strong>: Find the users who have asked only an R question and not a Python question.</p>
 
@@ -1042,20 +1068,122 @@ select * from table1 natural join table2
                from questions limit 3&quot;)
 </code></pre>
 
-<p>The above example also illustrates the use of AS to create a new field based on manipulation of existing fields. AS (but not SUBSTRING) can be used in SQLite as well. Here&#39;s an example:</p>
+<p>Note that SQLite provides SUBSTR for substrings, but the flexibility of SUBSTR seems to be much less than use of SUBSTRING in PostgreSQL.</p>
 
-<pre><code class="r">dbGetQuery(db, &quot;select upvotes/1000 as upvote1000s from users limit 3&quot;)
+<p>Here is some <a href="https://www.postgresql.org/docs/current/functions-string.html">documentation on string functions in PostgreSQL</a>.</p>
+
+<p><strong><em>Challenge</em></strong>: Figure out how to calculate the length (in characters) of the title of each question. </p>
+
+<p><strong><em>Challenge</em></strong>:Process the creationdate field to create year, day, and month fields in a new view. Note that this would be good practice for string manipulation but you would want to handle dates and times using the material in the next section and not use string processing.</p>
+
+<h3>2.4.5) Dates and times</h3>
+
+<p>Here we&#39;ll see how you can work with dates and times in SQLite, but the functionality should be similar in other DBMS.</p>
+
+<p>SQLite doesn&#39;t have specific date-time types, but it&#39;s standard to store date-times as strings in the text field 
+in the ISO-8601 format: YYYY-MM-DD HH:MM:SS.SSS. That&#39;s the format of the dates in the StackOverflow database:</p>
+
+<pre><code class="r">dbGetQuery(db, &quot;select distinct creationdate from questions limit 5&quot;)
 </code></pre>
 
-<pre><code>##   upvote1000s
-## 1           5
-## 2           0
-## 3           0
+<pre><code>##          creationdate
+## 1 2016-01-01 00:00:03
+## 2 2016-01-01 00:00:07
+## 3 2016-01-01 00:00:39
+## 4 2016-01-01 00:00:50
+## 5 2016-01-01 00:00:51
 </code></pre>
 
-<p><strong><em>Challenge</em></strong>: Process the creationdate field to create year, day, and month fields in a new view. Extra: do some research to figure out if there are tools for working with date-time strings that don&#39;t involve string processing like you just had to do.</p>
+<p>Then SQLite provides some powerful functions for manipulating and extracting information in such fields. Here are just a few examples, noting that <code>strftime</code> is particularly powerful. Other DBMS should have similar functionality, but I haven&#39;t investigated further. </p>
 
-<h3>2.4.5) Subqueries</h3>
+<pre><code class="r">## Julian days (decimal days since noon UTC/Greenwich time November 24, 4714 BC (Yikes!)). 
+output &lt;- dbGetQuery(db, &quot;select creationdate, julianday(creationdate)
+                from questions limit 5&quot;)
+output
+</code></pre>
+
+<pre><code>##          creationdate julianday(creationdate)
+## 1 2016-01-01 00:00:03                 2457389
+## 2 2016-01-01 00:00:07                 2457389
+## 3 2016-01-01 00:00:39                 2457389
+## 4 2016-01-01 00:00:50                 2457389
+## 5 2016-01-01 00:00:51                 2457389
+</code></pre>
+
+<pre><code class="r">## Julian day is decimal-valued:
+formatC(output[ , 2], 6, format = &#39;f&#39;)
+</code></pre>
+
+<pre><code>## [1] &quot;2457388.500035&quot; &quot;2457388.500081&quot; &quot;2457388.500451&quot;
+## [4] &quot;2457388.500579&quot; &quot;2457388.500590&quot;
+</code></pre>
+
+<pre><code class="r">## Convert to local time
+dbGetQuery(db, &quot;select distinct creationdate, datetime(creationdate, &#39;localtime&#39;)
+                from questions limit 5&quot;)
+</code></pre>
+
+<pre><code>##          creationdate datetime(creationdate, &#39;localtime&#39;)
+## 1 2016-01-01 00:00:03                 2015-12-31 16:00:03
+## 2 2016-01-01 00:00:07                 2015-12-31 16:00:07
+## 3 2016-01-01 00:00:39                 2015-12-31 16:00:39
+## 4 2016-01-01 00:00:50                 2015-12-31 16:00:50
+## 5 2016-01-01 00:00:51                 2015-12-31 16:00:51
+</code></pre>
+
+<pre><code class="r">## Eastern time, manually, ignoring daylight savings
+dbGetQuery(db, &quot;select distinct creationdate, datetime(creationdate, &#39;-05:00&#39;)
+                from questions limit 5&quot;)
+</code></pre>
+
+<pre><code>##          creationdate datetime(creationdate, &#39;-05:00&#39;)
+## 1 2016-01-01 00:00:03              2015-12-31 19:00:03
+## 2 2016-01-01 00:00:07              2015-12-31 19:00:07
+## 3 2016-01-01 00:00:39              2015-12-31 19:00:39
+## 4 2016-01-01 00:00:50              2015-12-31 19:00:50
+## 5 2016-01-01 00:00:51              2015-12-31 19:00:51
+</code></pre>
+
+<pre><code class="r">## day of week: Jan 1 2016 was a Friday (0=Sunday, 6=Saturday)
+dbGetQuery(db, &quot;select creationdate, strftime(&#39;%w&#39;, creationdate)
+                from questions limit 5&quot;)
+</code></pre>
+
+<pre><code>##          creationdate strftime(&#39;%w&#39;, creationdate)
+## 1 2016-01-01 00:00:03                            5
+## 2 2016-01-01 00:00:07                            5
+## 3 2016-01-01 00:00:39                            5
+## 4 2016-01-01 00:00:50                            5
+## 5 2016-01-01 00:00:51                            5
+</code></pre>
+
+<p>Unfortunately I&#39;m not sure if the actual dates in the database are Greenwich time or some US time zone, but we&#39;ll ignore that complication here.</p>
+
+<p>Let&#39;s put it all together to do something meaningful.</p>
+
+<pre><code class="r">result &lt;- dbGetQuery(db, &quot;select strftime(&#39;%H&#39;, creationdate) as hour,
+                          count() as n from questions group by hour&quot;)
+head(result)
+</code></pre>
+
+<pre><code>##   hour     n
+## 1   00 56119
+## 2   01 53468
+## 3   02 55190
+## 4   03 57450
+## 5   04 61855
+## 6   05 75520
+</code></pre>
+
+<pre><code class="r">plot(as.numeric(result$hour), result$n, xlab = &#39;hour of day (UTC/Greenwich???)&#39;,
+                                        ylab = &#39;number of questions&#39;)
+</code></pre>
+
+<p><img src="data:image/png;base64,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" alt=""/></p>
+
+<p>Here&#39;s some <a href="https://www.sqlite.org/lang_datefunc.html">documentation of the syntax for the functions, including <code>stftime</code></a>.</p>
+
+<h3>2.4.6) Subqueries</h3>
 
 <h4>Subqueries in the WHERE statement</h4>
 
@@ -1110,7 +1238,7 @@ select * from table1 natural join table2
 
 <p>Finally one can use subqueries in the SELECT clause to create new variables, but we won&#39;t go into that here.</p>
 
-<h3>2.4.6) Complicated grouping queries</h3>
+<h3>2.4.7) Complicated grouping queries</h3>
 
 <p>Here&#39;s an example of a complicated query involving aggregation in which we figure out the most popular tags amongst the most popular questions (in fact this is one possible answer to one of the previous challenges). Also note the subquery in the JOIN.</p>
 
@@ -1124,6 +1252,279 @@ select * from table1 natural join table2
 </code></pre>
 
 <p>Ok, well that&#39;s pretty intimidating to try to just come up with that. A good strategy is probably to think about creating a view that is the result of the inner query and then have the outer query use that. You can then piece together the complicated query in a modular way. For big databases, you are likely to want to submit this as a single query and not two queries so that the SQL optimizer can determine the best way to do the operations. But you want to start with code that you&#39;re confident will give you the right answer!</p>
+
+<h3>2.4.8) Window functions</h3>
+
+<p><a href="https://www.postgresql.org/docs/current/functions-window.html">Window functions</a> provide the ability to perform calculations across sets of rows that are related to the current query row.</p>
+
+<p>Comments:</p>
+
+<ul>
+<li>The result of applying a window function is the same number of rows as the input, even though the functionality is similar to <code>group by</code>. Hint: think about the result of <code>group by</code> + <code>mutate</code> in dplyr in R.</li>
+<li>One can apply a window function within groups or across the whole table.</li>
+<li>The functions one can apply include standard aggregation functions such as <code>avg</code> and <code>count</code> as well as non-standard functions (specific to using window functions) such as <code>rank</code> and <code>cume_dist</code>.</li>
+</ul>
+
+<p>The syntax is a bit involved, so let&#39;s see with a range of examples:</p>
+
+<ul>
+<li>Aggregate within groups but with one output value per input row</li>
+</ul>
+
+<pre><code class="r">## Total number of questions for each owner
+dbGetQuery(db, &quot;select *,
+                count() over (partition by ownerid) as n
+                from questions order by creationdate limit 5&quot;)
+</code></pre>
+
+<pre><code>##   questionid        creationdate score viewcount
+## 1   34552550 2016-01-01 00:00:03     0       108
+## 2   34552551 2016-01-01 00:00:07     1       151
+## 3   34552552 2016-01-01 00:00:39     2      1942
+## 4   34552554 2016-01-01 00:00:50     0       153
+## 5   34552555 2016-01-01 00:00:51    -1        54
+##                                                                                   title
+## 1                                                                 Scope between methods
+## 2      Rails - Unknown Attribute - Unable to add a new field to a form on create/update
+## 3 Selenium Firefox webdriver won&#39;t load a blank page after changing Firefox preferences
+## 4                                                       Android Studio styles.xml Error
+## 5                         Java: reference to non-finial local variables inside a thread
+##   ownerid  n
+## 1 5684416 83
+## 2 2457617  1
+## 3 5732525  5
+## 4 5735112  2
+## 5 4646288 10
+</code></pre>
+
+<ul>
+<li>Compute cumulative calculations </li>
+</ul>
+
+<pre><code class="r">## Rank (based on ordering by creationdate) of questions by owner
+dbGetQuery(db, &quot;select *,
+                rank() over (partition by ownerid order by creationdate) as rank
+                from questions limit 5&quot;)
+</code></pre>
+
+<pre><code>##   questionid        creationdate score viewcount
+## 1   34552558 2016-01-01 00:01:27     1       190
+## 2   34552612 2016-01-01 00:13:10     0        42
+## 3   34552655 2016-01-01 00:21:58     2       383
+## 4   34552875 2016-01-01 01:16:40     0        56
+## 5   34552973 2016-01-01 01:44:31     2      5824
+##                                                                                                     title
+## 1                                   Force delete Session records for the current login User : Laravel 5.2
+## 2                                                             How do I impliment [example.text intValue]?
+## 3                                                            RGB to HSV conversion results in noisy image
+## 4                                                                     When session is considered accessed
+## 5 What does &quot;cannot invoke initializer for type &#39;Int&#39; with an argument list of type &#39;UITextField&#39; &quot; mean?
+##   ownerid rank
+## 1      NA    1
+## 2      NA    2
+## 3      NA    3
+## 4      NA    4
+## 5      NA    5
+</code></pre>
+
+<pre><code class="r">dbGetQuery(db, &quot;select *,
+                rank() over (partition by ownerid order by creationdate) as rank
+                from questions order by ownerid desc limit 10&quot;)
+</code></pre>
+
+<pre><code>##    questionid        creationdate score viewcount
+## 1    40826005 2016-11-27 05:23:07     1        38
+## 2    40866431 2016-11-29 12:53:25     1        97
+## 3    39327617 2016-09-05 09:30:49     0       402
+## 4    39529293 2016-09-16 10:31:49     0        27
+## 5    39916423 2016-10-05 11:50:10     2        62
+## 6    36130306 2016-03-21 11:11:37     0        41
+## 7    41301378 2016-12-23 12:16:10     0        87
+## 8    41142480 2016-12-14 12:18:45    -1        78
+## 9    39909804 2016-10-07 05:08:09     0        34
+## 10   38286904 2016-07-09 22:32:49     0       107
+##                                                                                           title
+## 1                                                 How to set values in the select dropdown box?
+## 2                                                                      How to use LatLngBounds?
+## 3                                                              How To Get Cookies From WebView?
+## 4                                              How to copy file SDCard to System Rooted Device?
+## 5                                                               Memory mapping behaviour in QNX
+## 6                                                                 AEGetParamDesc / MacOS X 10.7
+## 7  I want to remove some if loops from a php routine, leaving the code more compact and dynamic
+## 8                                                  Add multiple choice option to quiz generator
+## 9                                           How to completely disable auto changes in ckeditor?
+## 10                                       Unable to save a model object with Spring MVC and AJAX
+##    ownerid rank
+## 1  7693696    1
+## 2  7693696    2
+## 3  7691703    1
+## 4  7691703    2
+## 5  7689389    1
+## 6  7674042    1
+## 7  7669738    1
+## 8  7661924    1
+## 9  7660866    1
+## 10 7660165    1
+</code></pre>
+
+<ul>
+<li>Do a lagged analysis</li>
+</ul>
+
+<pre><code class="r">## Get previous value (based on ordering by creationdate) by owner
+dbGetQuery(db, &quot;select ownerid, creationdate,
+                lag(creationdate, 1) over
+                (partition by ownerid order by creationdate)
+                as previous_date
+                from questions order by ownerid desc limit 5&quot;)
+</code></pre>
+
+<pre><code>##   ownerid        creationdate       previous_date
+## 1 7693696 2016-11-27 05:23:07                &lt;NA&gt;
+## 2 7693696 2016-11-29 12:53:25 2016-11-27 05:23:07
+## 3 7691703 2016-09-05 09:30:49                &lt;NA&gt;
+## 4 7691703 2016-09-16 10:31:49 2016-09-05 09:30:49
+## 5 7689389 2016-10-05 11:50:10                &lt;NA&gt;
+</code></pre>
+
+<p>So one could now calculate the difference between the previous and current date to analyze the time gaps between users posting questions.</p>
+
+<ul>
+<li>Do an analysis within an arbitrary window of rows based on the values in one of the columns</li>
+</ul>
+
+<pre><code class="r">## Summarize questions within 5 days of current question 
+dbGetQuery(db, &quot;select ownerid, creationdate,
+                count() over
+                (partition by ownerid order by julianday(creationdate)
+                range between 5 preceding and 5 following)
+                as n_window
+                from questions where ownerid is not null limit 30&quot;)
+</code></pre>
+
+<pre><code>##    ownerid        creationdate n_window
+## 1       13 2016-12-13 06:09:50        1
+## 2       25 2016-02-18 05:31:01        1
+## 3       33 2016-03-23 11:39:08        1
+## 4       33 2016-08-05 15:32:30        1
+## 5       33 2016-08-27 08:01:24        1
+## 6       33 2016-10-10 12:50:36        1
+## 7       56 2016-05-11 09:40:11        2
+## 8       56 2016-05-13 13:44:03        2
+## 9       56 2016-09-14 14:13:19        1
+## 10      62 2016-06-09 17:16:10        1
+## 11      62 2016-09-10 02:31:17        1
+## 12      62 2016-12-31 01:21:24        1
+## 13      67 2016-08-01 12:51:13        1
+## 14      70 2016-04-07 14:16:07        1
+## 15      71 2016-01-18 22:54:07        1
+## 16      76 2016-09-15 20:28:54        1
+## 17      91 2016-01-11 21:27:56        1
+## 18      91 2016-12-28 15:13:48        1
+## 19      95 2016-04-19 10:19:09        1
+## 20     105 2016-03-22 18:08:52        1
+## 21     112 2016-10-02 05:20:24        1
+## 22     112 2016-10-11 03:44:41        1
+## 23     113 2016-12-20 22:25:21        1
+## 24     115 2016-12-29 20:59:24        1
+## 25     116 2016-01-05 17:14:47        1
+## 26     116 2016-01-12 00:54:30        1
+## 27     116 2016-01-22 21:06:24        5
+## 28     116 2016-01-26 17:32:31        7
+## 29     116 2016-01-27 06:52:11        9
+## 30     116 2016-01-27 17:59:30        9
+</code></pre>
+
+<p>There the &#39;5 preceding&#39; and &#39;5 following&#39; mean to include all rows within each ownerid
+that are within 5 Julian days (based on &#39;creationdate&#39;) of each row. </p>
+
+<p>(One can also choose a fixed number of rows by replacing &#39;range&#39; with &#39;rows&#39;.)</p>
+
+<p>So one could now analyze bursts of activity.</p>
+
+<pre><code class="r">dbGetQuery(db, &quot;select ownerid, creationdate,
+                count() over
+                (partition by ownerid order by julianday(creationdate)
+                range between 5 preceding and 5 following)
+                as n_window
+                from questions
+                where ownerid is not null
+                limit 30&quot;)
+</code></pre>
+
+<pre><code>##    ownerid        creationdate n_window
+## 1       13 2016-12-13 06:09:50        1
+## 2       25 2016-02-18 05:31:01        1
+## 3       33 2016-03-23 11:39:08        1
+## 4       33 2016-08-05 15:32:30        1
+## 5       33 2016-08-27 08:01:24        1
+## 6       33 2016-10-10 12:50:36        1
+## 7       56 2016-05-11 09:40:11        2
+## 8       56 2016-05-13 13:44:03        2
+## 9       56 2016-09-14 14:13:19        1
+## 10      62 2016-06-09 17:16:10        1
+## 11      62 2016-09-10 02:31:17        1
+## 12      62 2016-12-31 01:21:24        1
+## 13      67 2016-08-01 12:51:13        1
+## 14      70 2016-04-07 14:16:07        1
+## 15      71 2016-01-18 22:54:07        1
+## 16      76 2016-09-15 20:28:54        1
+## 17      91 2016-01-11 21:27:56        1
+## 18      91 2016-12-28 15:13:48        1
+## 19      95 2016-04-19 10:19:09        1
+## 20     105 2016-03-22 18:08:52        1
+## 21     112 2016-10-02 05:20:24        1
+## 22     112 2016-10-11 03:44:41        1
+## 23     113 2016-12-20 22:25:21        1
+## 24     115 2016-12-29 20:59:24        1
+## 25     116 2016-01-05 17:14:47        1
+## 26     116 2016-01-12 00:54:30        1
+## 27     116 2016-01-22 21:06:24        5
+## 28     116 2016-01-26 17:32:31        7
+## 29     116 2016-01-27 06:52:11        9
+## 30     116 2016-01-27 17:59:30        9
+</code></pre>
+
+<p>The ROWS and RANGE syntax allow one to specify the <em>window frame</em> in more flexible ways than simply the categories of a categorical variable.</p>
+
+<p>So the syntax of a window function will generally have these elements:</p>
+
+<ul>
+<li>a call to some function</li>
+<li>OVER</li>
+<li>PARTITION BY (optional)</li>
+<li>ORDER BY (optional)</li>
+<li>RANGE or ROW (optional)</li>
+<li>AS (optional)</li>
+</ul>
+
+<p>You can also name window functions, which comes in handy if you want multiple functions applied to the same window:</p>
+
+<pre><code class="r">dbGetQuery(db, &quot;select ownerid, creationdate,
+                lag(creationdate, 1) over w as lag1,
+                lag(creationdate, 2) over w as lag2
+                from questions where ownerid is not null
+                window w as (partition by ownerid order by creationdate)
+                order by ownerid limit 5&quot;)
+</code></pre>
+
+<pre><code>##   ownerid        creationdate                lag1
+## 1      13 2016-12-13 06:09:50                &lt;NA&gt;
+## 2      25 2016-02-18 05:31:01                &lt;NA&gt;
+## 3      33 2016-03-23 11:39:08                &lt;NA&gt;
+## 4      33 2016-08-05 15:32:30 2016-03-23 11:39:08
+## 5      33 2016-08-27 08:01:24 2016-08-05 15:32:30
+##                  lag2
+## 1                &lt;NA&gt;
+## 2                &lt;NA&gt;
+## 3                &lt;NA&gt;
+## 4                &lt;NA&gt;
+## 5 2016-03-23 11:39:08
+</code></pre>
+
+<p>What does that query do?</p>
+
+<p><strong><em>Challenge</em></strong>: Use a window function to compute the average viewcount for each ownerid for the 10 questions preceding each question. </p>
 
 <h2>2.5) Database management and command-line operation</h2>
 
@@ -1140,7 +1541,7 @@ select * from table1 natural join table2
 <pre><code>sqlite3 wikistats.db
 </code></pre>
 
-<p>Here&#39;s the syntax to create a table:</p>
+<p>Here&#39;s the syntax to create an (empty) table:</p>
 
 <pre><code>create table webtraffic
 (date char(8), hour char(6), site varchar, page varchar, count integer, size double precision);
@@ -1169,7 +1570,7 @@ done
 <p>The problem in this example with importing into SQLite is the presence of double quote (&ldquo;) characters that are not meant to delineate strings but are actually part of a field. In this case probably the easiest thing is simply to strip out those quotes from UNIX. Here we use <code>sed</code> to search and replace to create versions of the input files that don&#39;t have the quotes.</p>
 
 <pre><code class="bash">for file in $(ls *gz); do
-    gzip -cd $file | sed  &quot;s/\&quot;//g&quot; | gzip -c &gt; ../wikistats-cleaned/$file
+    gzip -cd ${file} | sed  &quot;s/\&quot;//g&quot; | gzip -c &gt; ../wikistats-cleaned/${file}
 done
 </code></pre>
 
@@ -1188,7 +1589,7 @@ done
 
 <p>Next we&#39;ll see how to set up a database. You&#39;ll generally need to operate as the <code>postgres</code> user for these sorts of manipulations. Of course if you&#39;re just a user accessing an existing database and existing tables, you don&#39;t need to worry about this.</p>
 
-<pre><code>sudo su - postgres # become the postgres user
+<pre><code>sudo su - postgres  # become the postgres user
 psql  # start postgres interpreter
 </code></pre>
 
@@ -1196,9 +1597,7 @@ psql  # start postgres interpreter
 
 <p>In this case we&#39;ll be explicit about where on the disk filesystem the database is stored, but you probably only need to worry about this if you are creating a large database. </p>
 
-<pre><code>show data_directory;
-create tablespace dbspace location &#39;/var/tmp/pg&#39;;
-create database wikistats tablespace dbspace;
+<pre><code>create database wikistats;
 create user paciorek with password &#39;test&#39;;
 grant all privileges on database wikistats to paciorek;
 </code></pre>
@@ -1215,6 +1614,15 @@ grant all privileges on table webtraffic to paciorek;
 </code></pre>
 
 <p>Note the use of <code>\</code> to do administrative tasks (as opposed to executing SQL syntax), and the use of <code>;</code> to end each statement. Without the semicolon, Postgres will return without doing anything.</p>
+
+<p>If you want control over where the database is stored (you probably only need to worry about this if you are creating a large database), you can do things like this:</p>
+
+<pre><code>show data_directory;
+create tablespace dbspace location &#39;/var/tmp/pg&#39;;
+create database wikistats tablespace dbspace;
+create user paciorek with password &#39;test&#39;;
+grant all privileges on database wikistats to paciorek;
+</code></pre>
 
 <h4>Populating a table</h4>
 
@@ -1302,13 +1710,29 @@ dbGetQuery(db, &quot;select * from pg_settings where name=&#39;dynamic_shared_me
 
 <p>You can actually examine the query plan that the system is going to use for a query using the EXPLAIN keyword. I&#39;d suggest trying this in Postgres as the output is more interpretable than SQLite.</p>
 
+<pre><code>dbGetQuery(db, &quot;explain select * from webtraffic where count &gt; 500&quot;)
+</code></pre>
+
+<p>In PostgreSQL that gives the following:</p>
+
+<pre><code>                                                                        QUERY PLAN
+1                             Gather  (cost=1000.00..388634.17 rows=8513 width=61)
+2                                                               Workers Planned: 2
+3   -&gt;  Parallel Seq Scan on webtraffic  (cost=0.00..386782.88 rows=3547 width=61)
+4                                                            Filter: (count &gt; 500)
+</code></pre>
+
+<p>The &quot;Workers Planned: 2&rdquo; seems to indicate that there will be some parallelization used, even without us asking for that.</p>
+
+<p>Unfortunately I didn&#39;t set up a PostgreSQL version of the Stackoverflow database, but it would be interesting to see what query plan is involved in a join and when using indexes. </p>
+
 <pre><code>dbGetQuery(db, &quot;explain select * from questions join questions_tags on
                questions.questionid = questions_tags.questionid&quot;)
 dbGetQuery(db, &quot;explain select * from questions join questions_tags on
                questions.questionid = questions_tags.questionid where tag like &#39;python&#39;&quot;)
 </code></pre>
 
-<p>Here&#39;s additional information on interpreting what you see: <a href="https://www.postgresql.org/docs/9.5/static/using-explain.html">https://www.postgresql.org/docs/9.5/static/using-explain.html</a>.</p>
+<p>Here&#39;s additional information on interpreting what you see: <a href="https://www.postgresql.org/docs/current/static/using-explain.html">https://www.postgresql.org/docs/current/static/using-explain.html</a>.</p>
 
 <p>The main thing to look for is to see if the query will be done by using an index or by sequential scan (i.e., looking at all the rows). </p>
 
@@ -1341,7 +1765,7 @@ dbGetQuery(db, &quot;explain select * from questions join questions_tags on
 <p>However, multiple queries to the same database from separate R or Python sessions will generally run fine but can compete for access to disk/memory. That said, in some basic experiments, the slowdown was moderate, so one may be able to parallelize across processes in a manual fashion.</p>
 
 <p>As of version 9.6 of Postgres, there is some capability for doing parallel queries: 
-<a href="https://www.postgresql.org/docs/9.6/static/parallel-query.html">https://www.postgresql.org/docs/9.6/static/parallel-query.html</a>.</p>
+<a href="https://www.postgresql.org/docs/current/static/parallel-query.html">https://www.postgresql.org/docs/current/static/parallel-query.html</a>.</p>
 
 <p>Finally Postgres supports partitioning tables. Generally one would divide a large table into smaller tables based on unique values of a key. For example if your data had timetamps, you could partition into subtables for each month or each year. This would allow faster queries when considering data that reside on one or a small number of partitions and could also ease manual implementation of parallelization.  Here&#39;s some information:  <a href="https://www.postgresql.org/docs/current/static/ddl-partitioning.html">https://www.postgresql.org/docs/current/static/ddl-partitioning.html</a>.</p>
 
@@ -1491,13 +1915,13 @@ head(medianVotes)
 
 <pre><code>## # A tibble: 6 x 3
 ##     age median_upvotes median_downvotes
-##   &lt;int&gt;          &lt;dbl&gt;            &lt;dbl&gt;
-## 1    13           11.0                0
+##   &lt;dbl&gt;          &lt;dbl&gt;            &lt;dbl&gt;
+## 1    13           11                  0
 ## 2    14            0.5                0
-## 3    15            0.0                0
-## 4    16            3.0                0
-## 5    17            3.0                0
-## 6    18            3.0                0
+## 3    15            0                  0
+## 4    16            3                  0
+## 5    17            3                  0
+## 6    18            3                  0
 </code></pre>
 
 <p>You can also create new columns, sort, and do joins, as illustrated here:</p>
@@ -1515,19 +1939,18 @@ head(questionsOfYouth)
 </code></pre>
 
 <pre><code>## # A tibble: 6 x 15
-##    userid      creationdate.x      lastaccessdate    location
-##     &lt;int&gt;              &lt;dttm&gt;              &lt;dttm&gt;       &lt;chr&gt;
-## 1 3809164 2014-07-06 08:20:52 2017-03-11 17:49:25      Serbia
-## 2 3809164 2014-07-06 08:20:52 2017-03-11 17:49:25      Serbia
-## 3 3809164 2014-07-06 08:20:52 2017-03-11 17:49:25      Serbia
-## 4 3932721 2014-08-12 09:21:21 2016-12-02 12:09:06 Bob&#39;s house
-## 5 3932721 2014-08-12 09:21:21 2016-12-02 12:09:06 Bob&#39;s house
-## 6 3932721 2014-08-12 09:21:21 2016-12-02 12:09:06 Bob&#39;s house
-## # ... with 11 more variables: reputation &lt;int&gt;,
-## #   displayname &lt;chr&gt;, upvotes &lt;int&gt;, downvotes &lt;int&gt;,
-## #   age &lt;int&gt;, accountid &lt;int&gt;, questionid &lt;int&gt;,
-## #   creationdate.y &lt;dttm&gt;, score &lt;int&gt;, viewcount &lt;int&gt;,
-## #   title &lt;chr&gt;
+##   userid creationdate.x      lastaccessdate      location
+##    &lt;dbl&gt; &lt;dttm&gt;              &lt;dttm&gt;              &lt;chr&gt;   
+## 1 3.81e6 2014-07-06 08:20:52 2017-03-11 17:49:25 Serbia  
+## 2 3.81e6 2014-07-06 08:20:52 2017-03-11 17:49:25 Serbia  
+## 3 3.81e6 2014-07-06 08:20:52 2017-03-11 17:49:25 Serbia  
+## 4 3.93e6 2014-08-12 09:21:21 2016-12-02 12:09:06 Bob&#39;s h…
+## 5 3.93e6 2014-08-12 09:21:21 2016-12-02 12:09:06 Bob&#39;s h…
+## 6 3.93e6 2014-08-12 09:21:21 2016-12-02 12:09:06 Bob&#39;s h…
+## # … with 11 more variables: reputation &lt;dbl&gt;, displayname &lt;chr&gt;,
+## #   upvotes &lt;dbl&gt;, downvotes &lt;dbl&gt;, age &lt;dbl&gt;, accountid &lt;dbl&gt;,
+## #   questionid &lt;dbl&gt;, creationdate.y &lt;dttm&gt;, score &lt;dbl&gt;,
+## #   viewcount &lt;dbl&gt;, title &lt;chr&gt;
 </code></pre>
 
 <p><strong><em>Challenge</em></strong>: Why did I first filter and then do the join, rather than the reverse?</p>
@@ -1561,7 +1984,7 @@ head(questionsOfYouth)
 ## 3                                       OpenShift Maven does not use the correct JAVA_HOME
 </code></pre>
 
-<p>Note that dplyr and other tidyverse packages use a lot of &quot;non-standard evaluation&rdquo;. In this context of non-standard evaluation, the thing to pay attention to is that the column names are not quoted. This means that one cannot use a variable to stand in for a column. So the following woudn&#39;t work because dplyr would literally look for a variable named &ldquo;colname&rdquo; in the data frame. As of recent versions of dplyr, there is a system called tidyeval for addressing this but I won&#39;t go into it further here.</p>
+<p>Note that dplyr and other tidyverse packages use a lot of &ldquo;non-standard evaluation&rdquo;. In this context of non-standard evaluation, the thing to pay attention to is that the column names are not quoted. This means that one cannot use a variable to stand in for a column. So the following woudn&#39;t work because dplyr would literally look for a variable named &ldquo;colname&rdquo; in the data frame. As of recent versions of dplyr, there is a system called tidyeval for addressing this but I won&#39;t go into it further here.</p>
 
 <pre><code class="r">## this won&#39;t work because of non-standard evaluation! 
 myfun &lt;- function(df, colname) 
@@ -1569,7 +1992,7 @@ myfun &lt;- function(df, colname)
 myfun(questions, &#39;age&#39;)
 </code></pre>
 
-<pre><code>## Error: Strings must match column names. Unknown columns: age
+<pre><code>## Unknown column `age`
 </code></pre>
 
 <h3>3.4.2) dplyr with SQL and databases</h3>
@@ -1583,40 +2006,38 @@ collect(oldFolks)
 </code></pre>
 
 <pre><code>## # A tibble: 481 x 10
-##    userid        creationdate      lastaccessdate
-##     &lt;int&gt;               &lt;chr&gt;               &lt;chr&gt;
-##  1    987 2008-08-11 12:14:17 2017-03-13 18:08:20
-##  2   4668 2008-09-05 04:08:05 2017-03-13 21:19:14
-##  3  17826 2008-09-18 15:12:29 2017-03-13 07:40:39
-##  4  18149 2008-09-18 19:25:22 2017-03-13 19:31:17
-##  5  18625 2008-09-19 07:46:06 2017-03-13 11:16:46
-##  6  25809 2008-10-07 13:02:17 2017-03-13 20:29:46
-##  7  33810 2008-11-03 23:47:11 2017-02-12 17:11:16
-##  8  51090 2009-01-03 03:48:53 2016-11-29 06:24:50
-##  9  60433 2009-01-29 23:32:25 2017-02-23 02:58:10
-## 10  62596 2009-02-04 20:11:52 2017-03-09 22:15:32
-## # ... with 471 more rows, and 7 more variables: location &lt;chr&gt;,
-## #   reputation &lt;int&gt;, displayname &lt;chr&gt;, upvotes &lt;int&gt;,
-## #   downvotes &lt;int&gt;, age &lt;int&gt;, accountid &lt;int&gt;
+##    userid creationdate lastaccessdate location reputation
+##     &lt;int&gt; &lt;chr&gt;        &lt;chr&gt;          &lt;chr&gt;         &lt;int&gt;
+##  1    987 2008-08-11 … 2017-03-13 18… United …      31483
+##  2   4668 2008-09-05 … 2017-03-13 21… Portlan…     116900
+##  3  17826 2008-09-18 … 2017-03-13 07… Califor…      16958
+##  4  18149 2008-09-18 … 2017-03-13 19… Johnsto…       9102
+##  5  18625 2008-09-19 … 2017-03-13 11… In fron…       2643
+##  6  25809 2008-10-07 … 2017-03-13 20… United …        687
+##  7  33810 2008-11-03 … 2017-02-12 17… Seattle…       1993
+##  8  51090 2009-01-03 … 2016-11-29 06… San Die…       2114
+##  9  60433 2009-01-29 … 2017-02-23 02… &lt;NA&gt;             91
+## 10  62596 2009-02-04 … 2017-03-09 22… Santa C…      18251
+## # … with 471 more rows, and 5 more variables: displayname &lt;chr&gt;,
+## #   upvotes &lt;int&gt;, downvotes &lt;int&gt;, age &lt;int&gt;, accountid &lt;int&gt;
 </code></pre>
 
 <pre><code class="r">head(oldFolks)
 </code></pre>
 
 <pre><code>## # Source:   lazy query [?? x 10]
-## # Database: sqlite 3.11.1
-## #   [/accounts/gen/vis/paciorek/staff/tutorials/tutorial-databases/data/stackoverflow-2016.db]
-##   userid        creationdate      lastaccessdate
-##    &lt;int&gt;               &lt;chr&gt;               &lt;chr&gt;
-## 1    987 2008-08-11 12:14:17 2017-03-13 18:08:20
-## 2   4668 2008-09-05 04:08:05 2017-03-13 21:19:14
-## 3  17826 2008-09-18 15:12:29 2017-03-13 07:40:39
-## 4  18149 2008-09-18 19:25:22 2017-03-13 19:31:17
-## 5  18625 2008-09-19 07:46:06 2017-03-13 11:16:46
-## 6  25809 2008-10-07 13:02:17 2017-03-13 20:29:46
-## # ... with 7 more variables: location &lt;chr&gt;, reputation &lt;int&gt;,
-## #   displayname &lt;chr&gt;, upvotes &lt;int&gt;, downvotes &lt;int&gt;,
-## #   age &lt;int&gt;, accountid &lt;int&gt;
+## # Database: sqlite 3.29.0
+## #   [/accounts/gen/vis/paciorek/teaching/243fall19/stat243-fall-2019/data/stackoverflow-2016.db]
+##   userid creationdate lastaccessdate location reputation
+##    &lt;int&gt; &lt;chr&gt;        &lt;chr&gt;          &lt;chr&gt;         &lt;int&gt;
+## 1    987 2008-08-11 … 2017-03-13 18… United …      31483
+## 2   4668 2008-09-05 … 2017-03-13 21… Portlan…     116900
+## 3  17826 2008-09-18 … 2017-03-13 07… Califor…      16958
+## 4  18149 2008-09-18 … 2017-03-13 19… Johnsto…       9102
+## 5  18625 2008-09-19 … 2017-03-13 11… In fron…       2643
+## 6  25809 2008-10-07 … 2017-03-13 20… United …        687
+## # … with 5 more variables: displayname &lt;chr&gt;, upvotes &lt;int&gt;,
+## #   downvotes &lt;int&gt;, age &lt;int&gt;, accountid &lt;int&gt;
 </code></pre>
 
 <p>The <code>collect</code> statement after the filtering is needed because dplyr uses lazy evaluation when interfacing with databases &ndash; it only does the query and return results when the results are needed.</p>

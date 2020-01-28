@@ -5,7 +5,7 @@ Querying and manipulating databases and datasets in R and Python
 
 Chris Paciorek, Department of Statistics, UC Berkeley
 
-Last updated: October 2017
+Last updated: January 2020
 
 ```{r setup, include=FALSE}
 options(replace.assign=TRUE, width=65)
@@ -28,7 +28,7 @@ git clone https://github.com/berkeley-scf/tutorial-databases
 
 Alternatively you can simply download a [zip file](https://github.com/berkeley-scf/tutorial-databases/archive/master.zip) containing all the materials.
 
-The example data files are not part of the Github repository. You can get the example data files (both Stack Overflow data and Wikipedia webtraffic data) [here](http://www.stat.berkeley.edu/share/paciorek/tutorial-databases-data.zip).
+The example data files are not part of the Github repository. You can get the example data files (both Stack Overflow data and Wikipedia webtraffic data for the year 2016) [here](http://www.stat.berkeley.edu/share/paciorek/tutorial-databases-data.zip).
 
 To create this HTML document, simply compile the corresponding R Markdown file in R as follows on the command line (or execute this R code within R or RStudio):
 ```{r, build-html, eval=FALSE}
@@ -42,8 +42,10 @@ Solutions to the SQL challenges are available on request.
 To replicate the (non-essential) PostgreSQL administration portion of this tutorial, you'll need access to a machine on which you can run a PostgreSQL server. While there are a variety of ways to do this, this tutorial assumes that you are running PostgreSQL on an Ubuntu (or Debian) Linux machine. If you are a Windows or Mac user, there are several options for accessing a Linux environment:
 
 - You could run Ubuntu in a Docker container; Docker can be installed on Windows or Mac. Once you've installed Docker and have access to a terminal command line, please see the commands in `docker.sh` in this repository. 
-- You use an Ubuntu Linux virtual machine (VM) developed here at Berkeley, the [Berkeley Common Environment (BCE)](http://bce.berkeley.edu). BCE can be run through VirtualBox on your computer.  Once you've installed VirtualBox and started a BCE virtual machine and have access to a terminal command line, please see the commands in `bce.sh` in this repository. 
-- You can run an Amazon EC2 instance - either running BCE or by simply starting up an Amazon EC2 instance using a image that supports R and/or Python and then installing PostgreSQL as discussed in this tutorial.
+- You could run an Amazon EC2/Google Cloud/Azure virtual machine instance, using a image that supports R and/or Python and then installing PostgreSQL as discussed in this tutorial.
+- You could try to use an Ubuntu Linux virtual machine (VM) developed here at Berkeley, the [Berkeley Common Environment (BCE)](http://bce.berkeley.edu), though this is no longer maintained/supported. BCE can be run through VirtualBox on your computer.  Once you've installed VirtualBox and started a BCE virtual machine and have access to a terminal command line, please see the commands in `bce.sh` in this repository.
+
+Also note that in recent years the big cloud providers have created specific database services, so you are using a cloud provider, you'd probably want to take advantage of those rather than 'manually' running a database via a virtual machine. 
 
 This tutorial by Christopher Paciorek is licensed under a Creative Commons Attribution 3.0 Unported License (CC BY).
 
@@ -95,12 +97,11 @@ There are often multiple ways to interact with a DBMS, including directly using 
 
 There are a variety of relational database management systems (DBMS). Some that are commonly used by the intended audience of this tutorial are SQLite, PostgreSQL, and mySQL. We'll concentrate on SQLite (because it is simple to use on a single machine) and PostgreSQL (because is is a popular open-source DBMS that is a good representative of a client-server model and has some functionality that SQLite lacks).
 
-SQLite is quite nice in terms of being self-contained - there is no server-client model, just a single file on your hard drive that stores the database and to which you can connect to using the SQLite shell, R, Python, etc.  However, it does not have some useful functionality that other DBMS have. For example, you can't use `ALTER TABLE` to modify column types or drop columns. It also doesn't support [window functions](https://www.postgresql.org/docs/9.6/static/functions-window.html).
-
+SQLite is quite nice in terms of being self-contained - there is no server-client model, just a single file on your hard drive that stores the database and to which you can connect to using the SQLite shell, R, Python, etc.  However, it does not have some useful functionality that other DBMS have. For example, you can't use `ALTER TABLE` to modify column types or drop columns. 
 
 ### 2.1.2) NoSQL databases
 
-NoSQL (not only SQL) systems have to do with working with datasets that are not well-handled in traditional DBMS, and not specifically about the use or non-use of SQL itself. In particular data might not fit well within the rectangular row-column data model of one or more tables in a database. And one might be in a context where a full DBMS is not needed. Or one might have more data or need faster responses than can be well-handled by standard DBMS.
+NoSQL (not only SQL) systems have to do with working with datasets that are not handled well in traditional DBMS, and not specifically about the use or non-use of SQL itself. In particular data might not fit well within the rectangular row-column data model of one or more tables in a database. And one might be in a context where a full DBMS is not needed. Or one might have more data or need faster responses than can be handled well by standard DBMS.
 
 While these systems tend to scale better, they generally don't have a declarative query language so you end up having to do more programming yourself. For example in the Stanford database course referenced at the end of this tutorial, the noSQL video gives the example of web log data that records visits to websites. One might have the data in the form of files and not want to go through the trouble of data cleaning and extracting fields from unstructured text. In addition, one may need to do only simple queries that involve looking at each record separately and therefore can be easily done in parallel, which noSQL systems tend to be designed to do. Or one might have document data, such as Wikipedia pages, where the unstructured text on each page is not really suited for a DBMS. 
 
@@ -131,7 +132,7 @@ Now let's see some more interesting usage of other SQL syntax.
 ```
 ## find the largest viewcounts in the questions table
 select distinct viewcount from questions order by viewcount desc limit 20
-## now get the questions that are viewed the most
+## get the questions that are viewed the most
 select * from questions where viewcount > 100000
 ```
 
@@ -156,7 +157,7 @@ And here is a table of some important keywords:
 
 For comparisons in a WHERE clause, some common syntax for setting conditions includes LIKE (for patterns), =, >, <, >=, <=, !=.
 
-Some other keywords are: DISTINCT, ON, JOIN, GROUP BY, AS, USING, UNION, INTERSECT, SIMILAR TO. 
+Some other keywords are: DISTINCT, ON, JOIN, GROUP BY, AS, USING, UNION, INTERSECT, SIMILAR TO, SUBSTR in SQLite and SUBSTRING in PostgreSQL. 
 
 ### 2.2.2.) Schema and normalization
 
@@ -199,7 +200,7 @@ There are a lot of problems with this.
 
 It would get even worse if there was a field related to teachers for which a given teacher could have multiple values (e.g., teachers could be in multiple departments). This would lead to even more redundancy - each student-class-teacher combination would be crossed with all of the departments for the teacher (so-called multivalued dependency in database theory).
 
-An alternative organization of the data would be to have each row represent the enrollment of a student in a class.
+An alternative organization of the data would be to have each row represent the enrollment of a student in a class, with as many rows per student as the number of classes the student is taking.
 
  - student ID
  - student name
@@ -257,19 +258,20 @@ Some examples of foreign keys would be:
 Suppose we want a result that has the grades of all students in 9th grade. For this we need information from the Student table (to determine grade level) and information from the ClassAssignment table (to determine the class grade). More specifically we need a query that joins 'Student' with 'ClassAssignment' based on 'Student.ID' and 'ClassAssignment.student_ID' and filters the rows based on 'Student.grade_level':
 
 ```
-SELECT Student.ID, grade FROM Student, ClassAssignment WHERE Student.ID = ClassAssignment.student_ID 
-          and Student.grade_level = 9;
+SELECT Student.ID, grade FROM Student, ClassAssignment
+       WHERE Student.ID = ClassAssignment.student_ID 
+         AND Student.grade_level = 9;
 ```
 
-If we wanted to include information about the teachers who gave those grades we'd also join in the Teacher and Class tables. It would look something like this:
+If we wanted to include information about the teachers who gave those grades we'd also join in the Teacher and Class tables. (We need the Class table to be able to match from ClassAssignment to Teacher.) It would look something like this:
 
 ```
 SELECT Student.ID, grade, Teacher.name, Teacher.department FROM 
        Student, ClassAssignment, Teacher, Class
-       WHERE Student.ID = ClassAssignment.student_ID AND
-       ClassAssignment.class_ID = Class.ID AND
-       Class.teacher_ID = teacher.ID AND 
-       Student.grade_level = 9;
+       WHERE Student.ID = ClassAssignment.student_ID
+         AND ClassAssignment.class_ID = Class.ID 
+         AND Class.teacher_ID = teacher.ID
+         AND Student.grade_level = 9;
 ```
 
 Note that both of these queries are *joins* (specifically *inner joins*), which are like `merge()` in R. We  don't specifically use the JOIN keyword, but one could do these queries explicitly using JOIN, as we'll see later.
@@ -324,7 +326,7 @@ You can download a copy of the SQLite version of the Stack Overflow database (on
 
 In the next section I'll assume the .db file is placed in the subdirectory of the repository called `data`.
 
-Note that all of the code used to download the data from the Stack Overflow website and to manipulate it to create a complete Postgres database and (for the year 2016 only) an SQLite database and CSVs for each table is in the `data/prep_stackoverflow` subdirectory of this repository.
+Note that all of the code used to download the data from the Stack Overflow website and to manipulate it to create a complete Postgres database and (for the year 2016 only) an SQLite database and CSVs for each table is in the `data/prep_stackoverflow` subdirectory of this repository. Note that as of January 2020, [the data are still be kept up to date online](https://archive.org/download/stackexchange).
 
 ### 2.3.2) Accessing SQL from other languages
 
@@ -365,6 +367,7 @@ results <- dbGetQuery(db, 'select * from questions limit 5')
 class(results)
 
 query <- dbSendQuery(db, "select * from questions")
+query
 results2 <- fetch(query, 5)
 identical(results, results2)
 dbClearResult(query)  # clear to prepare for another query
@@ -410,7 +413,7 @@ Here's how you would connect to PostgreSQL instead:
 
 ```
 import psycopg2 as pg
-db = pg.connect("dbname='stackoverflow' user='paciorek' host='localhost' password='test')
+db = pg.connect("dbname = 'stackoverflow' user = 'paciorek' host = 'localhost' password = 'test'")
 c = db.cursor()
 ```
 
@@ -439,32 +442,32 @@ db <- dbConnect(drv, dbname = file.path(dir, dbFilename))
 ```
 
 ```{r, eval=SLOWEVAL}
-## a join without JOIN
-result1 <- dbGetQuery(db, "select * from questions, questions_tags where
-        questions.questionid = questions_tags.questionid and tag = 'python'")
-head(result1)
-
 ## a join with JOIN
-result2 <- dbGetQuery(db, "select * from questions join questions_tags on
-           questions.questionid = questions_tags.questionid where tag = 'python'")
+result1 <- dbGetQuery(db, "select * from questions join questions_tags 
+           on questions.questionid = questions_tags.questionid where tag = 'python'")
 
 identical(result1, result2)
+
+## a join without JOIN
+result2 <- dbGetQuery(db, "select * from questions, questions_tags
+        where questions.questionid = questions_tags.questionid and tag = 'python'")
+head(result2)
+
 ```
 
 Here's a three-way join with some additional use of aliases to abbreviate table names. What does this query ask for?
 
 ```{r, eval=SLOWEVAL}
-result1 <- dbGetQuery(db, "select * from questions Q, questions_tags T, users U where
-        Q.questionid = T.questionid and
-        Q.ownerid = U.userid and
-        tag = 'python' and
-        age < 18")
-
-result2 <- dbGetQuery(db, "select * from questions Q
+result1 <- dbGetQuery(db, "select * from questions Q
         join questions_tags T on Q.questionid = T.questionid
-        join users U on Q.ownerid = U.userid where
-        tag = 'python' and
-        age < 18")
+        join users U on Q.ownerid = U.userid
+        where tag = 'python' and age < 18")
+
+result2 <- dbGetQuery(db, "select * from questions Q, questions_tags T, users U
+        where Q.questionid = T.questionid 
+          and Q.ownerid = U.userid
+          and tag = 'python' 
+          and age < 18")
 
 identical(result1, result2)
 ```
@@ -480,12 +483,23 @@ A common pattern of operation is to stratify the dataset, i.e., collect it into 
 Here's a basic example where we count the occurrences of different tags. 
 
 ```
-dbGetQuery(db, "select tag, count(*) as n from questions_tags group by tag order by n desc limit 100")
+dbGetQuery(db, "select tag, count(*) as n from questions_tags
+                group by tag order by n desc limit 100")
 ```
 
 ***Challenge***: What specifically does that query do? Describe the table that would be returned.
 
 In general `GROUP BY` statements will involve some aggregation operation on the subsets. Options include: COUNT, MIN, MAX, AVG, SUM.
+
+Note that to filter the result of a grouping operation, we need to use `having` rather than `where`.
+
+Also note the use of `as` to define a name for the new column.
+
+
+```
+dbGetQuery(db, "select tag, count(*) as n from questions_tags
+                group by tag having n > 100000 limit 10")
+```
 
 ***Challenge***: Write a query that will count the number of answers for each question, returning the most answered questions. 
 
@@ -509,9 +523,11 @@ DBMS use indexing to provide sub-linear time lookup. Without indexes, a database
 Here's how we create an index, with some time comparison for a simple query.
 
 ```{r}
-system.time(dbGetQuery(db, "select * from questions where viewcount > 10000"))     # 10 seconds
-system.time(dbGetQuery(db, "create index count_index on questions (viewcount)"))  # 19 seconds
-system.time(dbGetQuery(db, "select * from questions where viewcount > 10000"))    # 3 seconds
+system.time(dbGetQuery(db, "select * from questions where viewcount > 10000"))     # 2.4 seconds
+system.time(dbExecute(db, "create index count_index on questions (viewcount)"))  # 5.6 seconds
+system.time(dbGetQuery(db, "select * from questions where viewcount > 10000"))    # 0.9 seconds
+## restore earlier state by removing index
+system.time(dbExecute(db, "drop index count_index"))
 ```
 
 In other contexts, an index can save huge amounts of time. So if you're working with a database and speed is important, check to see if there are indexes.
@@ -525,16 +541,13 @@ You can think of a view as a temporary table that is the result of a query and c
 
 Suppose we always want the age and displayname of question owners available. Once we have the view we can query it like a regular table.
 
-```{r, eval=TRUE, include=FALSE}
-dbGetQuery(db, "drop view questionsAugment") # drop so can create again in next step
-```
 
 ```{r, eval=SLOWEVAL}
 ## note there is a creationdate in users too, hence disambiguation
-dbGetQuery(db, "create view questionsAugment as select
-               questionid, questions.creationdate, score, viewcount, title, ownerid, age, displayname
+dbExecute(db, "create view questionsAugment as
+               select questionid, questions.creationdate, score, viewcount, title, ownerid, age, displayname
                from questions join users on questions.ownerid = users.userid")
-## don't be confused by the "data frame with 0 columns and 0 rows" message --
+## don't be confused by the "0" response --
 ## it just means that nothing is returned to R; the view _has_ been created
                
 dbGetQuery(db, "select * from questionsAugment where age < 15 limit 5")
@@ -542,6 +555,9 @@ dbGetQuery(db, "select * from questionsAugment where age < 15 limit 5")
                
 One use of a view would be to create a mega table that stores all the information from multiple tables in the (unnormalized) form you might have if you simply had one data frame in R or Python.
 
+```{r, eval=TRUE, include=FALSE}
+dbExecute(db, "drop view questionsAugment") # drop so can create again when rerun the code above
+```
 
 
 
@@ -554,8 +570,10 @@ One can create tables from within the `sqlite` and `psql` command line interface
 dbWriteTable(conn = db, name = "student", value = "student.csv", row.names = FALSE, header = TRUE)
 
 ## Option 2: pass from data in an R data frame
-#student <- data.frame(...)
-#student <- read.csv(...)
+## First create your data frame:
+# student <- data.frame(...)
+## or
+# student <- read.csv(...)
 dbWriteTable(conn = db, name = "student", value = student, row.names = FALSE, append = FALSE)
 ```
 
@@ -597,7 +615,7 @@ select * from table1 join table2 using(id)
 select * from table1 natural join table2
 ```
 
-Note that in the last query the join would be based on all common columns, which could be a bit dangerous if you don't look carefully at the schema of both tables. Assuming `id` is the common column then the last of these queries is the same as the others.
+Note that in the last query the join would be based on all common columns, which could be a bit dangerous if you don't look carefully at the schema of both tables. Assuming `id` is the common column, then the last of these queries is the same as the others.
 
 ***Challenge***: Create a view with one row for every question-tag pair, including questions without any tags.
 
@@ -608,7 +626,7 @@ Note that in the last query the join would be based on all common columns, which
 
 ### 2.4.2) Joining a table with itself (self joins)
 
-Sometimes we want to query information across rows of the same table. For example supposed we want to analyze the time lags between when the same person posts a question. Do people tend to post in bursts or do they tend to post uniformly over the year? To do this we need contrasts between the times of the different posts. (I think this might also be possible using window functions in Postgres, not available in SQLite, but I haven't looked into that.)
+Sometimes we want to query information across rows of the same table. For example supposed we want to analyze the time lags between when the same person posts a question. Do people tend to post in bursts or do they tend to post uniformly over the year? To do this we need contrasts between the times of the different posts. (One can also address this using window functions, discussed later.)
 
 So we need to join two copies of the same table, which means dealing with resolving the multiple copies of each column.
 
@@ -688,6 +706,8 @@ Which is faster? The second one looks more involved in terms of the joins, so th
 
 Or we could use UNION or EXCEPT to find people who have asked either or only one type of question, respectively.
 
+***Challenge***: Find the users who have asked either an R question or a Python question.
+
 ***Challenge***: Find the users who have asked only an R question and not a Python question.
 
 
@@ -708,15 +728,64 @@ dbGetQuery(db, "select substring(creationdate from '#\"[[:digit:]]{4}#\"%' for '
                from questions limit 3")
 ```
 
-The above example also illustrates the use of AS to create a new field based on manipulation of existing fields. AS (but not SUBSTRING) can be used in SQLite as well. Here's an example:
+Note that SQLite provides SUBSTR for substrings, but the flexibility of SUBSTR seems to be much less than use of SUBSTRING in PostgreSQL.
+
+Here is some [documentation on string functions in PostgreSQL](https://www.postgresql.org/docs/current/functions-string.html).
+
+***Challenge***: Figure out how to calculate the length (in characters) of the title of each question. 
+
+***Challenge***:Process the creationdate field to create year, day, and month fields in a new view. Note that this would be good practice for string manipulation but you would want to handle dates and times using the material in the next section and not use string processing.
+
+### 2.4.5) Dates and times
+
+Here we'll see how you can work with dates and times in SQLite, but the functionality should be similar in other DBMS.
+
+SQLite doesn't have specific date-time types, but it's standard to store date-times as strings in the text field 
+in the ISO-8601 format: YYYY-MM-DD HH:MM:SS.SSS. That's the format of the dates in the StackOverflow database:
 
 ```{r, eval=TRUE}
-dbGetQuery(db, "select upvotes/1000 as upvote1000s from users limit 3")
+dbGetQuery(db, "select distinct creationdate from questions limit 5")
 ```
 
-***Challenge***: Process the creationdate field to create year, day, and month fields in a new view. Extra: do some research to figure out if there are tools for working with date-time strings that don't involve string processing like you just had to do.
+Then SQLite provides some powerful functions for manipulating and extracting information in such fields. Here are just a few examples, noting that `strftime` is particularly powerful. Other DBMS should have similar functionality, but I haven't investigated further. 
 
-### 2.4.5) Subqueries
+
+```{r, eval=TRUE}
+## Julian days (decimal days since noon UTC/Greenwich time November 24, 4714 BC (Yikes!)). 
+output <- dbGetQuery(db, "select creationdate, julianday(creationdate)
+                from questions limit 5")
+output
+## Julian day is decimal-valued:
+formatC(output[ , 2], 6, format = 'f')
+
+## Convert to local time
+dbGetQuery(db, "select distinct creationdate, datetime(creationdate, 'localtime')
+                from questions limit 5")
+## Eastern time, manually, ignoring daylight savings
+dbGetQuery(db, "select distinct creationdate, datetime(creationdate, '-05:00')
+                from questions limit 5")
+
+## day of week: Jan 1 2016 was a Friday (0=Sunday, 6=Saturday)
+dbGetQuery(db, "select creationdate, strftime('%w', creationdate)
+                from questions limit 5")
+```
+
+Unfortunately I'm not sure if the actual dates in the database are Greenwich time or some US time zone, but we'll ignore that complication here.
+
+Let's put it all together to do something meaningful.
+
+
+```{r, eval=TRUE, fig.cap="", fig.width=5, fig.height=4}
+result <- dbGetQuery(db, "select strftime('%H', creationdate) as hour,
+                          count() as n from questions group by hour")
+head(result)
+plot(as.numeric(result$hour), result$n, xlab = 'hour of day (UTC/Greenwich???)',
+                                        ylab = 'number of questions')
+```
+
+Here's some [documentation of the syntax for the functions, including `stftime`](https://www.sqlite.org/lang_datefunc.html).
+
+### 2.4.6) Subqueries
 
 #### Subqueries in the WHERE statement
 
@@ -773,7 +842,7 @@ dbGetQuery(db, "select * from questions Q join questions_tags T on
 Finally one can use subqueries in the SELECT clause to create new variables, but we won't go into that here.
 
 
-### 2.4.6) Complicated grouping queries
+### 2.4.7) Complicated grouping queries
 
 Here's an example of a complicated query involving aggregation in which we figure out the most popular tags amongst the most popular questions (in fact this is one possible answer to one of the previous challenges). Also note the subquery in the JOIN.
 
@@ -789,6 +858,105 @@ dbGetQuery(db, "select T.tag, count(*) as n
 
 Ok, well that's pretty intimidating to try to just come up with that. A good strategy is probably to think about creating a view that is the result of the inner query and then have the outer query use that. You can then piece together the complicated query in a modular way. For big databases, you are likely to want to submit this as a single query and not two queries so that the SQL optimizer can determine the best way to do the operations. But you want to start with code that you're confident will give you the right answer!
 
+### 2.4.8) Window functions
+
+[Window functions](https://www.postgresql.org/docs/current/functions-window.html) provide the ability to perform calculations across sets of rows that are related to the current query row.
+
+Comments:
+
+ - The result of applying a window function is the same number of rows as the input, even though the functionality is similar to `group by`. Hint: think about the result of `group by` + `mutate` in dplyr in R.
+ - One can apply a window function within groups or across the whole table.
+ - The functions one can apply include standard aggregation functions such as `avg` and `count` as well as non-standard functions (specific to using window functions) such as `rank` and `cume_dist`.
+
+The syntax is a bit involved, so let's see with a range of examples:
+
+ - Aggregate within groups but with one output value per input row
+ 
+```{r, eval=TRUE}
+## Total number of questions for each owner
+dbGetQuery(db, "select *,
+                count() over (partition by ownerid) as n
+                from questions order by creationdate limit 5")
+```
+
+ - Compute cumulative calculations 
+```{r, eval=TRUE}
+## Rank (based on ordering by creationdate) of questions by owner
+dbGetQuery(db, "select *,
+                rank() over (partition by ownerid order by creationdate) as rank
+                from questions limit 5")
+dbGetQuery(db, "select *,
+                rank() over (partition by ownerid order by creationdate) as rank
+                from questions order by ownerid desc limit 10")
+```
+
+ - Do a lagged analysis
+```{r, eval=TRUE}
+## Get previous value (based on ordering by creationdate) by owner
+dbGetQuery(db, "select ownerid, creationdate,
+                lag(creationdate, 1) over
+                (partition by ownerid order by creationdate)
+                as previous_date
+                from questions order by ownerid desc limit 5")
+```
+So one could now calculate the difference between the previous and current date to analyze the time gaps between users posting questions.
+
+ - Do an analysis within an arbitrary window of rows based on the values in one of the columns
+ 
+```{r, eval=TRUE}
+## Summarize questions within 5 days of current question 
+dbGetQuery(db, "select ownerid, creationdate,
+                count() over
+                (partition by ownerid order by julianday(creationdate)
+                range between 5 preceding and 5 following)
+                as n_window
+                from questions where ownerid is not null limit 30")
+```
+There the '5 preceding' and '5 following' mean to include all rows within each ownerid
+that are within 5 Julian days (based on 'creationdate') of each row. 
+
+(One can also choose a fixed number of rows by replacing 'range' with 'rows'.)
+
+So one could now analyze bursts of activity.
+
+```{r, eval=TRUE}
+dbGetQuery(db, "select ownerid, creationdate,
+                count() over
+                (partition by ownerid order by julianday(creationdate)
+                range between 5 preceding and 5 following)
+                as n_window
+                from questions
+                where ownerid is not null
+                limit 30")
+```
+
+The ROWS and RANGE syntax allow one to specify the *window frame* in more flexible ways than simply the categories of a categorical variable.
+
+So the syntax of a window function will generally have these elements:
+
+ - a call to some function
+ - OVER
+ - PARTITION BY (optional)
+ - ORDER BY (optional)
+ - RANGE or ROW (optional)
+ - AS (optional)
+
+
+You can also name window functions, which comes in handy if you want multiple functions applied to the same window:
+
+
+```{r, eval=TRUE}
+dbGetQuery(db, "select ownerid, creationdate,
+                lag(creationdate, 1) over w as lag1,
+                lag(creationdate, 2) over w as lag2
+                from questions where ownerid is not null
+                window w as (partition by ownerid order by creationdate)
+                order by ownerid limit 5")
+```
+
+What does that query do?
+
+***Challenge***: Use a window function to compute the average viewcount for each ownerid for the 10 questions preceding each question. 
 
 ## 2.5) Database management and command-line operation
 
@@ -806,7 +974,7 @@ To start the SQLite interpreter in Linux, either operating on or creating a data
 sqlite3 wikistats.db
 ```
 
-Here's the syntax to create a table:
+Here's the syntax to create an (empty) table:
 ```
 create table webtraffic
 (date char(8), hour char(6), site varchar, page varchar, count integer, size double precision);
@@ -836,7 +1004,7 @@ The problem in this example with importing into SQLite is the presence of double
 
 ```{bash}
 for file in $(ls *gz); do
-    gzip -cd $file | sed  "s/\"//g" | gzip -c > ../wikistats-cleaned/$file
+    gzip -cd ${file} | sed  "s/\"//g" | gzip -c > ../wikistats-cleaned/${file}
 done
 ```
 
@@ -856,7 +1024,7 @@ sudo apt-get install postgresql postgresql-contrib
 Next we'll see how to set up a database. You'll generally need to operate as the `postgres` user for these sorts of manipulations. Of course if you're just a user accessing an existing database and existing tables, you don't need to worry about this.
 
 ```
-sudo su - postgres # become the postgres user
+sudo su - postgres  # become the postgres user
 psql  # start postgres interpreter
 ```
 
@@ -865,9 +1033,7 @@ Now from within the Postgres interpreter, you can create a database, tables with
 In this case we'll be explicit about where on the disk filesystem the database is stored, but you probably only need to worry about this if you are creating a large database. 
 
 ```
-show data_directory;
-create tablespace dbspace location '/var/tmp/pg';
-create database wikistats tablespace dbspace;
+create database wikistats;
 create user paciorek with password 'test';
 grant all privileges on database wikistats to paciorek;
 ```
@@ -886,6 +1052,15 @@ grant all privileges on table webtraffic to paciorek;
 
 Note the use of `\` to do administrative tasks (as opposed to executing SQL syntax), and the use of `;` to end each statement. Without the semicolon, Postgres will return without doing anything.
 
+If you want control over where the database is stored (you probably only need to worry about this if you are creating a large database), you can do things like this:
+
+```
+show data_directory;
+create tablespace dbspace location '/var/tmp/pg';
+create database wikistats tablespace dbspace;
+create user paciorek with password 'test';
+grant all privileges on database wikistats to paciorek;
+```
 
 #### Populating a table 
 
@@ -976,13 +1151,31 @@ Some tips for faster queries include:
 You can actually examine the query plan that the system is going to use for a query using the EXPLAIN keyword. I'd suggest trying this in Postgres as the output is more interpretable than SQLite.
 
 ```
+dbGetQuery(db, "explain select * from webtraffic where count > 500")
+```
+
+In PostgreSQL that gives the following:
+
+```
+                                                                        QUERY PLAN
+1                             Gather  (cost=1000.00..388634.17 rows=8513 width=61)
+2                                                               Workers Planned: 2
+3   ->  Parallel Seq Scan on webtraffic  (cost=0.00..386782.88 rows=3547 width=61)
+4                                                            Filter: (count > 500)
+```
+
+The "Workers Planned: 2" seems to indicate that there will be some parallelization used, even without us asking for that.
+
+Unfortunately I didn't set up a PostgreSQL version of the Stackoverflow database, but it would be interesting to see what query plan is involved in a join and when using indexes. 
+
+```
 dbGetQuery(db, "explain select * from questions join questions_tags on
                questions.questionid = questions_tags.questionid")
 dbGetQuery(db, "explain select * from questions join questions_tags on
                questions.questionid = questions_tags.questionid where tag like 'python'")
 ```
 
-Here's additional information on interpreting what you see: [https://www.postgresql.org/docs/9.5/static/using-explain.html](https://www.postgresql.org/docs/9.5/static/using-explain.html).
+Here's additional information on interpreting what you see: [https://www.postgresql.org/docs/current/static/using-explain.html](https://www.postgresql.org/docs/current/static/using-explain.html).
 
 The main thing to look for is to see if the query will be done by using an index or by sequential scan (i.e., looking at all the rows). 
 
@@ -1016,7 +1209,7 @@ To speed up your work, one might try to split up one's queries into multiple que
 However, multiple queries to the same database from separate R or Python sessions will generally run fine but can compete for access to disk/memory. That said, in some basic experiments, the slowdown was moderate, so one may be able to parallelize across processes in a manual fashion.
 
 As of version 9.6 of Postgres, there is some capability for doing parallel queries: 
-[https://www.postgresql.org/docs/9.6/static/parallel-query.html](https://www.postgresql.org/docs/9.6/static/parallel-query.html).
+[https://www.postgresql.org/docs/current/static/parallel-query.html](https://www.postgresql.org/docs/current/static/parallel-query.html).
 
 Finally Postgres supports partitioning tables. Generally one would divide a large table into smaller tables based on unique values of a key. For example if your data had timetamps, you could partition into subtables for each month or each year. This would allow faster queries when considering data that reside on one or a small number of partitions and could also ease manual implementation of parallelization.  Here's some information:  https://www.postgresql.org/docs/current/static/ddl-partitioning.html.
 
