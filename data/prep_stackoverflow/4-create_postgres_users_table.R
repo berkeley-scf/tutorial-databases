@@ -38,7 +38,7 @@ while (TRUE) {
   
   rows <- x %>% xml_find_first("body") %>% xml_find_all("row")
   
-  df <- data_frame(userid = rows %>% xml_attr("id"),
+  df <- tibble(userid = rows %>% xml_attr("id"),
                    creationdate = rows %>% xml_attr("creationdate"),
                    lastaccessdate = rows %>% xml_attr("lastaccessdate"),
                    location = rows %>% xml_attr("location"),

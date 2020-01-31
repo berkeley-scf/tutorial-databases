@@ -326,7 +326,7 @@ You can download a copy of the SQLite version of the Stack Overflow database (on
 
 In the next section I'll assume the .db file is placed in the subdirectory of the repository called `data`.
 
-Note that all of the code used to download the data from the Stack Overflow website and to manipulate it to create a complete Postgres database and (for the year 2016 only) an SQLite database and CSVs for each table is in the `data/prep_stackoverflow` subdirectory of this repository. Note that as of January 2020, [the data are still be kept up to date online](https://archive.org/download/stackexchange).
+Note that all of the code used to download the data from the Stack Overflow website and to manipulate it to create a complete Postgres database and (for the year 2016 only) an SQLite database and CSVs for each table is in the `data/prep_stackoverflow` subdirectory of this repository. Note that as of January 2020, [the data are still being kept up to date online](https://archive.org/download/stackexchange).
 
 ### 2.3.2) Accessing SQL from other languages
 
@@ -446,13 +446,12 @@ db <- dbConnect(drv, dbname = file.path(dir, dbFilename))
 result1 <- dbGetQuery(db, "select * from questions join questions_tags 
            on questions.questionid = questions_tags.questionid where tag = 'python'")
 
-identical(result1, result2)
-
 ## a join without JOIN
 result2 <- dbGetQuery(db, "select * from questions, questions_tags
         where questions.questionid = questions_tags.questionid and tag = 'python'")
 head(result2)
 
+identical(result1, result2)
 ```
 
 Here's a three-way join with some additional use of aliases to abbreviate table names. What does this query ask for?
@@ -956,7 +955,43 @@ dbGetQuery(db, "select ownerid, creationdate,
 
 What does that query do?
 
-***Challenge***: Use a window function to compute the average viewcount for each ownerid for the 10 questions preceding each question. 
+***Challenge***: Use a window function to compute the average viewcount for each ownerid for the 10 questions preceding each question.
+
+## 2.4.9) Putting it all together to do complicated queries
+
+Here are some real-world style questions one might try to create queries to answer. The context would be if you have data on user sessions on a website or data on messages between users. 
+
+1) Given a table of user sessions with the format
+```
+date | session_id | user_id | session_time
+```
+calculate the distribution of the average daily
+total session time in the last month. (the output should be something
+like:
+```
+minutes_per_day' | number_of_users
+```
+
+2) Consider a table of messages of the form
+```
+sender_id | receiver_id | message_id
+```
+For each user, find the three users they message the most.
+
+3) Suppose you have are running an online experiment and have a table on
+the experimental design
+```
+user_id | test_group | date_first_exposed
+```
+Suppose you also have a messages table that indicates if each message
+was sent on web or mobile:
+```
+date | sender_id | receiver_id | message_id | interface (web or mobile)
+```
+What is the average (over users) in the average number of messages sent per day for each test group
+if you look at the users who have sent messages only on mobile in the last month.
+
+
 
 ## 2.5) Database management and command-line operation
 
@@ -1004,7 +1039,7 @@ The problem in this example with importing into SQLite is the presence of double
 
 ```{bash}
 for file in $(ls *gz); do
-    gzip -cd ${file} | sed  "s/\"//g" | gzip -c > ../wikistats-cleaned/${file}
+    gzip -cd ${file} | sed  "s/\"//g" | gzip -c > wikistats-cleaned/${file}
 done
 ```
 
@@ -1024,7 +1059,7 @@ sudo apt-get install postgresql postgresql-contrib
 Next we'll see how to set up a database. You'll generally need to operate as the `postgres` user for these sorts of manipulations. Of course if you're just a user accessing an existing database and existing tables, you don't need to worry about this.
 
 ```
-sudo su - postgres  # become the postgres user
+sudo -u postgres -i  # become the postgres user
 psql  # start postgres interpreter
 ```
 
@@ -1038,7 +1073,9 @@ create user paciorek with password 'test';
 grant all privileges on database wikistats to paciorek;
 ```
 
-SQL allows various kinds of control over permissions to access and modify databases and tables as well.
+PostgreSQL and other DBMS (not SQLite) allow various kinds of control over permissions to access and modify databases and tables as well.
+It can get a bit involved because the administrator has fine-grained control over what each user can do/access.
+
 
 Now let's create a table in the database, after first connecting to the specific database so as to operate on it. 
 
@@ -1666,7 +1703,9 @@ We see that this machine has 264 GB RAM (the total column in the Mem row), with 
 
 ## 6.2) Remote access to PostgreSQL databases
 
-If you want to connect to a Postgres database running on a different machine, here's one approach that involves SSH port forwarding. First, on your machine, set up the port forwarding where 63333 should be an unused port on your local machine and PostgresHostMachine is the machine on which the database is running.
+If you want to connect to a Postgres database running on a different machine, here's one approach that involves SSH port forwarding. For example, you could connect to a Postgres database running on some server while working as usual in R or Python on your laptop.
+
+First, on your machine, set up the port forwarding where 63333 should be an unused port on your local machine and PostgresHostMachine is the machine on which the database is running.
 
 For Linux/Mac, from the terminal:
 
@@ -1676,7 +1715,7 @@ ssh -L 63333:localhost:5432 yourUserName@PostgresHostMachine
 
 Using Putty on Windows, go to 'Connection -> SSH -> Tunnels' and put '63333' as the 'Source port' and '127.0.0.1:5432' as the 'Destination'. Click 'Add' and then connect to the machine via Putty.
 
-Then you can connect by specifying the port on your local machine, with the example here being from R:
+Then (on your local machine) you can connect by specifying the port on your local machine, with the example here being from R:
 ```
 db <- dbConnect(drv, dbname = 'wikistats', user = 'yourUserName', 
    password = 'yourPassword', host = 'localhost', port = 63333)

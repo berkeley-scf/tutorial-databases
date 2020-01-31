@@ -48,7 +48,7 @@ while (TRUE) {
   
   total_questions <- total_questions + length(rows)
   
-  df <- data_frame(questionid = qrows %>% xml_attr("id"),
+  df <- tibble(questionid = qrows %>% xml_attr("id"),
                    creationdate = qrows %>% xml_attr("creationdate"),
                    score = qrows %>% xml_attr("score"),
                    viewcount = qrows %>% xml_attr("viewcount"),
@@ -65,12 +65,12 @@ while (TRUE) {
 	df$ownerid <- as.numeric(df$ownerid)
 	
 	
-	dbWriteTable(conn = con, name = "questions", as.data.frame(df[,c(1:6)]),
+	dbWriteTable(conn = con, name = "questions", as.data.frame(df[, -which(names(df) == 'tags')]), 
               row.names = FALSE, append = TRUE)
 
 	# parse the tags out from the questions and save in the questions_tags table  
   df2 <- df %>% select(questionid, tags) %>% group_by(questionid) %>% do({
-    data_frame(tag = str_split(.$tags, "<|>") %>% unlist() %>% setdiff(c("")))
+    tibble(tag = str_split(.$tags, "<|>") %>% unlist() %>% setdiff(c("")))
   }) %>% ungroup()
   df2$questionid <- as.numeric(df2$questionid)
   
@@ -90,7 +90,7 @@ while (TRUE) {
 # build the 'answers' table
   arows <- rows[posttypeids == "2"]
   
-  df3 <- data_frame(answerid = arows %>% xml_attr("id"),
+  df3 <- tibble(answerid = arows %>% xml_attr("id"),
                    questionid = arows %>% xml_attr("parentid"),
                    creationdate = arows %>% xml_attr("creationdate"),
                    score = arows %>% xml_attr("score"),

@@ -562,7 +562,7 @@ select * from questions where viewcount &gt; 100000
 
 <p>In the next section I&#39;ll assume the .db file is placed in the subdirectory of the repository called <code>data</code>.</p>
 
-<p>Note that all of the code used to download the data from the Stack Overflow website and to manipulate it to create a complete Postgres database and (for the year 2016 only) an SQLite database and CSVs for each table is in the <code>data/prep_stackoverflow</code> subdirectory of this repository. Note that as of January 2020, <a href="https://archive.org/download/stackexchange">the data are still be kept up to date online</a>.</p>
+<p>Note that all of the code used to download the data from the Stack Overflow website and to manipulate it to create a complete Postgres database and (for the year 2016 only) an SQLite database and CSVs for each table is in the <code>data/prep_stackoverflow</code> subdirectory of this repository. Note that as of January 2020, <a href="https://archive.org/download/stackexchange">the data are still being kept up to date online</a>.</p>
 
 <h3>2.3.2) Accessing SQL from other languages</h3>
 
@@ -721,13 +721,7 @@ c = db.cursor()
 result1 &lt;- dbGetQuery(db, &quot;select * from questions join questions_tags 
            on questions.questionid = questions_tags.questionid where tag = &#39;python&#39;&quot;)
 
-identical(result1, result2)
-</code></pre>
-
-<pre><code>## Error in identical(result1, result2): object &#39;result2&#39; not found
-</code></pre>
-
-<pre><code class="r">## a join without JOIN
+## a join without JOIN
 result2 &lt;- dbGetQuery(db, &quot;select * from questions, questions_tags
         where questions.questionid = questions_tags.questionid and tag = &#39;python&#39;&quot;)
 head(result2)
@@ -754,6 +748,12 @@ head(result2)
 ## 4 5736692      34560088 python
 ## 5 5636400      34560213 python
 ## 6 3262998      34560740 python
+</code></pre>
+
+<pre><code class="r">identical(result1, result2)
+</code></pre>
+
+<pre><code>## [1] TRUE
 </code></pre>
 
 <p>Here&#39;s a three-way join with some additional use of aliases to abbreviate table names. What does this query ask for?</p>
@@ -1012,7 +1012,7 @@ select * from table1 natural join table2
 </code></pre>
 
 <pre><code>##    user  system elapsed 
-##   8.419   2.952  28.753
+##   7.878   2.942  27.767
 </code></pre>
 
 <p>Alternatively we can do a self-join. Note that the syntax gets complicated as we are doing multiple joins.</p>
@@ -1031,7 +1031,7 @@ select * from table1 natural join table2
 </code></pre>
 
 <pre><code>##    user  system elapsed 
-##  17.560  16.517  50.264
+##  16.980  16.973  54.037
 </code></pre>
 
 <pre><code class="r">identical(result1, result2)
@@ -1524,7 +1524,45 @@ that are within 5 Julian days (based on &#39;creationdate&#39;) of each row. </p
 
 <p>What does that query do?</p>
 
-<p><strong><em>Challenge</em></strong>: Use a window function to compute the average viewcount for each ownerid for the 10 questions preceding each question. </p>
+<p><strong><em>Challenge</em></strong>: Use a window function to compute the average viewcount for each ownerid for the 10 questions preceding each question.</p>
+
+<h2>2.4.9) Putting it all together to do complicated queries</h2>
+
+<p>Here are some real-world style questions one might try to create queries to answer. The context would be if you have data on user sessions on a website or data on messages between users. </p>
+
+<p>1) Given a table of user sessions with the format</p>
+
+<pre><code>date | session_id | user_id | session_time
+</code></pre>
+
+<p>calculate the distribution of the average daily
+total session time in the last month. (the output should be something
+like:</p>
+
+<pre><code>minutes_per_day&#39; | number_of_users
+</code></pre>
+
+<p>2) Consider a table of messages of the form</p>
+
+<pre><code>sender_id | receiver_id | message_id
+</code></pre>
+
+<p>For each user, find the three users they message the most.</p>
+
+<p>3) Suppose you have are running an online experiment and have a table on
+the experimental design</p>
+
+<pre><code>user_id | test_group | date_first_exposed
+</code></pre>
+
+<p>Suppose you also have a messages table that indicates if each message
+was sent on web or mobile:</p>
+
+<pre><code>date | sender_id | receiver_id | message_id | interface (web or mobile)
+</code></pre>
+
+<p>What is the average (over users) in the average number of messages sent per day for each test group
+if you look at the users who have sent messages only on mobile in the last month.</p>
 
 <h2>2.5) Database management and command-line operation</h2>
 
@@ -1570,7 +1608,7 @@ done
 <p>The problem in this example with importing into SQLite is the presence of double quote (&ldquo;) characters that are not meant to delineate strings but are actually part of a field. In this case probably the easiest thing is simply to strip out those quotes from UNIX. Here we use <code>sed</code> to search and replace to create versions of the input files that don&#39;t have the quotes.</p>
 
 <pre><code class="bash">for file in $(ls *gz); do
-    gzip -cd ${file} | sed  &quot;s/\&quot;//g&quot; | gzip -c &gt; ../wikistats-cleaned/${file}
+    gzip -cd ${file} | sed  &quot;s/\&quot;//g&quot; | gzip -c &gt; wikistats-cleaned/${file}
 done
 </code></pre>
 
@@ -1589,7 +1627,7 @@ done
 
 <p>Next we&#39;ll see how to set up a database. You&#39;ll generally need to operate as the <code>postgres</code> user for these sorts of manipulations. Of course if you&#39;re just a user accessing an existing database and existing tables, you don&#39;t need to worry about this.</p>
 
-<pre><code>sudo su - postgres  # become the postgres user
+<pre><code>sudo -u postgres -i  # become the postgres user
 psql  # start postgres interpreter
 </code></pre>
 
@@ -1602,7 +1640,8 @@ create user paciorek with password &#39;test&#39;;
 grant all privileges on database wikistats to paciorek;
 </code></pre>
 
-<p>SQL allows various kinds of control over permissions to access and modify databases and tables as well.</p>
+<p>PostgreSQL and other DBMS (not SQLite) allow various kinds of control over permissions to access and modify databases and tables as well.
+It can get a bit involved because the administrator has fine-grained control over what each user can do/access.</p>
 
 <p>Now let&#39;s create a table in the database, after first connecting to the specific database so as to operate on it. </p>
 
@@ -2283,7 +2322,9 @@ KiB Swap:  7999484 total,  7784336 free,   215148 used. 25953483+avail Mem
 
 <h2>6.2) Remote access to PostgreSQL databases</h2>
 
-<p>If you want to connect to a Postgres database running on a different machine, here&#39;s one approach that involves SSH port forwarding. First, on your machine, set up the port forwarding where 63333 should be an unused port on your local machine and PostgresHostMachine is the machine on which the database is running.</p>
+<p>If you want to connect to a Postgres database running on a different machine, here&#39;s one approach that involves SSH port forwarding. For example, you could connect to a Postgres database running on some server while working as usual in R or Python on your laptop.</p>
+
+<p>First, on your machine, set up the port forwarding where 63333 should be an unused port on your local machine and PostgresHostMachine is the machine on which the database is running.</p>
 
 <p>For Linux/Mac, from the terminal:</p>
 
@@ -2292,7 +2333,7 @@ KiB Swap:  7999484 total,  7784336 free,   215148 used. 25953483+avail Mem
 
 <p>Using Putty on Windows, go to &#39;Connection -&gt; SSH -&gt; Tunnels&#39; and put &#39;63333&#39; as the &#39;Source port&#39; and &#39;127.0.0.1:5432&#39; as the &#39;Destination&#39;. Click &#39;Add&#39; and then connect to the machine via Putty.</p>
 
-<p>Then you can connect by specifying the port on your local machine, with the example here being from R:</p>
+<p>Then (on your local machine) you can connect by specifying the port on your local machine, with the example here being from R:</p>
 
 <pre><code>db &lt;- dbConnect(drv, dbname = &#39;wikistats&#39;, user = &#39;yourUserName&#39;, 
    password = &#39;yourPassword&#39;, host = &#39;localhost&#39;, port = 63333)
