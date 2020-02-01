@@ -822,28 +822,14 @@ For more details on subqueries, see the video on "subqueries in where statements
 
 ***Challenge***: Create a frequency list of the tags used in the top 100 most answered questions. Note there is a way to do this with a JOIN and a way without a JOIN.
 
-***Challenge***: Write a query that, for each question, will find the answer to that question written by the user with the highest reputation.
+
 
 #### Subqueries in the FROM statement
 
-We can use subqueries in the FROM statement to create a temporary table to use in a query. Here we'll do it in the context of a join. What does the following do?
+We can use subqueries in the FROM statement to create a temporary table to use in a query. Here we'll do it in the context of a join.
 
-```
-dbGetQuery(db, "select * from questions Q join questions_tags T on
-               Q.questionid = T.questionid join
-               (select max(viewcount) as maxview, tag from questions Q2
-               join questions_tags T2 on Q2.questionid = T2.questionid
-               group by tag) M on M.tag = T.tag
-               where viewcount >= maxview
-               order by viewcount desc limit 10")
-```    
+***Challenge***: What does the following do?
 
-Finally one can use subqueries in the SELECT clause to create new variables, but we won't go into that here.
-
-
-### 2.4.7) Complicated grouping queries
-
-Here's an example of a complicated query involving aggregation in which we figure out the most popular tags amongst the most popular questions (in fact this is one possible answer to one of the previous challenges). Also note the subquery in the JOIN.
 
 ```
 dbGetQuery(db, "select T.tag, count(*) as n
@@ -855,9 +841,18 @@ dbGetQuery(db, "select T.tag, count(*) as n
                order by n desc")
 ```
 
-Ok, well that's pretty intimidating to try to just come up with that. A good strategy is probably to think about creating a view that is the result of the inner query and then have the outer query use that. You can then piece together the complicated query in a modular way. For big databases, you are likely to want to submit this as a single query and not two queries so that the SQL optimizer can determine the best way to do the operations. But you want to start with code that you're confident will give you the right answer!
+It might be hard to just come up with that. A good strategy is probably to think about creating a view that is the result of the inner query and then have the outer query use that. You can then piece together the complicated query in a modular way. For big databases, you are likely to want to submit this as a single query and not two queries so that the SQL optimizer can determine the best way to do the operations. But you want to start with code that you're confident will give you the right answer!
 
-### 2.4.8) Window functions
+
+Note we could also have done that query using a subquery in the WHERE statement. 
+
+***Challenge***: Write a query that, for each question, will return the question title, number of answers, and the answer to that question written by the user with the highest reputation.
+
+Finally one can use subqueries in the SELECT clause to create new variables, but we won't go into that here.
+
+
+
+### 2.4.7) Window functions
 
 [Window functions](https://www.postgresql.org/docs/current/functions-window.html) provide the ability to perform calculations across sets of rows that are related to the current query row.
 
@@ -866,6 +861,7 @@ Comments:
  - The result of applying a window function is the same number of rows as the input, even though the functionality is similar to `group by`. Hint: think about the result of `group by` + `mutate` in dplyr in R.
  - One can apply a window function within groups or across the whole table.
  - The functions one can apply include standard aggregation functions such as `avg` and `count` as well as non-standard functions (specific to using window functions) such as `rank` and `cume_dist`.
+ - Unless you're simply grouping into categories, you'll generally need to order the rows for the window function to make sense.
 
 The syntax is a bit involved, so let's see with a range of examples:
 
@@ -878,7 +874,7 @@ dbGetQuery(db, "select *,
                 from questions order by creationdate limit 5")
 ```
 
- - Compute cumulative calculations 
+ - Compute cumulative calculations; note the need for the 'order by'
 ```{r, eval=TRUE}
 ## Rank (based on ordering by creationdate) of questions by owner
 dbGetQuery(db, "select *,
@@ -914,22 +910,9 @@ dbGetQuery(db, "select ownerid, creationdate,
 There the '5 preceding' and '5 following' mean to include all rows within each ownerid
 that are within 5 Julian days (based on 'creationdate') of each row. 
 
-(One can also choose a fixed number of rows by replacing 'range' with 'rows'.)
-
 So one could now analyze bursts of activity.
 
-```{r, eval=TRUE}
-dbGetQuery(db, "select ownerid, creationdate,
-                count() over
-                (partition by ownerid order by julianday(creationdate)
-                range between 5 preceding and 5 following)
-                as n_window
-                from questions
-                where ownerid is not null
-                limit 30")
-```
-
-The ROWS and RANGE syntax allow one to specify the *window frame* in more flexible ways than simply the categories of a categorical variable.
+One can also choose a fixed number of rows by replacing 'range' with 'rows'. The ROWS and RANGE syntax allow one to specify the *window frame* in more flexible ways than simply the categories of a categorical variable.
 
 So the syntax of a window function will generally have these elements:
 
@@ -957,7 +940,7 @@ What does that query do?
 
 ***Challenge***: Use a window function to compute the average viewcount for each ownerid for the 10 questions preceding each question.
 
-## 2.4.9) Putting it all together to do complicated queries
+## 2.4.8) Putting it all together to do complicated queries
 
 Here are some real-world style questions one might try to create queries to answer. The context would be if you have data on user sessions on a website or data on messages between users. 
 
@@ -966,7 +949,7 @@ Here are some real-world style questions one might try to create queries to answ
 date | session_id | user_id | session_time
 ```
 calculate the distribution of the average daily
-total session time in the last month. (the output should be something
+total session time in the last month. I.e., you want to get each user's daily average and then find the distribution over users. The output should be something
 like:
 ```
 minutes_per_day' | number_of_users
@@ -1203,13 +1186,38 @@ In PostgreSQL that gives the following:
 
 The "Workers Planned: 2" seems to indicate that there will be some parallelization used, even without us asking for that.
 
-Unfortunately I didn't set up a PostgreSQL version of the Stackoverflow database, but it would be interesting to see what query plan is involved in a join and when using indexes. 
+Now let's see what query plan is involved in a join and when using indexes. 
 
 ```
 dbGetQuery(db, "explain select * from questions join questions_tags on
                questions.questionid = questions_tags.questionid")
+```
+
+```
+                                                                         QUERY PLAN
+1                   Hash Join  (cost=744893.91..2085537.32 rows=39985376 width=118)
+2                     Hash Cond: (questions_tags.questionid = questions.questionid)
+3     ->  Seq Scan on questions_tags  (cost=0.00..634684.76 rows=39985376 width=16)
+4                     ->  Hash  (cost=365970.96..365970.96 rows=13472796 width=102)
+5         ->  Seq Scan on questions  (cost=0.00..365970.96 rows=13472796 width=102)
+```
+
+```
 dbGetQuery(db, "explain select * from questions join questions_tags on
                questions.questionid = questions_tags.questionid where tag like 'python'")
+```
+
+```
+                                                                                                QUERY PLAN
+1                                                 Gather  (cost=15339.05..899172.92 rows=687748 width=118)
+2                                                                                       Workers Planned: 2
+3                                        ->  Nested Loop  (cost=14339.05..829398.12 rows=286562 width=118)
+4         ->  Parallel Bitmap Heap Scan on questions_tags  (cost=14338.61..252751.63 rows=286562 width=16)
+5                                                                          Filter: (tag ~~ 'python'::text)
+6               ->  Bitmap Index Scan on questions_tags_tag_idx  (cost=0.00..14166.68 rows=687748 width=0)
+7                                                                       Index Cond: (tag = 'python'::text)
+8                     ->  Index Scan using questions_pkey on questions  (cost=0.43..2.01 rows=1 width=102)
+9                                                     Index Cond: (questionid = questions_tags.questionid)
 ```
 
 Here's additional information on interpreting what you see: [https://www.postgresql.org/docs/current/static/using-explain.html](https://www.postgresql.org/docs/current/static/using-explain.html).
@@ -1220,7 +1228,7 @@ The main thing to look for is to see if the query will be done by using an index
 
 Using an index is good in that can go to the data needed very quickly based on random access to the disk locations of the data of interest, but if it requires the computer to examine a large number of rows, it may not be better than sequential scan. An advantage of sequential scan is that it will make good use of the CPU cache, reading chunks of data and then accessing the individual pieces of data quickly. 
 
-Ideally you'd do sequential scan of exactly the portion of the rows that  you need, which would be available in contiguous storage. 
+Ideally you'd do sequential scan of exactly the subset of the rows that you need, with that subset available in contiguous storage. 
 
 ### 2.6.4) How indexes work
 
@@ -1714,6 +1722,8 @@ ssh -L 63333:localhost:5432 yourUserName@PostgresHostMachine
 ```
 
 Using Putty on Windows, go to 'Connection -> SSH -> Tunnels' and put '63333' as the 'Source port' and '127.0.0.1:5432' as the 'Destination'. Click 'Add' and then connect to the machine via Putty.
+
+In either case, the result is that port 63333 on your local machine is being forwarded to port 5432 (the standard port used by Postgres) on the server. The use of 'localhost' is a bit confusing - it means that you are forwarding port 63333 to port 5432 on 'localhost' on the server. 
 
 Then (on your local machine) you can connect by specifying the port on your local machine, with the example here being from R:
 ```

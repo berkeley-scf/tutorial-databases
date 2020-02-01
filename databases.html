@@ -1012,7 +1012,7 @@ select * from table1 natural join table2
 </code></pre>
 
 <pre><code>##    user  system elapsed 
-##   7.878   2.942  27.767
+##   7.910   2.827  29.114
 </code></pre>
 
 <p>Alternatively we can do a self-join. Note that the syntax gets complicated as we are doing multiple joins.</p>
@@ -1031,7 +1031,7 @@ select * from table1 natural join table2
 </code></pre>
 
 <pre><code>##    user  system elapsed 
-##  16.980  16.973  54.037
+##  16.586  16.979  56.640
 </code></pre>
 
 <pre><code class="r">identical(result1, result2)
@@ -1221,26 +1221,11 @@ head(result)
 
 <p><strong><em>Challenge</em></strong>: Create a frequency list of the tags used in the top 100 most answered questions. Note there is a way to do this with a JOIN and a way without a JOIN.</p>
 
-<p><strong><em>Challenge</em></strong>: Write a query that, for each question, will find the answer to that question written by the user with the highest reputation.</p>
-
 <h4>Subqueries in the FROM statement</h4>
 
-<p>We can use subqueries in the FROM statement to create a temporary table to use in a query. Here we&#39;ll do it in the context of a join. What does the following do?</p>
+<p>We can use subqueries in the FROM statement to create a temporary table to use in a query. Here we&#39;ll do it in the context of a join.</p>
 
-<pre><code>dbGetQuery(db, &quot;select * from questions Q join questions_tags T on
-               Q.questionid = T.questionid join
-               (select max(viewcount) as maxview, tag from questions Q2
-               join questions_tags T2 on Q2.questionid = T2.questionid
-               group by tag) M on M.tag = T.tag
-               where viewcount &gt;= maxview
-               order by viewcount desc limit 10&quot;)
-</code></pre>
-
-<p>Finally one can use subqueries in the SELECT clause to create new variables, but we won&#39;t go into that here.</p>
-
-<h3>2.4.7) Complicated grouping queries</h3>
-
-<p>Here&#39;s an example of a complicated query involving aggregation in which we figure out the most popular tags amongst the most popular questions (in fact this is one possible answer to one of the previous challenges). Also note the subquery in the JOIN.</p>
+<p><strong><em>Challenge</em></strong>: What does the following do?</p>
 
 <pre><code>dbGetQuery(db, &quot;select T.tag, count(*) as n
                from questions_tags T join
@@ -1251,9 +1236,15 @@ head(result)
                order by n desc&quot;)
 </code></pre>
 
-<p>Ok, well that&#39;s pretty intimidating to try to just come up with that. A good strategy is probably to think about creating a view that is the result of the inner query and then have the outer query use that. You can then piece together the complicated query in a modular way. For big databases, you are likely to want to submit this as a single query and not two queries so that the SQL optimizer can determine the best way to do the operations. But you want to start with code that you&#39;re confident will give you the right answer!</p>
+<p>It might be hard to just come up with that. A good strategy is probably to think about creating a view that is the result of the inner query and then have the outer query use that. You can then piece together the complicated query in a modular way. For big databases, you are likely to want to submit this as a single query and not two queries so that the SQL optimizer can determine the best way to do the operations. But you want to start with code that you&#39;re confident will give you the right answer!</p>
 
-<h3>2.4.8) Window functions</h3>
+<p>Note we could also have done that query using a subquery in the WHERE statement. </p>
+
+<p><strong><em>Challenge</em></strong>: Write a query that, for each question, will return the question title, number of answers, and the answer to that question written by the user with the highest reputation.</p>
+
+<p>Finally one can use subqueries in the SELECT clause to create new variables, but we won&#39;t go into that here.</p>
+
+<h3>2.4.7) Window functions</h3>
 
 <p><a href="https://www.postgresql.org/docs/current/functions-window.html">Window functions</a> provide the ability to perform calculations across sets of rows that are related to the current query row.</p>
 
@@ -1263,6 +1254,7 @@ head(result)
 <li>The result of applying a window function is the same number of rows as the input, even though the functionality is similar to <code>group by</code>. Hint: think about the result of <code>group by</code> + <code>mutate</code> in dplyr in R.</li>
 <li>One can apply a window function within groups or across the whole table.</li>
 <li>The functions one can apply include standard aggregation functions such as <code>avg</code> and <code>count</code> as well as non-standard functions (specific to using window functions) such as <code>rank</code> and <code>cume_dist</code>.</li>
+<li>Unless you&#39;re simply grouping into categories, you&#39;ll generally need to order the rows for the window function to make sense.</li>
 </ul>
 
 <p>The syntax is a bit involved, so let&#39;s see with a range of examples:</p>
@@ -1298,7 +1290,7 @@ dbGetQuery(db, &quot;select *,
 </code></pre>
 
 <ul>
-<li>Compute cumulative calculations </li>
+<li>Compute cumulative calculations; note the need for the &#39;order by&#39;</li>
 </ul>
 
 <pre><code class="r">## Rank (based on ordering by creationdate) of questions by owner
@@ -1438,54 +1430,9 @@ dbGetQuery(db, &quot;select ownerid, creationdate,
 <p>There the &#39;5 preceding&#39; and &#39;5 following&#39; mean to include all rows within each ownerid
 that are within 5 Julian days (based on &#39;creationdate&#39;) of each row. </p>
 
-<p>(One can also choose a fixed number of rows by replacing &#39;range&#39; with &#39;rows&#39;.)</p>
-
 <p>So one could now analyze bursts of activity.</p>
 
-<pre><code class="r">dbGetQuery(db, &quot;select ownerid, creationdate,
-                count() over
-                (partition by ownerid order by julianday(creationdate)
-                range between 5 preceding and 5 following)
-                as n_window
-                from questions
-                where ownerid is not null
-                limit 30&quot;)
-</code></pre>
-
-<pre><code>##    ownerid        creationdate n_window
-## 1       13 2016-12-13 06:09:50        1
-## 2       25 2016-02-18 05:31:01        1
-## 3       33 2016-03-23 11:39:08        1
-## 4       33 2016-08-05 15:32:30        1
-## 5       33 2016-08-27 08:01:24        1
-## 6       33 2016-10-10 12:50:36        1
-## 7       56 2016-05-11 09:40:11        2
-## 8       56 2016-05-13 13:44:03        2
-## 9       56 2016-09-14 14:13:19        1
-## 10      62 2016-06-09 17:16:10        1
-## 11      62 2016-09-10 02:31:17        1
-## 12      62 2016-12-31 01:21:24        1
-## 13      67 2016-08-01 12:51:13        1
-## 14      70 2016-04-07 14:16:07        1
-## 15      71 2016-01-18 22:54:07        1
-## 16      76 2016-09-15 20:28:54        1
-## 17      91 2016-01-11 21:27:56        1
-## 18      91 2016-12-28 15:13:48        1
-## 19      95 2016-04-19 10:19:09        1
-## 20     105 2016-03-22 18:08:52        1
-## 21     112 2016-10-02 05:20:24        1
-## 22     112 2016-10-11 03:44:41        1
-## 23     113 2016-12-20 22:25:21        1
-## 24     115 2016-12-29 20:59:24        1
-## 25     116 2016-01-05 17:14:47        1
-## 26     116 2016-01-12 00:54:30        1
-## 27     116 2016-01-22 21:06:24        5
-## 28     116 2016-01-26 17:32:31        7
-## 29     116 2016-01-27 06:52:11        9
-## 30     116 2016-01-27 17:59:30        9
-</code></pre>
-
-<p>The ROWS and RANGE syntax allow one to specify the <em>window frame</em> in more flexible ways than simply the categories of a categorical variable.</p>
+<p>One can also choose a fixed number of rows by replacing &#39;range&#39; with &#39;rows&#39;. The ROWS and RANGE syntax allow one to specify the <em>window frame</em> in more flexible ways than simply the categories of a categorical variable.</p>
 
 <p>So the syntax of a window function will generally have these elements:</p>
 
@@ -1526,7 +1473,7 @@ that are within 5 Julian days (based on &#39;creationdate&#39;) of each row. </p
 
 <p><strong><em>Challenge</em></strong>: Use a window function to compute the average viewcount for each ownerid for the 10 questions preceding each question.</p>
 
-<h2>2.4.9) Putting it all together to do complicated queries</h2>
+<h2>2.4.8) Putting it all together to do complicated queries</h2>
 
 <p>Here are some real-world style questions one might try to create queries to answer. The context would be if you have data on user sessions on a website or data on messages between users. </p>
 
@@ -1536,7 +1483,7 @@ that are within 5 Julian days (based on &#39;creationdate&#39;) of each row. </p
 </code></pre>
 
 <p>calculate the distribution of the average daily
-total session time in the last month. (the output should be something
+total session time in the last month. I.e., you want to get each user&#39;s daily average and then find the distribution over users. The output should be something
 like:</p>
 
 <pre><code>minutes_per_day&#39; | number_of_users
@@ -1763,12 +1710,34 @@ dbGetQuery(db, &quot;select * from pg_settings where name=&#39;dynamic_shared_me
 
 <p>The &quot;Workers Planned: 2&rdquo; seems to indicate that there will be some parallelization used, even without us asking for that.</p>
 
-<p>Unfortunately I didn&#39;t set up a PostgreSQL version of the Stackoverflow database, but it would be interesting to see what query plan is involved in a join and when using indexes. </p>
+<p>Now let&#39;s see what query plan is involved in a join and when using indexes. </p>
 
 <pre><code>dbGetQuery(db, &quot;explain select * from questions join questions_tags on
                questions.questionid = questions_tags.questionid&quot;)
-dbGetQuery(db, &quot;explain select * from questions join questions_tags on
+</code></pre>
+
+<pre><code>                                                                         QUERY PLAN
+1                   Hash Join  (cost=744893.91..2085537.32 rows=39985376 width=118)
+2                     Hash Cond: (questions_tags.questionid = questions.questionid)
+3     -&gt;  Seq Scan on questions_tags  (cost=0.00..634684.76 rows=39985376 width=16)
+4                     -&gt;  Hash  (cost=365970.96..365970.96 rows=13472796 width=102)
+5         -&gt;  Seq Scan on questions  (cost=0.00..365970.96 rows=13472796 width=102)
+</code></pre>
+
+<pre><code>dbGetQuery(db, &quot;explain select * from questions join questions_tags on
                questions.questionid = questions_tags.questionid where tag like &#39;python&#39;&quot;)
+</code></pre>
+
+<pre><code>                                                                                                QUERY PLAN
+1                                                 Gather  (cost=15339.05..899172.92 rows=687748 width=118)
+2                                                                                       Workers Planned: 2
+3                                        -&gt;  Nested Loop  (cost=14339.05..829398.12 rows=286562 width=118)
+4         -&gt;  Parallel Bitmap Heap Scan on questions_tags  (cost=14338.61..252751.63 rows=286562 width=16)
+5                                                                          Filter: (tag ~~ &#39;python&#39;::text)
+6               -&gt;  Bitmap Index Scan on questions_tags_tag_idx  (cost=0.00..14166.68 rows=687748 width=0)
+7                                                                       Index Cond: (tag = &#39;python&#39;::text)
+8                     -&gt;  Index Scan using questions_pkey on questions  (cost=0.43..2.01 rows=1 width=102)
+9                                                     Index Cond: (questionid = questions_tags.questionid)
 </code></pre>
 
 <p>Here&#39;s additional information on interpreting what you see: <a href="https://www.postgresql.org/docs/current/static/using-explain.html">https://www.postgresql.org/docs/current/static/using-explain.html</a>.</p>
@@ -1779,7 +1748,7 @@ dbGetQuery(db, &quot;explain select * from questions join questions_tags on
 
 <p>Using an index is good in that can go to the data needed very quickly based on random access to the disk locations of the data of interest, but if it requires the computer to examine a large number of rows, it may not be better than sequential scan. An advantage of sequential scan is that it will make good use of the CPU cache, reading chunks of data and then accessing the individual pieces of data quickly. </p>
 
-<p>Ideally you&#39;d do sequential scan of exactly the portion of the rows that  you need, which would be available in contiguous storage. </p>
+<p>Ideally you&#39;d do sequential scan of exactly the subset of the rows that you need, with that subset available in contiguous storage. </p>
 
 <h3>2.6.4) How indexes work</h3>
 
@@ -2332,6 +2301,8 @@ KiB Swap:  7999484 total,  7784336 free,   215148 used. 25953483+avail Mem
 </code></pre>
 
 <p>Using Putty on Windows, go to &#39;Connection -&gt; SSH -&gt; Tunnels&#39; and put &#39;63333&#39; as the &#39;Source port&#39; and &#39;127.0.0.1:5432&#39; as the &#39;Destination&#39;. Click &#39;Add&#39; and then connect to the machine via Putty.</p>
+
+<p>In either case, the result is that port 63333 on your local machine is being forwarded to port 5432 (the standard port used by Postgres) on the server. The use of &#39;localhost&#39; is a bit confusing - it means that you are forwarding port 63333 to port 5432 on &#39;localhost&#39; on the server. </p>
 
 <p>Then (on your local machine) you can connect by specifying the port on your local machine, with the example here being from R:</p>
 
