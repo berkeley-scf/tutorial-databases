@@ -940,7 +940,7 @@ What does that query do?
 
 ***Challenge***: Use a window function to compute the average viewcount for each ownerid for the 10 questions preceding each question.
 
-## 2.4.8) Putting it all together to do complicated queries
+### 2.4.8) Putting it all together to do complicated queries
 
 Here are some real-world style questions one might try to create queries to answer. The context would be if you have data on user sessions on a website or data on messages between users. 
 
@@ -1232,7 +1232,7 @@ Ideally you'd do sequential scan of exactly the subset of the rows that you need
 
 ### 2.6.4) How indexes work
 
-Indexes are often implemented using tree-based methods. For example in Postgres, b-tree indexes are used for indexes on things that have an ordering. Trees are basically like decision trees - at each node in the tree, there is a condition that sends one down the left or right branch. Eventually, one reaches the leaves of the tree, which have the actual values that one is looking for. Associated with each value is the address of where that row of data is stored. With a tree-based index, the time cost of b-tree lookup is logarithmic (based on the binary lookup), so it does grow with the number of elements in the table, but it does so slowly. The lookup process is that given a value (which would often be referred to as a `key`), one walks down the tree based on comparing the value to the condition at each split in the tree until one finds the elements corresponding to the value and then getting the addresses for where the desired rows are stored. 
+Indexes are often implemented using tree-based methods. For example in Postgres, b-tree indexes are used for indexes on things that have an ordering. Trees are basically like decision trees - at each node in the tree, there is a condition that sends one down the left or right branch (there might also be more than two branches. Eventually, one reaches the leaves of the tree, which have the actual values that one is looking for. Associated with each value is the address of where that row of data is stored. With a tree-based index, the time cost of b-tree lookup is logarithmic (based on the binary lookup), so it does grow with the number of elements in the table, but it does so slowly. The lookup process is that given a value (which would often be referred to as a `key`), one walks down the tree based on comparing the value to the condition at each split in the tree until one finds the elements corresponding to the value and then getting the addresses for where the desired rows are stored. 
 
 Here's some information on how such trees are constructed and searched: http://use-the-index-luke.com/sql/anatomy/the-tree
 

@@ -1012,7 +1012,7 @@ select * from table1 natural join table2
 </code></pre>
 
 <pre><code>##    user  system elapsed 
-##   7.910   2.827  29.114
+##   8.207   3.066  30.668
 </code></pre>
 
 <p>Alternatively we can do a self-join. Note that the syntax gets complicated as we are doing multiple joins.</p>
@@ -1031,7 +1031,7 @@ select * from table1 natural join table2
 </code></pre>
 
 <pre><code>##    user  system elapsed 
-##  16.586  16.979  56.640
+##  15.865  15.289  50.208
 </code></pre>
 
 <pre><code class="r">identical(result1, result2)
@@ -1473,7 +1473,7 @@ that are within 5 Julian days (based on &#39;creationdate&#39;) of each row. </p
 
 <p><strong><em>Challenge</em></strong>: Use a window function to compute the average viewcount for each ownerid for the 10 questions preceding each question.</p>
 
-<h2>2.4.8) Putting it all together to do complicated queries</h2>
+<h3>2.4.8) Putting it all together to do complicated queries</h3>
 
 <p>Here are some real-world style questions one might try to create queries to answer. The context would be if you have data on user sessions on a website or data on messages between users. </p>
 
@@ -1752,7 +1752,7 @@ dbGetQuery(db, &quot;select * from pg_settings where name=&#39;dynamic_shared_me
 
 <h3>2.6.4) How indexes work</h3>
 
-<p>Indexes are often implemented using tree-based methods. For example in Postgres, b-tree indexes are used for indexes on things that have an ordering. Trees are basically like decision trees - at each node in the tree, there is a condition that sends one down the left or right branch. Eventually, one reaches the leaves of the tree, which have the actual values that one is looking for. Associated with each value is the address of where that row of data is stored. With a tree-based index, the time cost of b-tree lookup is logarithmic (based on the binary lookup), so it does grow with the number of elements in the table, but it does so slowly. The lookup process is that given a value (which would often be referred to as a <code>key</code>), one walks down the tree based on comparing the value to the condition at each split in the tree until one finds the elements corresponding to the value and then getting the addresses for where the desired rows are stored. </p>
+<p>Indexes are often implemented using tree-based methods. For example in Postgres, b-tree indexes are used for indexes on things that have an ordering. Trees are basically like decision trees - at each node in the tree, there is a condition that sends one down the left or right branch (there might also be more than two branches. Eventually, one reaches the leaves of the tree, which have the actual values that one is looking for. Associated with each value is the address of where that row of data is stored. With a tree-based index, the time cost of b-tree lookup is logarithmic (based on the binary lookup), so it does grow with the number of elements in the table, but it does so slowly. The lookup process is that given a value (which would often be referred to as a <code>key</code>), one walks down the tree based on comparing the value to the condition at each split in the tree until one finds the elements corresponding to the value and then getting the addresses for where the desired rows are stored. </p>
 
 <p>Here&#39;s some information on how such trees are constructed and searched: <a href="http://use-the-index-luke.com/sql/anatomy/the-tree">http://use-the-index-luke.com/sql/anatomy/the-tree</a></p>
 
