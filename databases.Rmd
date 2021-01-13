@@ -843,7 +843,6 @@ dbGetQuery(db, "select T.tag, count(*) as n
 
 It might be hard to just come up with that. A good strategy is probably to think about creating a view that is the result of the inner query and then have the outer query use that. You can then piece together the complicated query in a modular way. For big databases, you are likely to want to submit this as a single query and not two queries so that the SQL optimizer can determine the best way to do the operations. But you want to start with code that you're confident will give you the right answer!
 
-
 Note we could also have done that query using a subquery in the WHERE statement. 
 
 ***Challenge***: Write a query that, for each question, will return the question title, number of answers, and the answer to that question written by the user with the highest reputation.
