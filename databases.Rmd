@@ -5,7 +5,7 @@ Querying and manipulating databases and datasets in R and Python
 
 Chris Paciorek, Department of Statistics, UC Berkeley
 
-Last updated: January 2020
+Last updated: January 2021
 
 ```{r setup, include=FALSE}
 options(replace.assign=TRUE, width=65)
@@ -152,7 +152,7 @@ And here is a table of some important keywords:
 | SELECT                  | select columns 
 | FROM                    | which table to operate on
 | WHERE                   | filter (choose) rows satisfying certain conditions
-| LIKE, IN, <, >, ==, etc.    | used as part of conditions
+| LIKE, IN, <, >, =, etc.    | used as part of conditions
 | ORDER BY                | sort based on columns
 
 For comparisons in a WHERE clause, some common syntax for setting conditions includes LIKE (for patterns), =, >, <, >=, <=, !=.
