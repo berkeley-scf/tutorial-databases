@@ -210,7 +210,7 @@ hr {
 
 <p>Chris Paciorek, Department of Statistics, UC Berkeley</p>
 
-<p>Last updated: January 2020</p>
+<p>Last updated: January 2021</p>
 
 <h1>0) This Tutorial</h1>
 
@@ -362,7 +362,7 @@ select * from questions where viewcount &gt; 100000
 <td>filter (choose) rows satisfying certain conditions</td>
 </tr>
 <tr>
-<td>LIKE, IN, &lt;, &gt;, ==, etc.</td>
+<td>LIKE, IN, &lt;, &gt;, =, etc.</td>
 <td>used as part of conditions</td>
 </tr>
 <tr>
@@ -584,27 +584,16 @@ drv &lt;- dbDriver(&quot;SQLite&quot;)
 dir &lt;- &#39;data&#39; # relative or absolute path to where the .db file is
 dbFilename &lt;- &#39;stackoverflow-2016.db&#39;
 db &lt;- dbConnect(drv, dbname = file.path(dir, dbFilename))
-dbGetQuery(db, &quot;select * from questions limit 5&quot;)  # simple query to get 5 rows from a table
 </code></pre>
 
-<pre><code>##   questionid        creationdate score viewcount
-## 1   34552550 2016-01-01 00:00:03     0       108
-## 2   34552551 2016-01-01 00:00:07     1       151
-## 3   34552552 2016-01-01 00:00:39     2      1942
-## 4   34552554 2016-01-01 00:00:50     0       153
-## 5   34552555 2016-01-01 00:00:51    -1        54
-##                                                                                   title
-## 1                                                                 Scope between methods
-## 2      Rails - Unknown Attribute - Unable to add a new field to a form on create/update
-## 3 Selenium Firefox webdriver won&#39;t load a blank page after changing Firefox preferences
-## 4                                                       Android Studio styles.xml Error
-## 5                         Java: reference to non-finial local variables inside a thread
-##   ownerid
-## 1 5684416
-## 2 2457617
-## 3 5732525
-## 4 5735112
-## 5 4646288
+<pre><code>## Error: Could not connect to database:
+## unable to open database file
+</code></pre>
+
+<pre><code class="r">dbGetQuery(db, &quot;select * from questions limit 5&quot;)  # simple query to get 5 rows from a table
+</code></pre>
+
+<pre><code>## Error in dbGetQuery(db, &quot;select * from questions limit 5&quot;): object &#39;db&#39; not found
 </code></pre>
 
 <p>We can easily see the tables and their fields:</p>
@@ -612,51 +601,63 @@ dbGetQuery(db, &quot;select * from questions limit 5&quot;)  # simple query to g
 <pre><code class="r">dbListTables(db)
 </code></pre>
 
-<pre><code>## [1] &quot;answers&quot;        &quot;questions&quot;      &quot;questions_tags&quot;
-## [4] &quot;users&quot;
+<pre><code>## Error in dbListTables(db): object &#39;db&#39; not found
 </code></pre>
 
 <pre><code class="r">dbListFields(db, &quot;questions&quot;)
 </code></pre>
 
-<pre><code>## [1] &quot;questionid&quot;   &quot;creationdate&quot; &quot;score&quot;        &quot;viewcount&quot;   
-## [5] &quot;title&quot;        &quot;ownerid&quot;
+<pre><code>## Error in dbListFields(db, &quot;questions&quot;): object &#39;db&#39; not found
 </code></pre>
 
 <pre><code class="r">dbListFields(db, &quot;answers&quot;)
 </code></pre>
 
-<pre><code>## [1] &quot;answerid&quot;     &quot;questionid&quot;   &quot;creationdate&quot; &quot;score&quot;       
-## [5] &quot;ownerid&quot;
+<pre><code>## Error in dbListFields(db, &quot;answers&quot;): object &#39;db&#39; not found
 </code></pre>
 
 <p>One can either make the query and get the results in one go or make the query and separately fetch the results. Here we&#39;ve selected the first five rows (and all columns, based on the <code>*</code> wildcard) and brought them into R as a data frame.</p>
 
 <pre><code class="r">results &lt;- dbGetQuery(db, &#39;select * from questions limit 5&#39;)
-class(results)
 </code></pre>
 
-<pre><code>## [1] &quot;data.frame&quot;
+<pre><code>## Error in dbGetQuery(db, &quot;select * from questions limit 5&quot;): object &#39;db&#39; not found
+</code></pre>
+
+<pre><code class="r">class(results)
+</code></pre>
+
+<pre><code>## Error in eval(expr, envir, enclos): object &#39;results&#39; not found
 </code></pre>
 
 <pre><code class="r">query &lt;- dbSendQuery(db, &quot;select * from questions&quot;)
-query
 </code></pre>
 
-<pre><code>## &lt;SQLiteResult&gt;
-##   SQL  select * from questions
-##   ROWS Fetched: 0 [incomplete]
-##        Changed: 0
+<pre><code>## Error in dbSendQuery(db, &quot;select * from questions&quot;): object &#39;db&#39; not found
+</code></pre>
+
+<pre><code class="r">query
+</code></pre>
+
+<pre><code>## Error in eval(expr, envir, enclos): object &#39;query&#39; not found
 </code></pre>
 
 <pre><code class="r">results2 &lt;- fetch(query, 5)
-identical(results, results2)
 </code></pre>
 
-<pre><code>## [1] TRUE
+<pre><code>## Error in fetch(query, 5): object &#39;query&#39; not found
+</code></pre>
+
+<pre><code class="r">identical(results, results2)
+</code></pre>
+
+<pre><code>## Error in identical(results, results2): object &#39;results&#39; not found
 </code></pre>
 
 <pre><code class="r">dbClearResult(query)  # clear to prepare for another query
+</code></pre>
+
+<pre><code>## Error in dbClearResult(query): object &#39;query&#39; not found
 </code></pre>
 
 <p>To disconnect from the database:</p>
@@ -694,7 +695,7 @@ results = c.fetchall() # retrieve results
 
 <p>Here&#39;s how you would connect to PostgreSQL instead:</p>
 
-<pre><code>import psycopg2 as pg
+<pre><code class="python">import psycopg2 as pg
 db = pg.connect(&quot;dbname = &#39;stackoverflow&#39; user = &#39;paciorek&#39; host = &#39;localhost&#39; password = &#39;test&#39;&quot;)
 c = db.cursor()
 </code></pre>
@@ -720,40 +721,29 @@ c = db.cursor()
 <pre><code class="r">## a join with JOIN
 result1 &lt;- dbGetQuery(db, &quot;select * from questions join questions_tags 
            on questions.questionid = questions_tags.questionid where tag = &#39;python&#39;&quot;)
-
-## a join without JOIN
-result2 &lt;- dbGetQuery(db, &quot;select * from questions, questions_tags
-        where questions.questionid = questions_tags.questionid and tag = &#39;python&#39;&quot;)
-head(result2)
 </code></pre>
 
-<pre><code>##   questionid        creationdate score viewcount
-## 1   34553559 2016-01-01 04:34:34     3        96
-## 2   34556493 2016-01-01 13:22:06     2        30
-## 3   34557898 2016-01-01 16:36:04     3       143
-## 4   34560088 2016-01-01 21:10:32     1       126
-## 5   34560213 2016-01-01 21:25:26     1       127
-## 6   34560740 2016-01-01 22:37:36     0       455
-##                                                                                           title
-## 1                                            Python nested loops only working on the first pass
-## 2                                        bool operator in for Timestamp in Series does not work
-## 3                                                       Pairwise haversine distance calculation
-## 4                                                          Stopwatch (chronometre) doesn&#39;t work
-## 5 How to set the type of a pyqtSignal (variable of class X) that takes a X instance as argument
-## 6                                                Flask: Peewee model_to_dict helper not working
-##   ownerid questionid..7    tag
-## 1  845642      34553559 python
-## 2 4458602      34556493 python
-## 3 2927983      34557898 python
-## 4 5736692      34560088 python
-## 5 5636400      34560213 python
-## 6 3262998      34560740 python
+<pre><code>## Error in dbGetQuery(db, &quot;select * from questions join questions_tags \n           on questions.questionid = questions_tags.questionid where tag = &#39;python&#39;&quot;): object &#39;db&#39; not found
+</code></pre>
+
+<pre><code class="r">## a join without JOIN
+result2 &lt;- dbGetQuery(db, &quot;select * from questions, questions_tags
+        where questions.questionid = questions_tags.questionid and tag = &#39;python&#39;&quot;)
+</code></pre>
+
+<pre><code>## Error in dbGetQuery(db, &quot;select * from questions, questions_tags\n        where questions.questionid = questions_tags.questionid and tag = &#39;python&#39;&quot;): object &#39;db&#39; not found
+</code></pre>
+
+<pre><code class="r">head(result2)
+</code></pre>
+
+<pre><code>## Error in head(result2): object &#39;result2&#39; not found
 </code></pre>
 
 <pre><code class="r">identical(result1, result2)
 </code></pre>
 
-<pre><code>## [1] TRUE
+<pre><code>## Error in identical(result1, result2): object &#39;result1&#39; not found
 </code></pre>
 
 <p>Here&#39;s a three-way join with some additional use of aliases to abbreviate table names. What does this query ask for?</p>
@@ -762,17 +752,25 @@ head(result2)
         join questions_tags T on Q.questionid = T.questionid
         join users U on Q.ownerid = U.userid
         where tag = &#39;python&#39; and age &lt; 18&quot;)
+</code></pre>
 
-result2 &lt;- dbGetQuery(db, &quot;select * from questions Q, questions_tags T, users U
+<pre><code>## Error in dbGetQuery(db, &quot;select * from questions Q\n        join questions_tags T on Q.questionid = T.questionid\n        join users U on Q.ownerid = U.userid\n        where tag = &#39;python&#39; and age &lt; 18&quot;): object &#39;db&#39; not found
+</code></pre>
+
+<pre><code class="r">result2 &lt;- dbGetQuery(db, &quot;select * from questions Q, questions_tags T, users U
         where Q.questionid = T.questionid 
           and Q.ownerid = U.userid
           and tag = &#39;python&#39; 
           and age &lt; 18&quot;)
-
-identical(result1, result2)
 </code></pre>
 
-<pre><code>## [1] TRUE
+<pre><code>## Error in dbGetQuery(db, &quot;select * from questions Q, questions_tags T, users U\n        where Q.questionid = T.questionid \n          and Q.ownerid = U.userid\n          and tag = &#39;python&#39; \n          and age &lt; 18&quot;): object &#39;db&#39; not found
+</code></pre>
+
+<pre><code class="r">identical(result1, result2)
+</code></pre>
+
+<pre><code>## Error in identical(result1, result2): object &#39;result1&#39; not found
 </code></pre>
 
 <p><strong><em>Challenge</em></strong>: Write a query that would return all the answers to questions with the Python tag.</p>
@@ -808,11 +806,15 @@ identical(result1, result2)
 <p>A useful SQL keyword is DISTINCT, which allows you to eliminate duplicate rows from any table (or remove duplicate values when one only has a single column or set of values).</p>
 
 <pre><code class="r">tagNames &lt;- dbGetQuery(db, &quot;select distinct tag from questions_tags&quot;)
-dbGetQuery(db, &quot;select count(distinct tag) from questions_tags&quot;)
 </code></pre>
 
-<pre><code>##   count(distinct tag)
-## 1               41006
+<pre><code>## Error in dbGetQuery(db, &quot;select distinct tag from questions_tags&quot;): object &#39;db&#39; not found
+</code></pre>
+
+<pre><code class="r">dbGetQuery(db, &quot;select count(distinct tag) from questions_tags&quot;)
+</code></pre>
+
+<pre><code>## Error in dbGetQuery(db, &quot;select count(distinct tag) from questions_tags&quot;): object &#39;db&#39; not found
 </code></pre>
 
 <h3>2.3.6) Indexes</h3>
@@ -844,38 +846,16 @@ system.time(dbExecute(db, &quot;drop index count_index&quot;))
 dbExecute(db, &quot;create view questionsAugment as
                select questionid, questions.creationdate, score, viewcount, title, ownerid, age, displayname
                from questions join users on questions.ownerid = users.userid&quot;)
-</code></pre>
-
-<pre><code>## [1] 0
-</code></pre>
-
-<pre><code class="r">## don&#39;t be confused by the &quot;0&quot; response --
+## don&#39;t be confused by the &quot;0&quot; response --
 ## it just means that nothing is returned to R; the view _has_ been created
 
 dbGetQuery(db, &quot;select * from questionsAugment where age &lt; 15 limit 5&quot;)
 </code></pre>
 
-<pre><code>##   questionid        creationdate score viewcount
-## 1   38096075 2016-06-29 09:50:36     0        23
-## 2   38899284 2016-08-11 14:32:39     0        33
-## 3   40051364 2016-10-14 20:18:18     1        37
-## 4   37168422 2016-05-11 16:29:16     0       212
-## 5   37188786 2016-05-12 13:43:41     0        25
-##                                                                                      title
-## 1 Iterate over an enum, which saves classes, then init the classes and put them into a map
-## 2                                             Spark Framework puts HTML around my response
-## 3                                       OpenShift Maven does not use the correct JAVA_HOME
-## 4                                           Theming an ASP.net menu control with bootstrap
-## 5                             Using IIS7 Url rewrite module to redirect to another website
-##   ownerid age displayname
-## 1 3809164  14  ArsenArsen
-## 2 3809164  14  ArsenArsen
-## 3 3809164  14  ArsenArsen
-## 4 3932721  14         Bob
-## 5 3932721  14         Bob
-</code></pre>
-
 <p>One use of a view would be to create a mega table that stores all the information from multiple tables in the (unnormalized) form you might have if you simply had one data frame in R or Python.</p>
+
+<pre><code class="r">dbExecute(db, &quot;drop view questionsAugment&quot;) # drop so can create again when rerun the code above
+</code></pre>
 
 <h3>2.3.8) Creating database tables</h3>
 
@@ -1011,8 +991,7 @@ select * from table1 natural join table2
                )
 </code></pre>
 
-<pre><code>##    user  system elapsed 
-##   8.207   3.066  30.668
+<pre><code>## Error in dbGetQuery(db, &quot;select displayname, userid from\n               questions Q join users U on U.userid = Q.ownerid\n               join questions_tags T on Q.questionid = T.questionid\n               where tag = &#39;r&#39;\n               intersect\n               select displayname, userid from\n               questions Q join users U on U.userid = Q.ownerid\n               join questions_tags T on Q.questionid = T.questionid\n               where tag = &#39;python&#39;&quot;): object &#39;db&#39; not found
 </code></pre>
 
 <p>Alternatively we can do a self-join. Note that the syntax gets complicated as we are doing multiple joins.</p>
@@ -1030,14 +1009,13 @@ select * from table1 natural join table2
                )
 </code></pre>
 
-<pre><code>##    user  system elapsed 
-##  15.865  15.289  50.208
+<pre><code>## Error in dbGetQuery(db, &quot;select displayname, userid from\n               (questions Q1 join questions_tags T1\n               on Q1.questionid = T1.questionid)\n               join\n               (questions Q2 join questions_tags T2\n               on Q2.questionid = T2.questionid)\n               on Q1.ownerid = Q2.ownerid\n               join users on Q1.ownerid = users.userid\n               where T1.tag = &#39;r&#39; and T2.tag = &#39;python&#39;&quot;): object &#39;db&#39; not found
 </code></pre>
 
 <pre><code class="r">identical(result1, result2)
 </code></pre>
 
-<pre><code>## [1] FALSE
+<pre><code>## Error in identical(result1, result2): object &#39;result1&#39; not found
 </code></pre>
 
 <p>Note that the second query will return duplicates where we have a person asking multiple R or Python queries. But we know how to solve that by including a DISTINCT:</p>
@@ -1055,22 +1033,40 @@ select * from table1 natural join table2
 
 <h3>2.4.4) String processing and creating new fields</h3>
 
-<p>In Postgres, in addition the basic use of LIKE to match character strings, one can regular expression syntax with SIMILAR TO and one can extract substrings with SUBSTRING.</p>
+<p>We can do some basic matching with LIKE, using % as a wildcard and _ to stand in for any single character:</p>
+
+<pre><code class="r">dbGetQuery(db, &quot;select * from questions_tags where tag like &#39;r-%&#39; limit 10&quot;)
+</code></pre>
+
+<pre><code>## Error in dbGetQuery(db, &quot;select * from questions_tags where tag like &#39;r-%&#39; limit 10&quot;): object &#39;db&#39; not found
+</code></pre>
+
+<p>In Postgres, in addition to the basic use of LIKE to match character strings, one can use regular expression syntax with SIMILAR TO and one can extract substrings with SUBSTRING.</p>
 
 <p>These keywords are not available in SQLite so the following can only be done in the Postgres instance of our example database. Here we&#39;ll look for all tags that are of the form &ldquo;r-&rdquo;, &ldquo;-r&rdquo;, &ldquo;r&rdquo; or &ldquo;-r-&rdquo;. SQL uses % as a wildcard (this is not standard regular expression syntax). </p>
 
-<pre><code class="r">dbGetQuery(db, &quot;select * from tags where tag SIMILAR TO &#39;r-%|%-r|r|%-r-%&#39;&quot;)
+<pre><code class="r">## Try in postgreSQL, not SQLite
+result &lt;- dbGetQuery(db, &quot;select * from questions_tags where tag SIMILAR TO &#39;r-%|%-r|r|%-r-%&#39; limit 10&quot;)
+## Standard regex for &#39;any character&#39; doesn&#39;t seem to work:
+## result &lt;- dbGetQuery(db, &quot;select * from questions_tags where tag SIMILAR TO &#39;r-.*|.*-r|r|.*-r-.*&#39; limit 10&quot;)
 </code></pre>
 
-<p>To extract substrings we use SUBSTRING. Postgres requires that the pattern to be extracted be surrounded by <code>#&quot;</code> (one could use another character in place of <code>#</code>), but for use from R we need to escape the double-quote with a backslash so it is treated as a part of the string passed to Postgres and not treated by R as indicating where the character string stops/starts. </p>
+<p>Note that the matching does not find subsets, unless one uses wildcards at beginning and end of the pattern, so &ldquo;r&rdquo; will only find &ldquo;r&rdquo; and not, for example, &ldquo;dyplr&rdquo;.</p>
 
-<pre><code class="r">dbGetQuery(db, &quot;select substring(creationdate from &#39;#\&quot;[[:digit:]]{4}#\&quot;%&#39; for &#39;#&#39;) as year
+<pre><code>
+To extract substrings we use SUBSTRING. Postgres requires that the pattern to be extracted be surrounded by `#&quot;` (one could use another character in place of `#`), but for use from R we need to escape the double-quote with a backslash so it is treated as a part of the string passed to Postgres and not treated by R as indicating where the character string stops/starts. 
+
+
+```r
+dbGetQuery(db, &quot;select substring(creationdate from &#39;#\&quot;[[:digit:]]{4}#\&quot;%&#39; for &#39;#&#39;) as year
                from questions limit 3&quot;)
 </code></pre>
 
 <p>Note that SQLite provides SUBSTR for substrings, but the flexibility of SUBSTR seems to be much less than use of SUBSTRING in PostgreSQL.</p>
 
 <p>Here is some <a href="https://www.postgresql.org/docs/current/functions-string.html">documentation on string functions in PostgreSQL</a>.</p>
+
+<p><strong><em>Challenge</em></strong>: Select the questions that have &ldquo;java&rdquo; but not &ldquo;javascript&rdquo; in their titles using regular expression syntax.</p>
 
 <p><strong><em>Challenge</em></strong>: Figure out how to calculate the length (in characters) of the title of each question. </p>
 
@@ -1086,12 +1082,7 @@ in the ISO-8601 format: YYYY-MM-DD HH:MM:SS.SSS. That&#39;s the format of the da
 <pre><code class="r">dbGetQuery(db, &quot;select distinct creationdate from questions limit 5&quot;)
 </code></pre>
 
-<pre><code>##          creationdate
-## 1 2016-01-01 00:00:03
-## 2 2016-01-01 00:00:07
-## 3 2016-01-01 00:00:39
-## 4 2016-01-01 00:00:50
-## 5 2016-01-01 00:00:51
+<pre><code>## Error in dbGetQuery(db, &quot;select distinct creationdate from questions limit 5&quot;): object &#39;db&#39; not found
 </code></pre>
 
 <p>Then SQLite provides some powerful functions for manipulating and extracting information in such fields. Here are just a few examples, noting that <code>strftime</code> is particularly powerful. Other DBMS should have similar functionality, but I haven&#39;t investigated further. </p>
@@ -1099,23 +1090,22 @@ in the ISO-8601 format: YYYY-MM-DD HH:MM:SS.SSS. That&#39;s the format of the da
 <pre><code class="r">## Julian days (decimal days since noon UTC/Greenwich time November 24, 4714 BC (Yikes!)). 
 output &lt;- dbGetQuery(db, &quot;select creationdate, julianday(creationdate)
                 from questions limit 5&quot;)
-output
 </code></pre>
 
-<pre><code>##          creationdate julianday(creationdate)
-## 1 2016-01-01 00:00:03                 2457389
-## 2 2016-01-01 00:00:07                 2457389
-## 3 2016-01-01 00:00:39                 2457389
-## 4 2016-01-01 00:00:50                 2457389
-## 5 2016-01-01 00:00:51                 2457389
+<pre><code>## Error in dbGetQuery(db, &quot;select creationdate, julianday(creationdate)\n                from questions limit 5&quot;): object &#39;db&#39; not found
+</code></pre>
+
+<pre><code class="r">output
+</code></pre>
+
+<pre><code>## Error in eval(expr, envir, enclos): object &#39;output&#39; not found
 </code></pre>
 
 <pre><code class="r">## Julian day is decimal-valued:
 formatC(output[ , 2], 6, format = &#39;f&#39;)
 </code></pre>
 
-<pre><code>## [1] &quot;2457388.500035&quot; &quot;2457388.500081&quot; &quot;2457388.500451&quot;
-## [4] &quot;2457388.500579&quot; &quot;2457388.500590&quot;
+<pre><code>## Error in formatC(output[, 2], 6, format = &quot;f&quot;): object &#39;output&#39; not found
 </code></pre>
 
 <pre><code class="r">## Convert to local time
@@ -1123,12 +1113,7 @@ dbGetQuery(db, &quot;select distinct creationdate, datetime(creationdate, &#39;l
                 from questions limit 5&quot;)
 </code></pre>
 
-<pre><code>##          creationdate datetime(creationdate, &#39;localtime&#39;)
-## 1 2016-01-01 00:00:03                 2015-12-31 16:00:03
-## 2 2016-01-01 00:00:07                 2015-12-31 16:00:07
-## 3 2016-01-01 00:00:39                 2015-12-31 16:00:39
-## 4 2016-01-01 00:00:50                 2015-12-31 16:00:50
-## 5 2016-01-01 00:00:51                 2015-12-31 16:00:51
+<pre><code>## Error in dbGetQuery(db, &quot;select distinct creationdate, datetime(creationdate, &#39;localtime&#39;)\n                from questions limit 5&quot;): object &#39;db&#39; not found
 </code></pre>
 
 <pre><code class="r">## Eastern time, manually, ignoring daylight savings
@@ -1136,12 +1121,7 @@ dbGetQuery(db, &quot;select distinct creationdate, datetime(creationdate, &#39;-
                 from questions limit 5&quot;)
 </code></pre>
 
-<pre><code>##          creationdate datetime(creationdate, &#39;-05:00&#39;)
-## 1 2016-01-01 00:00:03              2015-12-31 19:00:03
-## 2 2016-01-01 00:00:07              2015-12-31 19:00:07
-## 3 2016-01-01 00:00:39              2015-12-31 19:00:39
-## 4 2016-01-01 00:00:50              2015-12-31 19:00:50
-## 5 2016-01-01 00:00:51              2015-12-31 19:00:51
+<pre><code>## Error in dbGetQuery(db, &quot;select distinct creationdate, datetime(creationdate, &#39;-05:00&#39;)\n                from questions limit 5&quot;): object &#39;db&#39; not found
 </code></pre>
 
 <pre><code class="r">## day of week: Jan 1 2016 was a Friday (0=Sunday, 6=Saturday)
@@ -1149,12 +1129,7 @@ dbGetQuery(db, &quot;select creationdate, strftime(&#39;%w&#39;, creationdate)
                 from questions limit 5&quot;)
 </code></pre>
 
-<pre><code>##          creationdate strftime(&#39;%w&#39;, creationdate)
-## 1 2016-01-01 00:00:03                            5
-## 2 2016-01-01 00:00:07                            5
-## 3 2016-01-01 00:00:39                            5
-## 4 2016-01-01 00:00:50                            5
-## 5 2016-01-01 00:00:51                            5
+<pre><code>## Error in dbGetQuery(db, &quot;select creationdate, strftime(&#39;%w&#39;, creationdate)\n                from questions limit 5&quot;): object &#39;db&#39; not found
 </code></pre>
 
 <p>Unfortunately I&#39;m not sure if the actual dates in the database are Greenwich time or some US time zone, but we&#39;ll ignore that complication here.</p>
@@ -1163,27 +1138,47 @@ dbGetQuery(db, &quot;select creationdate, strftime(&#39;%w&#39;, creationdate)
 
 <pre><code class="r">result &lt;- dbGetQuery(db, &quot;select strftime(&#39;%H&#39;, creationdate) as hour,
                           count() as n from questions group by hour&quot;)
-head(result)
 </code></pre>
 
-<pre><code>##   hour     n
-## 1   00 56119
-## 2   01 53468
-## 3   02 55190
-## 4   03 57450
-## 5   04 61855
-## 6   05 75520
+<pre><code>## Error in dbGetQuery(db, &quot;select strftime(&#39;%H&#39;, creationdate) as hour,\n                          count() as n from questions group by hour&quot;): object &#39;db&#39; not found
+</code></pre>
+
+<pre><code class="r">head(result)
+</code></pre>
+
+<pre><code>## Error in head(result): object &#39;result&#39; not found
 </code></pre>
 
 <pre><code class="r">plot(as.numeric(result$hour), result$n, xlab = &#39;hour of day (UTC/Greenwich???)&#39;,
                                         ylab = &#39;number of questions&#39;)
 </code></pre>
 
-<p><img src="data:image/png;base64,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" alt=""/></p>
+<pre><code>## Error in plot(as.numeric(result$hour), result$n, xlab = &quot;hour of day (UTC/Greenwich???)&quot;, : object &#39;result&#39; not found
+</code></pre>
 
 <p>Here&#39;s some <a href="https://www.sqlite.org/lang_datefunc.html">documentation of the syntax for the functions, including <code>stftime</code></a>.</p>
 
 <h3>2.4.6) Subqueries</h3>
+
+<h4>Subqueries in the FROM statement</h4>
+
+<p>We can use subqueries in the FROM statement to create a temporary table to use in a query. Here we&#39;ll do it in the context of a join.</p>
+
+<p><strong><em>Challenge</em></strong>: What does the following do?</p>
+
+<pre><code class="r">dbGetQuery(db, &quot;select * from questions join answers A on questions.questionid = A.questionid join 
+           (select *, count(*) as n_answered from users 
+           group by userid order by n_answered desc limit 1000) most_responsive on
+               A.ownerid = most_responsive.userid&quot;)
+</code></pre>
+
+<p>It might be hard to just come up with that all at once. A good strategy is probably to think about creating a view that is the result of the inner query and then have the outer query use that. You can then piece together the complicated query in a modular way. For big databases, you are likely to want to submit this as a single query and not two queries so that the SQL optimizer can determine the best way to do the operations. But you want to start with code that you&#39;re confident will give you the right answer!</p>
+
+<p>Note we could also have done that query using a subquery in the WHERE statement. </p>
+
+<p><strong><em>Challenge</em></strong>: Write a query that, for each question, will return the question title, number of answers, and the answer to that question written by the user with the highest reputation.</p>
+
+<p>Finally one can use subqueries in the SELECT clause to create new variables, but we won&#39;t go into that here.</p>
 
 <h4>Subqueries in the WHERE statement</h4>
 
@@ -1197,8 +1192,7 @@ head(result)
                where tag = &#39;python&#39;)&quot;)       
 </code></pre>
 
-<pre><code>##   avg(UpVotes)
-## 1      70.7917
+<pre><code>## Error in dbGetQuery(db, &quot;select avg(UpVotes) from users where userid in\n               (select distinct ownerid from\n               questions join questions_tags on questions.questionid = questions_tags.questionid\n               where tag = &#39;python&#39;)&quot;): object &#39;db&#39; not found
 </code></pre>
 
 <p>In some cases one can do a join rather than using a subquery, but in this example, it fails.</p>
@@ -1220,29 +1214,6 @@ head(result)
 <p><strong><em>Challenge</em></strong>: How would you find all the answers associated with the user with the most upvotes?</p>
 
 <p><strong><em>Challenge</em></strong>: Create a frequency list of the tags used in the top 100 most answered questions. Note there is a way to do this with a JOIN and a way without a JOIN.</p>
-
-<h4>Subqueries in the FROM statement</h4>
-
-<p>We can use subqueries in the FROM statement to create a temporary table to use in a query. Here we&#39;ll do it in the context of a join.</p>
-
-<p><strong><em>Challenge</em></strong>: What does the following do?</p>
-
-<pre><code>dbGetQuery(db, &quot;select T.tag, count(*) as n
-               from questions_tags T join
-               (select questionid from answers group by questionid
-               order by count(*) desc limit 100) most_answered
-               on T.questionid = most_answered.questionid
-               group by T.tag
-               order by n desc&quot;)
-</code></pre>
-
-<p>It might be hard to just come up with that. A good strategy is probably to think about creating a view that is the result of the inner query and then have the outer query use that. You can then piece together the complicated query in a modular way. For big databases, you are likely to want to submit this as a single query and not two queries so that the SQL optimizer can determine the best way to do the operations. But you want to start with code that you&#39;re confident will give you the right answer!</p>
-
-<p>Note we could also have done that query using a subquery in the WHERE statement. </p>
-
-<p><strong><em>Challenge</em></strong>: Write a query that, for each question, will return the question title, number of answers, and the answer to that question written by the user with the highest reputation.</p>
-
-<p>Finally one can use subqueries in the SELECT clause to create new variables, but we won&#39;t go into that here.</p>
 
 <h3>2.4.7) Window functions</h3>
 
@@ -1269,24 +1240,7 @@ dbGetQuery(db, &quot;select *,
                 from questions order by creationdate limit 5&quot;)
 </code></pre>
 
-<pre><code>##   questionid        creationdate score viewcount
-## 1   34552550 2016-01-01 00:00:03     0       108
-## 2   34552551 2016-01-01 00:00:07     1       151
-## 3   34552552 2016-01-01 00:00:39     2      1942
-## 4   34552554 2016-01-01 00:00:50     0       153
-## 5   34552555 2016-01-01 00:00:51    -1        54
-##                                                                                   title
-## 1                                                                 Scope between methods
-## 2      Rails - Unknown Attribute - Unable to add a new field to a form on create/update
-## 3 Selenium Firefox webdriver won&#39;t load a blank page after changing Firefox preferences
-## 4                                                       Android Studio styles.xml Error
-## 5                         Java: reference to non-finial local variables inside a thread
-##   ownerid  n
-## 1 5684416 83
-## 2 2457617  1
-## 3 5732525  5
-## 4 5735112  2
-## 5 4646288 10
+<pre><code>## Error in dbGetQuery(db, &quot;select *,\n                count() over (partition by ownerid) as n\n                from questions order by creationdate limit 5&quot;): object &#39;db&#39; not found
 </code></pre>
 
 <ul>
@@ -1299,24 +1253,7 @@ dbGetQuery(db, &quot;select *,
                 from questions limit 5&quot;)
 </code></pre>
 
-<pre><code>##   questionid        creationdate score viewcount
-## 1   34552558 2016-01-01 00:01:27     1       190
-## 2   34552612 2016-01-01 00:13:10     0        42
-## 3   34552655 2016-01-01 00:21:58     2       383
-## 4   34552875 2016-01-01 01:16:40     0        56
-## 5   34552973 2016-01-01 01:44:31     2      5824
-##                                                                                                     title
-## 1                                   Force delete Session records for the current login User : Laravel 5.2
-## 2                                                             How do I impliment [example.text intValue]?
-## 3                                                            RGB to HSV conversion results in noisy image
-## 4                                                                     When session is considered accessed
-## 5 What does &quot;cannot invoke initializer for type &#39;Int&#39; with an argument list of type &#39;UITextField&#39; &quot; mean?
-##   ownerid rank
-## 1      NA    1
-## 2      NA    2
-## 3      NA    3
-## 4      NA    4
-## 5      NA    5
+<pre><code>## Error in dbGetQuery(db, &quot;select *,\n                rank() over (partition by ownerid order by creationdate) as rank\n                from questions limit 5&quot;): object &#39;db&#39; not found
 </code></pre>
 
 <pre><code class="r">dbGetQuery(db, &quot;select *,
@@ -1324,39 +1261,7 @@ dbGetQuery(db, &quot;select *,
                 from questions order by ownerid desc limit 10&quot;)
 </code></pre>
 
-<pre><code>##    questionid        creationdate score viewcount
-## 1    40826005 2016-11-27 05:23:07     1        38
-## 2    40866431 2016-11-29 12:53:25     1        97
-## 3    39327617 2016-09-05 09:30:49     0       402
-## 4    39529293 2016-09-16 10:31:49     0        27
-## 5    39916423 2016-10-05 11:50:10     2        62
-## 6    36130306 2016-03-21 11:11:37     0        41
-## 7    41301378 2016-12-23 12:16:10     0        87
-## 8    41142480 2016-12-14 12:18:45    -1        78
-## 9    39909804 2016-10-07 05:08:09     0        34
-## 10   38286904 2016-07-09 22:32:49     0       107
-##                                                                                           title
-## 1                                                 How to set values in the select dropdown box?
-## 2                                                                      How to use LatLngBounds?
-## 3                                                              How To Get Cookies From WebView?
-## 4                                              How to copy file SDCard to System Rooted Device?
-## 5                                                               Memory mapping behaviour in QNX
-## 6                                                                 AEGetParamDesc / MacOS X 10.7
-## 7  I want to remove some if loops from a php routine, leaving the code more compact and dynamic
-## 8                                                  Add multiple choice option to quiz generator
-## 9                                           How to completely disable auto changes in ckeditor?
-## 10                                       Unable to save a model object with Spring MVC and AJAX
-##    ownerid rank
-## 1  7693696    1
-## 2  7693696    2
-## 3  7691703    1
-## 4  7691703    2
-## 5  7689389    1
-## 6  7674042    1
-## 7  7669738    1
-## 8  7661924    1
-## 9  7660866    1
-## 10 7660165    1
+<pre><code>## Error in dbGetQuery(db, &quot;select *,\n                rank() over (partition by ownerid order by creationdate) as rank\n                from questions order by ownerid desc limit 10&quot;): object &#39;db&#39; not found
 </code></pre>
 
 <ul>
@@ -1371,12 +1276,7 @@ dbGetQuery(db, &quot;select ownerid, creationdate,
                 from questions order by ownerid desc limit 5&quot;)
 </code></pre>
 
-<pre><code>##   ownerid        creationdate       previous_date
-## 1 7693696 2016-11-27 05:23:07                &lt;NA&gt;
-## 2 7693696 2016-11-29 12:53:25 2016-11-27 05:23:07
-## 3 7691703 2016-09-05 09:30:49                &lt;NA&gt;
-## 4 7691703 2016-09-16 10:31:49 2016-09-05 09:30:49
-## 5 7689389 2016-10-05 11:50:10                &lt;NA&gt;
+<pre><code>## Error in dbGetQuery(db, &quot;select ownerid, creationdate,\n                lag(creationdate, 1) over\n                (partition by ownerid order by creationdate)\n                as previous_date\n                from questions order by ownerid desc limit 5&quot;): object &#39;db&#39; not found
 </code></pre>
 
 <p>So one could now calculate the difference between the previous and current date to analyze the time gaps between users posting questions.</p>
@@ -1394,37 +1294,7 @@ dbGetQuery(db, &quot;select ownerid, creationdate,
                 from questions where ownerid is not null limit 30&quot;)
 </code></pre>
 
-<pre><code>##    ownerid        creationdate n_window
-## 1       13 2016-12-13 06:09:50        1
-## 2       25 2016-02-18 05:31:01        1
-## 3       33 2016-03-23 11:39:08        1
-## 4       33 2016-08-05 15:32:30        1
-## 5       33 2016-08-27 08:01:24        1
-## 6       33 2016-10-10 12:50:36        1
-## 7       56 2016-05-11 09:40:11        2
-## 8       56 2016-05-13 13:44:03        2
-## 9       56 2016-09-14 14:13:19        1
-## 10      62 2016-06-09 17:16:10        1
-## 11      62 2016-09-10 02:31:17        1
-## 12      62 2016-12-31 01:21:24        1
-## 13      67 2016-08-01 12:51:13        1
-## 14      70 2016-04-07 14:16:07        1
-## 15      71 2016-01-18 22:54:07        1
-## 16      76 2016-09-15 20:28:54        1
-## 17      91 2016-01-11 21:27:56        1
-## 18      91 2016-12-28 15:13:48        1
-## 19      95 2016-04-19 10:19:09        1
-## 20     105 2016-03-22 18:08:52        1
-## 21     112 2016-10-02 05:20:24        1
-## 22     112 2016-10-11 03:44:41        1
-## 23     113 2016-12-20 22:25:21        1
-## 24     115 2016-12-29 20:59:24        1
-## 25     116 2016-01-05 17:14:47        1
-## 26     116 2016-01-12 00:54:30        1
-## 27     116 2016-01-22 21:06:24        5
-## 28     116 2016-01-26 17:32:31        7
-## 29     116 2016-01-27 06:52:11        9
-## 30     116 2016-01-27 17:59:30        9
+<pre><code>## Error in dbGetQuery(db, &quot;select ownerid, creationdate,\n                count() over\n                (partition by ownerid order by julianday(creationdate)\n                range between 5 preceding and 5 following)\n                as n_window\n                from questions where ownerid is not null limit 30&quot;): object &#39;db&#39; not found
 </code></pre>
 
 <p>There the &#39;5 preceding&#39; and &#39;5 following&#39; mean to include all rows within each ownerid
@@ -1455,23 +1325,14 @@ that are within 5 Julian days (based on &#39;creationdate&#39;) of each row. </p
                 order by ownerid limit 5&quot;)
 </code></pre>
 
-<pre><code>##   ownerid        creationdate                lag1
-## 1      13 2016-12-13 06:09:50                &lt;NA&gt;
-## 2      25 2016-02-18 05:31:01                &lt;NA&gt;
-## 3      33 2016-03-23 11:39:08                &lt;NA&gt;
-## 4      33 2016-08-05 15:32:30 2016-03-23 11:39:08
-## 5      33 2016-08-27 08:01:24 2016-08-05 15:32:30
-##                  lag2
-## 1                &lt;NA&gt;
-## 2                &lt;NA&gt;
-## 3                &lt;NA&gt;
-## 4                &lt;NA&gt;
-## 5 2016-03-23 11:39:08
+<pre><code>## Error in dbGetQuery(db, &quot;select ownerid, creationdate,\n                lag(creationdate, 1) over w as lag1,\n                lag(creationdate, 2) over w as lag2\n                from questions where ownerid is not null\n                window w as (partition by ownerid order by creationdate)\n                order by ownerid limit 5&quot;): object &#39;db&#39; not found
 </code></pre>
 
 <p>What does that query do?</p>
 
 <p><strong><em>Challenge</em></strong>: Use a window function to compute the average viewcount for each ownerid for the 10 questions preceding each question.</p>
+
+<p><strong><em>Challenge (hard)</em></strong>: Find the users who have asked one question that is highly-viewed (viewcount &gt; 1000) with their remaining questions not highly-viewed (viewcount &lt; 20 for all other questions).</p>
 
 <h3>2.4.8) Putting it all together to do complicated queries</h3>
 
@@ -1579,8 +1440,6 @@ psql  # start postgres interpreter
 </code></pre>
 
 <p>Now from within the Postgres interpreter, you can create a database, tables within the database, and authenticate users to do things with those tables. </p>
-
-<p>In this case we&#39;ll be explicit about where on the disk filesystem the database is stored, but you probably only need to worry about this if you are creating a large database. </p>
 
 <pre><code>create database wikistats;
 create user paciorek with password &#39;test&#39;;
@@ -1742,7 +1601,41 @@ dbGetQuery(db, &quot;select * from pg_settings where name=&#39;dynamic_shared_me
 
 <p>Here&#39;s additional information on interpreting what you see: <a href="https://www.postgresql.org/docs/current/static/using-explain.html">https://www.postgresql.org/docs/current/static/using-explain.html</a>.</p>
 
-<p>The main thing to look for is to see if the query will be done by using an index or by sequential scan (i.e., looking at all the rows). </p>
+<p>The main thing to look for is to see if the query will be done by using an index or by sequential scan (i.e., looking at all the rows).</p>
+
+<p>Finally, let&#39;s compare the query plans for an inner join versus a cross join followed by a WHERE that produces equivalent results.</p>
+
+<pre><code class="r">dbGetQuery(db, &quot;explain select * from questions join questions_tags on
+               questions.questionid = questions_tags.questionid&quot;)
+</code></pre>
+
+<pre><code>                                                                         QUERY PLAN
+1                   Hash Join  (cost=744893.91..2085537.32 rows=39985376 width=118)
+2                     Hash Cond: (questions_tags.questionid = questions.questionid)
+3     -&gt;  Seq Scan on questions_tags  (cost=0.00..634684.76 rows=39985376 width=16)
+4                     -&gt;  Hash  (cost=365970.96..365970.96 rows=13472796 width=102)
+5         -&gt;  Seq Scan on questions  (cost=0.00..365970.96 rows=13472796 width=102)
+6                                                                              JIT:
+7                                                                     Functions: 10
+8       Options: Inlining true, Optimization true, Expressions true, Deforming true
+</code></pre>
+
+<pre><code class="r">dbGetQuery(db, &quot;explain select * from questions cross join questions_tags where
+               questions.questionid = questions_tags.questionid&quot;)
+</code></pre>
+
+<pre><code>                                                                         QUERY PLAN
+1                   Hash Join  (cost=744893.91..2085537.32 rows=39985376 width=118)
+2                     Hash Cond: (questions_tags.questionid = questions.questionid)
+3     -&gt;  Seq Scan on questions_tags  (cost=0.00..634684.76 rows=39985376 width=16)
+4                     -&gt;  Hash  (cost=365970.96..365970.96 rows=13472796 width=102)
+5         -&gt;  Seq Scan on questions  (cost=0.00..365970.96 rows=13472796 width=102)
+6                                                                              JIT:
+7                                                                     Functions: 10
+8       Options: Inlining true, Optimization true, Expressions true, Deforming true
+</code></pre>
+
+<p>We see that the query plan indicates the two queries are using the same steps, with the same cost.</p>
 
 <h3>2.6.3) Index lookup vs. sequential scan</h3>
 
@@ -2000,7 +1893,8 @@ myfun &lt;- function(df, colname)
 myfun(questions, &#39;age&#39;)
 </code></pre>
 
-<pre><code>## Unknown column `age`
+<pre><code>## Error: Can&#39;t subset columns that don&#39;t exist.
+## [31m✖[39m Column `age` doesn&#39;t exist.
 </code></pre>
 
 <h3>3.4.2) dplyr with SQL and databases</h3>
@@ -2008,44 +1902,53 @@ myfun(questions, &#39;age&#39;)
 <p>To connect to an SQLite or Postgres database we can use <code>src_sqlite</code> and <code>src_postgres</code>:</p>
 
 <pre><code class="r">stackoverflow &lt;- src_sqlite(file.path(&#39;data&#39;, &#39;stackoverflow-2016.db&#39;))
-users &lt;- tbl(stackoverflow, &#39;users&#39;)
-oldFolks &lt;- users %&gt;% filter(age &gt; 75)
+</code></pre>
+
+<pre><code>## Error: `path` must already exist, unless `create` = TRUE
+</code></pre>
+
+<pre><code class="r">users &lt;- tbl(stackoverflow, &#39;users&#39;)
+</code></pre>
+
+<pre><code>## Error in tbl(stackoverflow, &quot;users&quot;): object &#39;stackoverflow&#39; not found
+</code></pre>
+
+<pre><code class="r">oldFolks &lt;- users %&gt;% filter(age &gt; 75)
 collect(oldFolks)
 </code></pre>
 
 <pre><code>## # A tibble: 481 x 10
-##    userid creationdate lastaccessdate location reputation
-##     &lt;int&gt; &lt;chr&gt;        &lt;chr&gt;          &lt;chr&gt;         &lt;int&gt;
-##  1    987 2008-08-11 … 2017-03-13 18… United …      31483
-##  2   4668 2008-09-05 … 2017-03-13 21… Portlan…     116900
-##  3  17826 2008-09-18 … 2017-03-13 07… Califor…      16958
-##  4  18149 2008-09-18 … 2017-03-13 19… Johnsto…       9102
-##  5  18625 2008-09-19 … 2017-03-13 11… In fron…       2643
-##  6  25809 2008-10-07 … 2017-03-13 20… United …        687
-##  7  33810 2008-11-03 … 2017-02-12 17… Seattle…       1993
-##  8  51090 2009-01-03 … 2016-11-29 06… San Die…       2114
-##  9  60433 2009-01-29 … 2017-02-23 02… &lt;NA&gt;             91
-## 10  62596 2009-02-04 … 2017-03-09 22… Santa C…      18251
-## # … with 471 more rows, and 5 more variables: displayname &lt;chr&gt;,
-## #   upvotes &lt;int&gt;, downvotes &lt;int&gt;, age &lt;int&gt;, accountid &lt;int&gt;
+##    userid creationdate        lastaccessdate      location
+##     &lt;dbl&gt; &lt;dttm&gt;              &lt;dttm&gt;              &lt;chr&gt;   
+##  1    987 2008-08-11 12:14:17 2017-03-13 18:08:20 United …
+##  2   4668 2008-09-05 04:08:05 2017-03-13 21:19:14 Portlan…
+##  3  17826 2008-09-18 15:12:29 2017-03-13 07:40:39 Califor…
+##  4  18149 2008-09-18 19:25:22 2017-03-13 19:31:17 Johnsto…
+##  5  18625 2008-09-19 07:46:06 2017-03-13 11:16:46 In fron…
+##  6  25809 2008-10-07 13:02:17 2017-03-13 20:29:46 United …
+##  7  33810 2008-11-03 23:47:11 2017-02-12 17:11:16 Seattle…
+##  8  51090 2009-01-03 03:48:53 2016-11-29 06:24:50 San Die…
+##  9  60433 2009-01-29 23:32:25 2017-02-23 02:58:10 &lt;NA&gt;    
+## 10  62596 2009-02-04 20:11:52 2017-03-09 22:15:32 Santa C…
+## # … with 471 more rows, and 6 more variables: reputation &lt;dbl&gt;,
+## #   displayname &lt;chr&gt;, upvotes &lt;dbl&gt;, downvotes &lt;dbl&gt;,
+## #   age &lt;dbl&gt;, accountid &lt;dbl&gt;
 </code></pre>
 
 <pre><code class="r">head(oldFolks)
 </code></pre>
 
-<pre><code>## # Source:   lazy query [?? x 10]
-## # Database: sqlite 3.29.0
-## #   [/accounts/gen/vis/paciorek/teaching/243fall19/stat243-fall-2019/data/stackoverflow-2016.db]
-##   userid creationdate lastaccessdate location reputation
-##    &lt;int&gt; &lt;chr&gt;        &lt;chr&gt;          &lt;chr&gt;         &lt;int&gt;
-## 1    987 2008-08-11 … 2017-03-13 18… United …      31483
-## 2   4668 2008-09-05 … 2017-03-13 21… Portlan…     116900
-## 3  17826 2008-09-18 … 2017-03-13 07… Califor…      16958
-## 4  18149 2008-09-18 … 2017-03-13 19… Johnsto…       9102
-## 5  18625 2008-09-19 … 2017-03-13 11… In fron…       2643
-## 6  25809 2008-10-07 … 2017-03-13 20… United …        687
-## # … with 5 more variables: displayname &lt;chr&gt;, upvotes &lt;int&gt;,
-## #   downvotes &lt;int&gt;, age &lt;int&gt;, accountid &lt;int&gt;
+<pre><code>## # A tibble: 6 x 10
+##   userid creationdate        lastaccessdate      location
+##    &lt;dbl&gt; &lt;dttm&gt;              &lt;dttm&gt;              &lt;chr&gt;   
+## 1    987 2008-08-11 12:14:17 2017-03-13 18:08:20 United …
+## 2   4668 2008-09-05 04:08:05 2017-03-13 21:19:14 Portlan…
+## 3  17826 2008-09-18 15:12:29 2017-03-13 07:40:39 Califor…
+## 4  18149 2008-09-18 19:25:22 2017-03-13 19:31:17 Johnsto…
+## 5  18625 2008-09-19 07:46:06 2017-03-13 11:16:46 In fron…
+## 6  25809 2008-10-07 13:02:17 2017-03-13 20:29:46 United …
+## # … with 6 more variables: reputation &lt;dbl&gt;, displayname &lt;chr&gt;,
+## #   upvotes &lt;dbl&gt;, downvotes &lt;dbl&gt;, age &lt;dbl&gt;, accountid &lt;dbl&gt;
 </code></pre>
 
 <p>The <code>collect</code> statement after the filtering is needed because dplyr uses lazy evaluation when interfacing with databases &ndash; it only does the query and return results when the results are needed.</p>

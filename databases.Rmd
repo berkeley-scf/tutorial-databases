@@ -411,7 +411,7 @@ c.close()
 
 Here's how you would connect to PostgreSQL instead:
 
-```
+```{python, eval = FALSE}
 import psycopg2 as pg
 db = pg.connect("dbname = 'stackoverflow' user = 'paciorek' host = 'localhost' password = 'test'")
 c = db.cursor()
@@ -438,7 +438,8 @@ Let's see some joins using the different syntax on the Stack Overflow database. 
 
 
 ```{r, include=FALSE}
-db <- dbConnect(drv, dbname = file.path(dir, dbFilename))
+# why did I need this?
+# db <- dbConnect(drv, dbname = file.path(dir, dbFilename))
 ```
 
 ```{r, eval=SLOWEVAL}
@@ -541,7 +542,7 @@ You can think of a view as a temporary table that is the result of a query and c
 Suppose we always want the age and displayname of question owners available. Once we have the view we can query it like a regular table.
 
 
-```{r, eval=SLOWEVAL}
+```{r, eval=FALSE}
 ## note there is a creationdate in users too, hence disambiguation
 dbExecute(db, "create view questionsAugment as
                select questionid, questions.creationdate, score, viewcount, title, ownerid, age, displayname
@@ -554,7 +555,7 @@ dbGetQuery(db, "select * from questionsAugment where age < 15 limit 5")
                
 One use of a view would be to create a mega table that stores all the information from multiple tables in the (unnormalized) form you might have if you simply had one data frame in R or Python.
 
-```{r, eval=TRUE, include=FALSE}
+```{r, eval=FALSE, include=TRUE}
 dbExecute(db, "drop view questionsAugment") # drop so can create again when rerun the code above
 ```
 
@@ -712,12 +713,25 @@ Or we could use UNION or EXCEPT to find people who have asked either or only one
 
 ### 2.4.4) String processing and creating new fields
 
-In Postgres, in addition the basic use of LIKE to match character strings, one can regular expression syntax with SIMILAR TO and one can extract substrings with SUBSTRING.
+We can do some basic matching with LIKE, using % as a wildcard and _ to stand in for any single character:
+
+```{r, eval=TRUE}
+dbGetQuery(db, "select * from questions_tags where tag like 'r-%' limit 10")
+```
+
+In Postgres, in addition to the basic use of LIKE to match character strings, one can use regular expression syntax with SIMILAR TO and one can extract substrings with SUBSTRING.
 
 These keywords are not available in SQLite so the following can only be done in the Postgres instance of our example database. Here we'll look for all tags that are of the form "r-", "-r", "r" or "-r-". SQL uses % as a wildcard (this is not standard regular expression syntax). 
 
-```{r}
-dbGetQuery(db, "select * from tags where tag SIMILAR TO 'r-%|%-r|r|%-r-%'")
+
+```{r, eval=FALSE}
+## Try in postgreSQL, not SQLite
+result <- dbGetQuery(db, "select * from questions_tags where tag SIMILAR TO 'r-%|%-r|r|%-r-%' limit 10")
+## Standard regex for 'any character' doesn't seem to work:
+## result <- dbGetQuery(db, "select * from questions_tags where tag SIMILAR TO 'r-.*|.*-r|r|.*-r-.*' limit 10")
+```
+
+Note that the matching does not find subsets, unless one uses wildcards at beginning and end of the pattern, so "r" will only find "r" and not, for example, "dyplr".
 ```
 
 To extract substrings we use SUBSTRING. Postgres requires that the pattern to be extracted be surrounded by `#"` (one could use another character in place of `#`), but for use from R we need to escape the double-quote with a backslash so it is treated as a part of the string passed to Postgres and not treated by R as indicating where the character string stops/starts. 
@@ -730,6 +744,8 @@ dbGetQuery(db, "select substring(creationdate from '#\"[[:digit:]]{4}#\"%' for '
 Note that SQLite provides SUBSTR for substrings, but the flexibility of SUBSTR seems to be much less than use of SUBSTRING in PostgreSQL.
 
 Here is some [documentation on string functions in PostgreSQL](https://www.postgresql.org/docs/current/functions-string.html).
+
+***Challenge***: Select the questions that have "java" but not "javascript" in their titles using regular expression syntax.
 
 ***Challenge***: Figure out how to calculate the length (in characters) of the title of each question. 
 
@@ -786,6 +802,28 @@ Here's some [documentation of the syntax for the functions, including `stftime`]
 
 ### 2.4.6) Subqueries
 
+#### Subqueries in the FROM statement
+
+We can use subqueries in the FROM statement to create a temporary table to use in a query. Here we'll do it in the context of a join.
+
+***Challenge***: What does the following do?
+
+
+```{r, eval=FALSE}
+dbGetQuery(db, "select * from questions join answers A on questions.questionid = A.questionid join 
+	       (select *, count(*) as n_answered from users 
+	       group by userid order by n_answered desc limit 1000) most_responsive on
+               A.ownerid = most_responsive.userid")
+```
+
+It might be hard to just come up with that all at once. A good strategy is probably to think about creating a view that is the result of the inner query and then have the outer query use that. You can then piece together the complicated query in a modular way. For big databases, you are likely to want to submit this as a single query and not two queries so that the SQL optimizer can determine the best way to do the operations. But you want to start with code that you're confident will give you the right answer!
+
+Note we could also have done that query using a subquery in the WHERE statement. 
+
+***Challenge***: Write a query that, for each question, will return the question title, number of answers, and the answer to that question written by the user with the highest reputation.
+
+Finally one can use subqueries in the SELECT clause to create new variables, but we won't go into that here.
+
 #### Subqueries in the WHERE statement
 
 Instead of a join, we can use subqueries as a way to combine information across tables, with the subquery involved in a WHERE statement. The subquery creates a set and we then can check for inclusion in (or exclusion from with `not in`) that set.
@@ -821,34 +859,6 @@ For more details on subqueries, see the video on "subqueries in where statements
 ***Challenge***: How would you find all the answers associated with the user with the most upvotes?
 
 ***Challenge***: Create a frequency list of the tags used in the top 100 most answered questions. Note there is a way to do this with a JOIN and a way without a JOIN.
-
-
-
-#### Subqueries in the FROM statement
-
-We can use subqueries in the FROM statement to create a temporary table to use in a query. Here we'll do it in the context of a join.
-
-***Challenge***: What does the following do?
-
-
-```
-dbGetQuery(db, "select T.tag, count(*) as n
-               from questions_tags T join
-               (select questionid from answers group by questionid
-               order by count(*) desc limit 100) most_answered
-               on T.questionid = most_answered.questionid
-               group by T.tag
-               order by n desc")
-```
-
-It might be hard to just come up with that. A good strategy is probably to think about creating a view that is the result of the inner query and then have the outer query use that. You can then piece together the complicated query in a modular way. For big databases, you are likely to want to submit this as a single query and not two queries so that the SQL optimizer can determine the best way to do the operations. But you want to start with code that you're confident will give you the right answer!
-
-Note we could also have done that query using a subquery in the WHERE statement. 
-
-***Challenge***: Write a query that, for each question, will return the question title, number of answers, and the answer to that question written by the user with the highest reputation.
-
-Finally one can use subqueries in the SELECT clause to create new variables, but we won't go into that here.
-
 
 
 ### 2.4.7) Window functions
@@ -938,6 +948,8 @@ dbGetQuery(db, "select ownerid, creationdate,
 What does that query do?
 
 ***Challenge***: Use a window function to compute the average viewcount for each ownerid for the 10 questions preceding each question.
+
+***Challenge (hard)***: Find the users who have asked one question that is highly-viewed (viewcount > 1000) with their remaining questions not highly-viewed (viewcount < 20 for all other questions).
 
 ### 2.4.8) Putting it all together to do complicated queries
 
@@ -1047,7 +1059,6 @@ psql  # start postgres interpreter
 
 Now from within the Postgres interpreter, you can create a database, tables within the database, and authenticate users to do things with those tables. 
 
-In this case we'll be explicit about where on the disk filesystem the database is stored, but you probably only need to worry about this if you are creating a large database. 
 
 ```
 create database wikistats;
@@ -1221,7 +1232,46 @@ dbGetQuery(db, "explain select * from questions join questions_tags on
 
 Here's additional information on interpreting what you see: [https://www.postgresql.org/docs/current/static/using-explain.html](https://www.postgresql.org/docs/current/static/using-explain.html).
 
-The main thing to look for is to see if the query will be done by using an index or by sequential scan (i.e., looking at all the rows). 
+The main thing to look for is to see if the query will be done by using an index or by sequential scan (i.e., looking at all the rows).
+
+Finally, let's compare the query plans for an inner join versus a cross join followed by a WHERE that produces equivalent results.
+
+```{r, eval=FALSE}
+dbGetQuery(db, "explain select * from questions join questions_tags on
+               questions.questionid = questions_tags.questionid")
+```
+
+```
+                                                                         QUERY PLAN
+1                   Hash Join  (cost=744893.91..2085537.32 rows=39985376 width=118)
+2                     Hash Cond: (questions_tags.questionid = questions.questionid)
+3     ->  Seq Scan on questions_tags  (cost=0.00..634684.76 rows=39985376 width=16)
+4                     ->  Hash  (cost=365970.96..365970.96 rows=13472796 width=102)
+5         ->  Seq Scan on questions  (cost=0.00..365970.96 rows=13472796 width=102)
+6                                                                              JIT:
+7                                                                     Functions: 10
+8       Options: Inlining true, Optimization true, Expressions true, Deforming true
+```
+
+```{r, eval=FALSE}
+dbGetQuery(db, "explain select * from questions cross join questions_tags where
+               questions.questionid = questions_tags.questionid")
+```
+
+```
+                                                                         QUERY PLAN
+1                   Hash Join  (cost=744893.91..2085537.32 rows=39985376 width=118)
+2                     Hash Cond: (questions_tags.questionid = questions.questionid)
+3     ->  Seq Scan on questions_tags  (cost=0.00..634684.76 rows=39985376 width=16)
+4                     ->  Hash  (cost=365970.96..365970.96 rows=13472796 width=102)
+5         ->  Seq Scan on questions  (cost=0.00..365970.96 rows=13472796 width=102)
+6                                                                              JIT:
+7                                                                     Functions: 10
+8       Options: Inlining true, Optimization true, Expressions true, Deforming true
+```
+
+We see that the query plan indicates the two queries are using the same steps, with the same cost.
+
 
 ### 2.6.3) Index lookup vs. sequential scan 
 

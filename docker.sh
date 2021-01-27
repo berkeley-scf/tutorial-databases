@@ -18,7 +18,7 @@ apt-get install -y postgresql postgresql-contrib libpq-dev
 apt-get install -y openssh-client
 
 ## If you want to be able to connect to postgres from outside the container, do these steps:
-PG_VER=10  # modify as needed
+PG_VER=13  # modify as needed
 echo -e "host\tall\t\tall\t\t0.0.0.0/0\t\tmd5" >> /etc/postgresql/${PG_VER}/main/pg_hba.conf
 sed -i "s/#listen_addresses = 'localhost'/listen_addresses = '*'/" /etc/postgresql/${PG_VER}/main/postgresql.conf
 
@@ -35,20 +35,9 @@ unzip tutorial-databases-data.zip
 su - postgres
 psql
 
-## now run commands shown in databases.html to create a database and tables and put data in the tables, but as we'll be acting as the 'docker' user below, make sure to create a 'docker' postgres user using the "create user" syntax seen in databases.html.
+## now run commands shown in databases.html to create a database and tables and put data in the tables.
 
 exit
-
-#########################################################
-## Connecting to the database from within the container
-#########################################################
-
-Rscript -e "install.packages('RPostgreSQL')"
-
-## Now switch to a non-root user (to mimic how you would usually be operating) and then run R
-sudo -u docker -i
-R
-## now connect to database via R (or Python if you have a container with Python installed) as seen in databases.html
 
 
 ###############################################################################
@@ -58,5 +47,21 @@ R
 drv <- dbDriver("PostgreSQL")
 ## Make use of port 63333 on the host machine, which maps to 5432 in the container
 ## as set up at the start of this file.
-db <- dbConnect(drv, dbname = 'wikistats', user = 'docker',
+user = 'paciorek'  
+db <- dbConnect(drv, dbname = 'wikistats', user = user,
                 password = 'test', port = 63333, host = 'localhost')
+
+
+#########################################################
+## Connecting to the database from within the container
+#########################################################
+
+## You can also connect from within the container. Since your username outside the container would not generally exist within the container, if you were to want to access the database from within the container, you probably would want to create a 'docker' postgres user using the "create user" syntax seen in databases.html (and give that user appropriate privileges).
+
+Rscript -e "install.packages('RPostgreSQL')"
+
+## Now switch to a non-root user (to mimic how you would usually be operating) and then run R
+sudo -u docker -i
+R
+## now connect to database via R (or Python if you have a container with Python installed) as seen in databases.html
+
