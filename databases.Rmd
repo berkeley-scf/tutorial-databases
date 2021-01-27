@@ -1809,10 +1809,12 @@ run;
 
 That particular query took 12 minutes, by comparison with 5-6 minutes in SQL without an index and before any disk caching has occurred. 
 
-# 7) References
+# 7) References and Other Resources
 
 In addition to various material found online, including various software manuals and vignettes, much of the SQL material was based on the following two sources:
 
  - The Stanford online [Introduction to Databases course](http://cs.stanford.edu/people/widom/DB-mooc.html) (see also the [mini-courses version of the course](https://lagunita.stanford.edu/courses/DB/2014/SelfPaced/about)).
- - Harrison Dekker's materials from a [Statistics short course](https://github.com/uc-data-services/sql-workshop-2016) he taught in January 2016: 
+ - Harrison Dekker's materials from a [Statistics short course](https://github.com/uc-data-services/sql-workshop-2016) he taught in January 2016.
+
+I've heard good things about the interactive exercises/tutorials at [SQLZoo](https://sqlzoo.net) and the book Practical SQL by Anthony DeBarros (available through Berkeley's Oskicat library catalog); in particular the first 200 or so pages (through chapter 12) cover general SQL programming/querying.
 
