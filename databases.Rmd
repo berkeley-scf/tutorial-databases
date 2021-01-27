@@ -732,7 +732,6 @@ result <- dbGetQuery(db, "select * from questions_tags where tag SIMILAR TO 'r-%
 ```
 
 Note that the matching does not find subsets, unless one uses wildcards at beginning and end of the pattern, so "r" will only find "r" and not, for example, "dyplr".
-```
 
 To extract substrings we use SUBSTRING. Postgres requires that the pattern to be extracted be surrounded by `#"` (one could use another character in place of `#`), but for use from R we need to escape the double-quote with a backslash so it is treated as a part of the string passed to Postgres and not treated by R as indicating where the character string stops/starts. 
 

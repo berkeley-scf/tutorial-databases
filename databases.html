@@ -990,7 +990,7 @@ select * from table1 natural join table2
 </code></pre>
 
 <pre><code>##    user  system elapsed 
-##   8.033   2.824  28.613
+##   7.872   2.907  29.394
 </code></pre>
 
 <p>Alternatively we can do a self-join. Note that the syntax gets complicated as we are doing multiple joins.</p>
@@ -1009,7 +1009,7 @@ select * from table1 natural join table2
 </code></pre>
 
 <pre><code>##    user  system elapsed 
-##  15.984  14.441  48.981
+##  15.901  14.590  49.284
 </code></pre>
 
 <pre><code class="r">identical(result1, result2)
@@ -1063,12 +1063,9 @@ result &lt;- dbGetQuery(db, &quot;select * from questions_tags where tag SIMILAR
 
 <p>Note that the matching does not find subsets, unless one uses wildcards at beginning and end of the pattern, so &ldquo;r&rdquo; will only find &ldquo;r&rdquo; and not, for example, &ldquo;dyplr&rdquo;.</p>
 
-<pre><code>
-To extract substrings we use SUBSTRING. Postgres requires that the pattern to be extracted be surrounded by `#&quot;` (one could use another character in place of `#`), but for use from R we need to escape the double-quote with a backslash so it is treated as a part of the string passed to Postgres and not treated by R as indicating where the character string stops/starts. 
+<p>To extract substrings we use SUBSTRING. Postgres requires that the pattern to be extracted be surrounded by <code>#&quot;</code> (one could use another character in place of <code>#</code>), but for use from R we need to escape the double-quote with a backslash so it is treated as a part of the string passed to Postgres and not treated by R as indicating where the character string stops/starts. </p>
 
-
-```r
-dbGetQuery(db, &quot;select substring(creationdate from &#39;#\&quot;[[:digit:]]{4}#\&quot;%&#39; for &#39;#&#39;) as year
+<pre><code class="r">dbGetQuery(db, &quot;select substring(creationdate from &#39;#\&quot;[[:digit:]]{4}#\&quot;%&#39; for &#39;#&#39;) as year
                from questions limit 3&quot;)
 </code></pre>
 
