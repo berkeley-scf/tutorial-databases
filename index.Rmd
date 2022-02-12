@@ -17,6 +17,8 @@ This tutorial covers tools for manipulating large datasets, including those livi
 
 This tutorial assumes you have a working knowledge of R or Python. 
 
+## 1.1 Materials
+
 Materials for this tutorial, including the Markdown files and associated code files that were used to create these documents are available on [GitHub](https://github.com/berkeley-scf/tutorial-databases) in the `gh-pages` branch.  You can download the files by doing a git clone from a terminal window on a UNIX-like machine, as follows:
 
 ```bash
@@ -29,15 +31,15 @@ Solutions to the SQL challenges are available on request.
 
 This tutorial by Christopher Paciorek of the UC Berkeley Statistical Computing Facility is licensed under a Creative Commons Attribution 3.0 Unported License.
 
-# Prerequisite Software
+## 1.2 Prerequisite Software
 
-## 1.1 Using SQLite from R or Python
+### 1.2.1 Using SQLite from R or Python
 
 The simplest way to use a database is with SQLite, a lightweight database engine under which the database is stored simply in a single file.
 
 Both R and Python can easily interact with an SQLite database. For R you'll need the "DBI" and "RSQLite" packages. For Python you'll need the `sqlite3` package.
 
-## 1.2 Using PostgreSQL on Mac or Windows
+### 1.2.2 Using PostgreSQL on Mac or Windows
 
 To replicate the (non-essential) PostgreSQL administration portion of this tutorial, you'll need access to a machine on which you can run a PostgreSQL server. While there are a variety of ways to do this, this tutorial assumes that you are running PostgreSQL on an Ubuntu (or Debian) Linux machine. If you are a Windows or Mac user, there are several options for accessing a Linux environment:
 

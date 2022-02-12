@@ -615,7 +615,7 @@ if you look at the users who have sent messages only on mobile in the last month
 
 # 4 Efficient SQL queries
 
-# 4.1 Overview
+## 4.1 Overview
 
 In general, your DBMS should examine your query and try to implement it in the fastest way possible. And as discussed above, putting an indexes on your tables will often speed things up substantially, but only for certain types of queries.
 
