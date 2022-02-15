@@ -18,6 +18,8 @@ Python are very similar because the core reliance is on SQL.
 
 This tutorial assumes you have a working knowledge of R or Python.
 
+## 1.1 Materials
+
 Materials for this tutorial, including the Markdown files and associated
 code files that were used to create these documents are available on
 [GitHub](https://github.com/berkeley-scf/tutorial-databases) in the
@@ -39,9 +41,9 @@ This tutorial by Christopher Paciorek of the UC Berkeley Statistical
 Computing Facility is licensed under a Creative Commons Attribution 3.0
 Unported License.
 
-# Prerequisite Software
+## 1.2 Prerequisite Software
 
-## 1.1 Using SQLite from R or Python
+### 1.2.1 Using SQLite from R or Python
 
 The simplest way to use a database is with SQLite, a lightweight
 database engine under which the database is stored simply in a single
@@ -51,7 +53,7 @@ Both R and Python can easily interact with an SQLite database. For R
 you’ll need the “DBI” and “RSQLite” packages. For Python you’ll need the
 `sqlite3` package.
 
-## 1.2 Using PostgreSQL on Mac or Windows
+### 1.2.2 Using PostgreSQL on Mac or Windows
 
 To replicate the (non-essential) PostgreSQL administration portion of
 this tutorial, you’ll need access to a machine on which you can run a
@@ -86,11 +88,13 @@ space and are willing to wait. If you have 10s of gigabytes of data,
 you’ll be better off if your machine has 10s of GBs of memory, as
 discussed in this tutorial.
 
-If you’re scaling to 100s of GBs, terabytes or petabytes, tools such as
-Spark may be your best bet, or possibly carefully-administered
-databases. Those topics are beyond the scope of this tutorial. However,
-this tutorial will be useful if you’re doing SQL queries on Spark
-datasets or professionally-administered databases.
+If you’re scaling to 100s of GBs, terabytes or petabytes, using the
+cloud computing providers’ tools for working with big datasets is
+probably your best bet (e.g., Amazon RedShift or Google BigQuery), or
+possibly carefully-administered databases. Those topics are beyond the
+scope of this tutorial. However, this tutorial will be useful if you’re
+doing SQL queries on professionally-administered databases or databases
+in the cloud or in a Spark context.
 
 ## 2.2 Memory vs. disk
 
@@ -324,15 +328,14 @@ tables.
     -   department
     -   age
 -   Class
--   ID
--   topic
--   class\_size
--   teacher\_ID
-
+    -   ID
+    -   topic
+    -   class\_size
+    -   teacher\_ID
 -   ClassAssignment
--   student\_ID
--   class\_ID
--   grade
+    -   student\_ID
+    -   class\_ID
+    -   grade
 
 Then we do queries to pull information from multiple tables. We do the
 joins based on ‘keys’, which are the fields in each table that allow us
@@ -359,11 +362,14 @@ In our educational example, the primary keys would presumably be:
 Student.ID, Teacher.ID, Class.ID, and for ClassAssignment two fields:
 {ClassAssignment.studentID, ClassAssignment.class\_ID}.
 
-Some examples of foreign keys would be: - student\_ID as the foreign key
-in ClassAssignment for joining with Student on Student.ID - teacher\_ID
-as the foreign key in Class for joining with Teacher based on Teacher.ID
-- class\_ID as the foreign key in ClassAssignment for joining with Class
-based on Class.ID
+Some examples of foreign keys would be:
+
+-   student\_ID as the foreign key in ClassAssignment for joining with
+    Student on Student.ID
+-   teacher\_ID as the foreign key in Class for joining with Teacher
+    based on Teacher.ID
+-   class\_ID as the foreign key in ClassAssignment for joining with
+    Class based on Class.ID
 
 # 5 Stack Overflow example database
 

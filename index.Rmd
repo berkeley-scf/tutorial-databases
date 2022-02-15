@@ -56,7 +56,7 @@ This tutorial by Christopher Paciorek is licensed under a Creative Commons Attri
 
 The techniques and tools discussed here are designed for datasets in the range of gigabytes to tens of gigabytes, though they may scale to larger if you have a machine with a lot of memory or simply have enough disk space and are willing to wait. If you have 10s of gigabytes of data, you'll be better off if your machine has 10s of GBs of memory, as discussed in this tutorial. 
 
-If you're scaling to 100s of GBs, terabytes or petabytes, tools such as Spark may be your best bet, or possibly carefully-administered databases. Those topics are beyond the scope of this tutorial. However, this tutorial will be useful if you're doing SQL queries on Spark datasets or professionally-administered databases.
+If you're scaling to 100s of GBs, terabytes or petabytes, using the cloud computing providers' tools for working with big datasets is probably your best bet (e.g., Amazon RedShift or Google BigQuery), or possibly carefully-administered databases. Those topics are beyond the scope of this tutorial. However, this tutorial will be useful if you're doing SQL queries on professionally-administered databases or databases in the cloud or in a Spark context.
 
 ## 2.2 Memory vs. disk
 
@@ -192,15 +192,15 @@ Instead, a natural way to order this database is with the following tables.
   - age
 
 - Class
- - ID
- - topic
- - class_size
- - teacher_ID
+  - ID
+  - topic
+  - class_size
+  - teacher_ID
 
 - ClassAssignment
- - student_ID
- - class_ID
- - grade
+  - student_ID
+  - class_ID
+  - grade
 
 Then we do queries to pull information from multiple tables. We do the joins based on 'keys', which are the fields in each table that allow us to match rows from different tables. 
 
@@ -213,6 +213,7 @@ A key is a field or collection of fields that give(s) a unique value for every r
 In our educational example, the primary keys would presumably be: Student.ID, Teacher.ID, Class.ID, and for ClassAssignment two fields: {ClassAssignment.studentID, ClassAssignment.class_ID}.
 
 Some examples of foreign keys would be:
+
  - student_ID as the foreign key in ClassAssignment for joining with Student on Student.ID
  - teacher_ID as the foreign key in Class for joining with Teacher based on Teacher.ID
  - class_ID as the foreign key in ClassAssignment for joining with Class based on Class.ID
