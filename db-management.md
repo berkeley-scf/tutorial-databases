@@ -160,8 +160,8 @@ delineating the beginning and end of text in a field, but the Wikistats
 files have double-quotes as part of the fields. So we need to set the
 quote character as neither a double-quote nor a backslash. The following
 syntax does that by specifying that the quote character is a character
-(`\\b`) that never actually appears in the file. The ‘e’ part is so that
-Postgres treats `\\b` as a single character, i.e., ‘escaping’ the
+(`\b`) that never actually appears in the file. The ‘e’ part is so that
+Postgres treats `\b` as a single character, i.e., ‘escaping’ the
 backslash, and the ‘csv’ is because the quote keyword only works with
 the csv format, but note that by setting the delimiter to a space, it’s
 not really a CSV file!
