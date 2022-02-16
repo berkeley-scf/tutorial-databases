@@ -11,14 +11,17 @@ available through Amazon Web Services (AWS) because in the data posted
 on AWS, the datetime information is part of the filename, rather tha
 field(s) in the table.
 
+You can get the raw input files of Wikistats data
+[here](http://www.stat.berkeley.edu/share/paciorek/tutorial-databases-data.zip)
+
 # 1 SQLite
 
 ## 1.1 Setting up a database and using the SQLite command line
 
 With SQLite you don’t need to deal with all the permissions and
-administrative overhead because an SQLite database is simply a file that
-you can access without a password or connecting to a database server
-process.
+administrative overhead of a client-server style of DBMS because an
+SQLite database is simply a file that you can access without a password
+or connecting to a database server process.
 
 To start the SQLite interpreter in Linux, either operating on or
 creating a database named `wikistats.db`:
@@ -56,12 +59,12 @@ done
 
 ## 1.3 Data cleaning
 
-The problem in this example with importing into SQLite is the presence
-of double quote (") characters that are not meant to delineate strings
-but are actually part of a field. In this case probably the easiest
-thing is simply to strip out those quotes from UNIX. Here we use `sed`
-to search and replace to create versions of the input files that don’t
-have the quotes.
+A problem in this example with importing from the data files into SQLite
+as above is the presence of double quote (") characters that are not
+meant to delineate strings but are actually part of a field. In this
+case probably the easiest thing is simply to strip out those quotes from
+UNIX. Here we use `sed` to search and replace to create versions of the
+input files that don’t have the quotes.
 
 ``` bash
 for file in $(ls *gz); do
@@ -69,8 +72,9 @@ for file in $(ls *gz); do
 done
 ```
 
-If you want to read the data into SQLite yourself, you *will* need to do
-something about the quotes; I haven’t stripped them out of the files.
+> **Warning**: If you want to read the data into SQLite yourself, you
+> *will* need to do something about the quotes; I haven’t stripped them
+> out of the files.
 
 # 2 PostgreSQL
 
@@ -116,9 +120,9 @@ specific database so as to operate on it.
     grant all privileges on table webtraffic to paciorek;
     \quit
 
-Note the use of `\` to do administrative tasks (as opposed to executing
-SQL syntax), and the use of `;` to end each statement. Without the
-semicolon, Postgres will return without doing anything.
+> **Note**: Notice the use of `\` to do administrative tasks (as opposed
+> to executing SQL syntax), and the use of `;` to end each statement.
+> Without the semicolon, Postgres will return without doing anything.
 
 If you want control over where the database is stored (you probably only
 need to worry about this if you are creating a large database), you can

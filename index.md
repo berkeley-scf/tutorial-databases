@@ -64,8 +64,8 @@ several options for accessing a Linux environment:
 
 -   You could run Ubuntu in a Docker container; Docker can be installed
     on Windows or Mac. Once you’ve installed Docker and have access to a
-    terminal command line, please see the commands in `docker.sh` in
-    this repository.
+    terminal command line, please see the commands in
+    [docker.sh](docker.sh) in this repository.
 -   You could run an Amazon EC2/Google Cloud/Azure virtual machine
     instance, using a image that supports R and/or Python and then
     installing PostgreSQL as discussed in this tutorial.
@@ -119,11 +119,11 @@ access their data but will be able to store more data than can be loaded
 into an R or Python session. However, databases can be quite fast due in
 part to disk caching by the operating system as well as careful
 implementation of good algorithms for database operations. For more
-information about disk caching see Section 2.6.5.
+information about disk caching see [the database management
+document](db-management).
 
-And conversely, R (and probably Python) have mechanisms for storing
-large datasets on disk in a way that they can be accessed fairly
-quickly.
+And conversely, R and Python have mechanisms for storing large datasets
+on disk in a way that they can be accessed fairly quickly.
 
 # 3 Database systems and SQL
 
@@ -229,14 +229,15 @@ results you want. The system then parses the SQL syntax and determines
 how to implement the query.
 
 Later we’ll introduce a database of Stack Overflow questions and
-answers. The *questions* table has a field *viewcount* that indicates
-how many times each question was viewed.
+answers.
 
 Here is a simple query that selects the first five rows (and all
 columns, based on the `*` wildcard) from a table (called ‘questions’) in
 a database that one has connected to:
 
-    select * from questions limit 5
+``` sql
+select * from questions limit 5
+```
 
 # 4 Schema and normalization
 
@@ -454,7 +455,7 @@ Most of our examples of making SQL queries on a database will be done
 from R, but they could just as easily have been done from Python or
 other programs.
 
-# 6.1 Using SQL from R
+## 6.1 Using SQL from R
 
 The *DBI* package provides a front-end for manipulating databases from a
 variety of DBMS (SQLite, MySQL, PostgreSQL, among others). Basically,
@@ -475,7 +476,8 @@ drv <- dbDriver("SQLite")
 dir <- 'data' # relative or absolute path to where the .db file is
 dbFilename <- 'stackoverflow-2016.db'
 db <- dbConnect(drv, dbname = file.path(dir, dbFilename))
-dbGetQuery(db, "select * from questions limit 5")  # simple query to get 5 rows from a table
+# simple query to get 5 rows from a table
+dbGetQuery(db, "select * from questions limit 5")  
 ```
 
     ##   questionid        creationdate score viewcount
@@ -568,13 +570,15 @@ password that allow you to access the particular database.
 library(RPostgreSQL)
 drv <- dbDriver("PostgreSQL")
 db <- dbConnect(drv, dbname = 'stackoverflow', user = 'paciorek', password = 'test')
+# simple query to get 5 rows from a table, same as with SQLite:
+dbGetQuery(db, "select * from questions limit 5")  
 ```
 
 Apart from the different manner of connecting, all of the queries above
 are the same regardless of whether the back-end DBMS is SQLite,
 PostgreSQL, etc.
 
-# 6.2 Using SQL from Python
+## 6.2 Using SQL from Python
 
 For SQLite:
 
@@ -591,7 +595,9 @@ results = c.fetchall() # retrieve results
 
 To disconnect:
 
-    c.close()
+``` python
+c.close()
+```
 
 Here’s how you would connect to PostgreSQL instead:
 
