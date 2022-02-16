@@ -191,7 +191,7 @@ myfun <- function(df, colname)
 myfun(questions, 'age')
 ```
 
-## 1.4.2 dplyr with SQL and databases
+### 1.4.2 dplyr with SQL and databases
 
 To connect to an SQLite or Postgres database we can use `src_sqlite` and `src_postgres`:
 
