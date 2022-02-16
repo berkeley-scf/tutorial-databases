@@ -660,7 +660,7 @@ system.time(
 ```
 
     ##    user  system elapsed 
-    ##   8.514   3.416  29.604
+    ##   8.775   3.554  29.949
 
 Alternatively we can do a self-join. Note that the syntax gets
 complicated as we are doing multiple joins.
@@ -680,7 +680,7 @@ system.time(
 ```
 
     ##    user  system elapsed 
-    ##  12.235   8.326  38.654
+    ##  12.466   8.823  38.825
 
 ``` r
 identical(result1, result2)
@@ -1080,7 +1080,7 @@ messages only on mobile in the last month.
 
 # 4 Efficient SQL queries
 
-# 4.1 Overview
+## 4.1 Overview
 
 In general, your DBMS should examine your query and try to implement it
 in the fastest way possible. And as discussed above, putting an indexes
