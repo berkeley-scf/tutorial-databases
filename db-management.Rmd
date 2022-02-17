@@ -152,7 +152,7 @@ for file in $(ls part*gz); do  # loop thru files whose names start with 'part' a
 done
 ```
 
-Using `\copy` as above invokes the psql `copy` command (`copy` would invoke the standard SQL `copy` command), which allows one to operate as a regular user and to use relative paths. In turn `\copy` invokes `copy` in a specific way. 
+> **Note**: Using `\copy` as above invokes the psql `copy` command (`copy` would invoke the standard SQL `copy` command), which allows one to operate as a regular user and to use relative paths. In turn `\copy` invokes `copy` in a specific way. 
 
 
 ## 2.3 Data cleaning
@@ -223,7 +223,7 @@ iostat 1 # shows usage every second
 
 ## 5.2 Memory
 
-To see how much memory is available, one needs to have a clear understanding of disk caching. As discussed above, the operating system will generally cache files/data in memory when it reads from disk. Then if that information is still in memory the next time it is needed, it will be much faster to access it the second time around. While the cached information is using memory, that same memory is immediately available to other processes, so the memory is available even though it is in use. 
+To see how much memory is available, one needs to have a clear understanding of disk caching. As discussed above, the operating system will generally cache files/data in memory when it reads from disk. Then if that information is still in memory the next time it is needed, it will be much faster to access it the second time around. While the cached information is using memory, that same physical memory is immediately available to other processes, so the memory is available even though it is in use. 
 
 We can see this via `free -h` (the -h is for 'human-readable', i.e. show in GB (G)).
 
@@ -255,6 +255,6 @@ KiB Swap:  7999484 total,  7784336 free,   215148 used. 25953483+avail Mem
 
 We see that this machine has 264 GB RAM (the total column in the Mem row), with 259.5 GB available (232 GB free plus 31 GB buff/cache as seen in the Mem row). (I realize the numbers don't quite add up for reasons I don't fully understand, but we probably don't need to worry about that degree of exactness.) Only 1 GB is in use.  
 
-`swap` is essentially the reverse of disk caching. It is disk space that is used for memory when the machine runs out of physical memory. You never want your machine to be using swap for memory because your jobs will slow to a crawl. Here the swap line in both free and top shows 8 GB swap space, with very little in use, as desired. 
+`swap` is essentially the reverse of disk caching. It is disk space that is used for memory when the machine runs out of physical memory. You never want your machine to be using swap for memory, because your jobs will slow to a crawl. Here the swap line in both free and top shows 8 GB swap space, with very little in use, as desired. 
 
 

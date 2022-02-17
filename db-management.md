@@ -187,10 +187,10 @@ for file in $(ls part*gz); do  # loop thru files whose names start with 'part' a
 done
 ```
 
-Using `\copy` as above invokes the psql `copy` command (`copy` would
-invoke the standard SQL `copy` command), which allows one to operate as
-a regular user and to use relative paths. In turn `\copy` invokes `copy`
-in a specific way.
+> **Note**: Using `\copy` as above invokes the psql `copy` command
+> (`copy` would invoke the standard SQL `copy` command), which allows
+> one to operate as a regular user and to use relative paths. In turn
+> `\copy` invokes `copy` in a specific way.
 
 ## 2.3 Data cleaning
 
@@ -294,9 +294,9 @@ understanding of disk caching. As discussed above, the operating system
 will generally cache files/data in memory when it reads from disk. Then
 if that information is still in memory the next time it is needed, it
 will be much faster to access it the second time around. While the
-cached information is using memory, that same memory is immediately
-available to other processes, so the memory is available even though it
-is in use.
+cached information is using memory, that same physical memory is
+immediately available to other processes, so the memory is available
+even though it is in use.
 
 We can see this via `free -h` (the -h is for ‘human-readable’, i.e. show
 in GB (G)).
@@ -337,6 +337,6 @@ degree of exactness.) Only 1 GB is in use.
 
 `swap` is essentially the reverse of disk caching. It is disk space that
 is used for memory when the machine runs out of physical memory. You
-never want your machine to be using swap for memory because your jobs
+never want your machine to be using swap for memory, because your jobs
 will slow to a crawl. Here the swap line in both free and top shows 8 GB
 swap space, with very little in use, as desired.

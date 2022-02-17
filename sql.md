@@ -12,7 +12,8 @@ columns, based on the `*` wildcard) from the questions table.
 
     select * from questions limit 5
 
-To run this from R:
+To run this from R we provide the SQL syntax as a string as the second
+argument to `dbGetQuery`.
 
 ``` r
 library(RSQLite)
@@ -20,7 +21,7 @@ drv <- dbDriver("SQLite")
 dir <- 'data' # relative or absolute path to where the .db file is
 dbFilename <- 'stackoverflow-2016.db'
 db <- dbConnect(drv, dbname = file.path(dir, dbFilename))
-dbGetQuery(db, "select * from questions limit 5")  # simple query to get 5 rows from a table
+dbGetQuery(db, "select * from questions limit 5")
 ```
 
     ##   questionid        creationdate score viewcount
@@ -44,43 +45,106 @@ dbGetQuery(db, "select * from questions limit 5")  # simple query to get 5 rows 
 
 Now let’s see some more interesting usage of other SQL syntax.
 
-    ## get the questions that are viewed the most
-    select * from questions where viewcount > 100000
-    ## find the largest numbers of question views in the questions table
-    select distinct viewcount from questions order by viewcount desc limit 20
+First we get the questions that are viewed the most by filtering to the
+rows for which the ‘viewcount’ is greater than 100000. We’ll limit the
+results to the first 5 rows so we don’t print too much out.
+
+``` r
+## get the questions that are viewed the most
+dbGetQuery(db, "select * from questions where viewcount > 100000 limit 10")
+```
+
+    ##    questionid        creationdate score viewcount
+    ## 1    34579099 2016-01-03 16:55:16     8    129624
+    ## 2    34814368 2016-01-15 15:24:36   206    134399
+    ## 3    35062852 2016-01-28 13:28:39   730    112000
+    ## 4    35429801 2016-02-16 10:21:09   400    100125
+    ## 5    35588699 2016-02-23 21:37:06    57    126752
+    ## 6    35890257 2016-03-09 11:25:05    51    129874
+    ## 7    35990995 2016-03-14 15:01:17   104    127764
+    ## 8    36668374 2016-04-16 18:57:19    20    196469
+    ## 9    37280274 2016-05-17 15:21:49    23    106995
+    ## 10   37806538 2016-06-14 08:16:21   223    174790
+    ##                                                                                                                                 title
+    ## 1                                                             Fatal error: Uncaught Error: Call to undefined function mysql_connect()
+    ## 2                                                                                            "Gradle Version 2.10 is required." Error
+    ## 3                                                                         NPM vs. Bower vs. Browserify vs. Gulp vs. Grunt vs. Webpack
+    ## 4                                                                              This action could not be completed. Try Again (-22421)
+    ## 5                                                           Response to preflight request doesn't pass access control check AngularJs
+    ## 6                                                   Android- Error:Execution failed for task ':app:transformClassesWithDexForRelease'
+    ## 7                                                                                      Unsupported major.minor version 52.0 in my app
+    ## 8                                                           How to solve "server DNS address could not be found" error in windows 10?
+    ## 9                                                                "SyntaxError: Unexpected token < in JSON at position 0" in React App
+    ## 10 Code signing is required for product type 'Application' in SDK 'iOS 10.0' - StickerPackExtension requires a development team error
+    ##    ownerid
+    ## 1  3656666
+    ## 2  3319176
+    ## 3  2761509
+    ## 4  5881764
+    ## 5  2896963
+    ## 6  1118886
+    ## 7  1629278
+    ## 8  1707976
+    ## 9  4043633
+    ## 10 1554347
+
+Next, let’s find the number of views for the 15 questions viewed the
+most.
+
+``` r
+dbGetQuery(db, "select distinct viewcount from questions order by viewcount desc limit 20")
+```
+
+    ##    viewcount
+    ## 1     196469
+    ## 2     174790
+    ## 3     134399
+    ## 4     129874
+    ## 5     129624
+    ## 6     127764
+    ## 7     126752
+    ## 8     112000
+    ## 9     109422
+    ## 10    106995
+    ## 11    100125
+    ## 12     99433
+    ## 13     98093
+    ## 14     95866
+    ## 15     92994
+    ## 16     92983
+    ## 17     86348
+    ## 18     85682
+    ## 19     84106
+    ## 20     80923
 
 Let’s lay out the various verbs in SQL. Here’s the form of a standard
-query (though the ORDER BY is often not used and sorting is
-computationally expensive):
+query (but note that the sorting done by ORDER BY is computationally
+expensive and would be used sparingly):
 
     SELECT <column(s)> FROM <table> WHERE <condition(s) on column(s)> ORDER BY <column(s)>
 
-SQL keywords are often written in ALL CAPITALS though I won’t
-necessarily do that in this tutorial.
+SQL keywords are often written in ALL CAPITALS by convention, although I
+won’t necessarily do that in this tutorial.
 
 And here is a table of some important keywords:
 
-| Keyword                       | What it does                                       |
-|-------------------------------|----------------------------------------------------|
-| SELECT                        | select columns                                     |
-| FROM                          | which table to operate on                          |
-| WHERE                         | filter (choose) rows satisfying certain conditions |
-| LIKE, IN, &lt;, &gt;, =, etc. | used as part of conditions                         |
-| ORDER BY                      | sort based on columns                              |
-
-For comparisons in a WHERE clause, some common syntax for setting
-conditions includes LIKE (for patterns), =, &gt;, &lt;, &gt;=, &lt;=,
-!=.
+| Keyword                                         | What it does                                       |
+|-------------------------------------------------|----------------------------------------------------|
+| SELECT                                          | select columns                                     |
+| FROM                                            | which table to operate on                          |
+| WHERE                                           | filter (choose) rows satisfying certain conditions |
+| LIKE, IN, &lt;, &gt;, =, &lt;=, &gt;=, !=, etc. | used as part of filtering conditions               |
+| ORDER BY                                        | sort based on columns                              |
 
 Some other keywords are: DISTINCT, ON, JOIN, GROUP BY, AS, USING, UNION,
-INTERSECT, HAVING, SIMILAR TO, SUBSTR in SQLite and SUBSTRING in
-PostgreSQL.
+INTERSECT, HAVING, SIMILAR TO (not available in SQLite), SUBSTR in
+SQLite and SUBSTRING in PostgreSQL.
 
 > **Challenge**: Return a few rows from the users, questions, answers,
 > and tags tables so you can get a sense for what the entries in the
 > tables are like.
 
-> **Challenge**: Find the youngest users in the database.
+> **Challenge**: Find the oldest users in the database.
 
 ## 1.2 Getting unique results (DISTINCT)
 
@@ -89,7 +153,9 @@ duplicate rows from any table (or remove duplicate values when one only
 has a single column or set of values).
 
 ``` r
+## Find the unique tags:
 tagNames <- dbGetQuery(db, "select distinct tag from questions_tags")
+## Count the number of unique tags:
 dbGetQuery(db, "select count(distinct tag) from questions_tags")
 ```
 
@@ -100,8 +166,9 @@ dbGetQuery(db, "select count(distinct tag) from questions_tags")
 
 A common pattern of operation is to stratify the dataset, i.e., collect
 it into mutually exclusive and exhaustive subsets. One would then
-generally do some aggregation operation on each subset. In SQL this is
-done with the GROUP BY keyword.
+generally do some aggregation operation on each subset. The aggregation
+is always done within each of the groups. In SQL this is done with the
+GROUP BY keyword.
 
 Here’s a basic example where we count the occurrences of different tags.
 
@@ -109,6 +176,8 @@ Here’s a basic example where we count the occurrences of different tags.
 dbGetQuery(db, "select tag, count(*) as n from questions_tags
                 group by tag order by n desc limit 100")
 ```
+
+Also note the use of `as` to define a name for the new column.
 
 > **Challenge**: What specifically does that query do? Describe the
 > table that would be returned.
@@ -122,15 +191,15 @@ as groups.
 > **Warning**: To filter the result of a grouping operation, we need to
 > use `having` rather than `where`.
 
-Also note the use of `as` to define a name for the new column.
-
 ``` r
 dbGetQuery(db, "select tag, count(*) as n from questions_tags
                 group by tag having n > 100000 limit 10")
 ```
 
 > **Challenge**: Write a query that will count the number of answers for
-> each question, returning the most answered questions.
+> each question, returning the IDs of the most answered questions. Hint:
+> consider which field in the “answers” table we do the grouping on (and
+> you shouldn’t need to use the “questions” table.
 
 ## 1.4 Joins
 
@@ -139,9 +208,13 @@ dbGetQuery(db, "select tag, count(*) as n from questions_tags
 Suppose in the example of students in classes, we want a result that has
 the grades of all students in 9th grade. For this we need information
 from the Student table (to determine grade level) and information from
-the ClassAssignment table (to determine the class grade). Getting
-information from multiple tables, where a row in one table is matched
-with one or more rows in another table is called a *join*.
+the ClassAssignment table (to determine the class grade for each class a
+student takes). Getting information from multiple tables, where a row in
+one table is matched with one or more rows in another table is called a
+*join*. In this case the join would look for all rows in the
+ClassAssignment table that match a given row (i.e., student) in the
+Student table, using the column in each of the tables containing the
+student ID to do the matching of rows.
 
 The syntax generally looks like this (again the WHERE and ORDER BY are
 optional):
@@ -149,19 +222,13 @@ optional):
     SELECT <column(s)> FROM <table1> JOIN <table2> ON <columns to match on>
        WHERE <condition(s) on column(s)> ORDER BY <column(s)>
 
-Let’s see some joins using the different syntax on the Stack Overflow
-database. In particular let’s select only the questions with the tag
-“python”.
+Let’s see an example join on the Stack Overflow database. In particular
+let’s select only the questions with the tag “python”.
 
 ``` r
-## a join with JOIN
 result1 <- dbGetQuery(db, "select * from questions join questions_tags 
            on questions.questionid = questions_tags.questionid where tag = 'python'")
-
-## a join without JOIN
-result2 <- dbGetQuery(db, "select * from questions, questions_tags
-        where questions.questionid = questions_tags.questionid and tag = 'python'")
-head(result2)
+head(result1)           
 ```
 
     ##   questionid        creationdate score viewcount
@@ -186,40 +253,50 @@ head(result2)
     ## 5 5636400   34560213 python
     ## 6 3262998   34560740 python
 
+It’s also possible to get the same exact result without using the JOIN
+keyword, but you’ll need the WHERE keyword to ensure that the rows get
+matched correctly.
+
 ``` r
+result2 <- dbGetQuery(db, "select * from questions, questions_tags
+        where questions.questionid = questions_tags.questionid and tag = 'python'")
+
+
 identical(result1, result2)
 ```
 
     ## [1] TRUE
 
-As seen above, you can do the join with using the *join* keyword, but if
-you do, you need to use *where*. More on this in a bit.
+We’ll explain what is going on in the next section.
 
-Here’s a three-way join with some additional use of aliases to
-abbreviate table names. What does this query ask for?
+Here’s a three-way join (both with and without the JOIN keyword) with
+some additional use of *aliases* to abbreviate table names. What does
+this query ask for?
 
 ``` r
 result1 <- dbGetQuery(db, "select * from questions Q
         join questions_tags T on Q.questionid = T.questionid
         join users U on Q.ownerid = U.userid
-        where tag = 'python' and age < 18")
+        where tag = 'python' and age > 70")
 
 result2 <- dbGetQuery(db, "select * from questions Q, questions_tags T, users U
         where Q.questionid = T.questionid 
           and Q.ownerid = U.userid
           and tag = 'python' 
-          and age < 18")
+          and age > 70")
 
 identical(result1, result2)
 ```
 
     ## [1] TRUE
 
-> **Challenge**: Write a query that would return all the questions with
-> the Python tag.
-
 > **Challenge**: Write a query that would return all the answers to
 > questions with the Python tag.
+
+> **Challenge**: Write a query that will count the number of answers for
+> each question, returning the most answered questions and their
+> information. Note that this extends the question in the previous
+> section.
 
 > **Challenge**: Write a query that would return the users who have
 > answered a question with the Python tag.
@@ -290,11 +367,11 @@ Here’s a table of the different kinds of joins:
 <tr class="even">
 <td>left outer</td>
 <td>all</td>
-<td>all that match first</td>
+<td>all that match first table</td>
 </tr>
 <tr class="odd">
 <td>right outer</td>
-<td>all that match second</td>
+<td>all that match second table</td>
 <td>all</td>
 </tr>
 <tr class="even">
@@ -304,8 +381,8 @@ Here’s a table of the different kinds of joins:
 </tr>
 <tr class="odd">
 <td>cross</td>
-<td>all combined pairwise with second</td>
-<td>all combined pairwise with first</td>
+<td>all combined pairwise with second table</td>
+<td>all combined pairwise with first table</td>
 </tr>
 </tbody>
 </table>
@@ -348,7 +425,7 @@ last of these queries is the same as the others.
 > unanswered? (You should need two different kinds of joins to answer
 > this.)
 
-### 1.4.3 Joining a table with itself (self joins)
+### 1.4.3 Joining a table with itself (self join)
 
 Sometimes we want to query information across rows of the same table.
 For example supposed we want to analyze the time lags between when the
@@ -363,13 +440,12 @@ with resolving the multiple copies of each column.
 This would look like this:
 
 ``` r
-dbGetQuery(db, "create view question_contrasts as
-               select * from questions Q1 join questions Q2
+dbGetQuery(db, "select * from questions Q1 join questions Q2
                on Q1.ownerid = Q2.ownerid")
 ```
 
-That should create a new table (actually a view) with all pairs of
-questions asked by a single person.
+That should create a new table with all pairs of questions asked by a
+single person.
 
 Actually, there’s a problem here.
 
@@ -404,13 +480,14 @@ available. Once we have the view we can query it like a regular table.
 
 ``` r
 ## note there is a creationdate in users too, hence disambiguation
-dbExecute(db, "create view questionsAugment as
-               select questionid, questions.creationdate, score, viewcount, title, ownerid, age, displayname
+dbExecute(db, "create view questions_plus as
+               select questionid, questions.creationdate, score, viewcount, 
+                      title, ownerid, age, displayname
                from questions join users on questions.ownerid = users.userid")
 ## don't be confused by the "0" response --
 ## it just means that nothing is returned to R; the view _has_ been created
                
-dbGetQuery(db, "select * from questionsAugment where age < 15 limit 5")
+dbGetQuery(db, "select * from questions_plus where age > 70 limit 5")
 ```
 
 One use of a view would be to create a mega table that stores all the
@@ -418,27 +495,29 @@ information from multiple tables in the (unnormalized) form you might
 have if you simply had one data frame in R or Python.
 
 ``` r
-dbExecute(db, "drop view questionsAugment") # drop so can create again when rerun the code above
+dbExecute(db, "drop view questions_plus") # drop the view if we no longer need it
 ```
 
 # 2 Additional SQL topics
 
 ## 2.1 Creating database tables
 
-One can create tables from within the `sqlite` and `psql` command line
-interfaces (discussed later), but often one would do this from R or
-Python. Here’s the syntax from R.
+Often one would create tables from within R or Python (though one can
+[create tables from within the `sqlite` and `psql` command line
+interfaces](db-management) as well). Here’s the syntax from R.
 
 ``` r
 ## Option 1: pass directly from CSV to database
-dbWriteTable(conn = db, name = "student", value = "student.csv", row.names = FALSE, header = TRUE)
+dbWriteTable(conn = db, name = "student", value = "student.csv", row.names = FALSE,
+                  header = TRUE)
 
 ## Option 2: pass from data in an R data frame
 ## First create your data frame:
-# student <- data.frame(...)
+# student_df <- data.frame(...)
 ## or
-# student <- read.csv(...)
-dbWriteTable(conn = db, name = "student", value = student, row.names = FALSE, append = FALSE)
+# student_df <- read.csv(...)
+dbWriteTable(conn = db, name = "student", value = student_df, row.names = FALSE,
+                  append = FALSE)
 ```
 
 ## 2.2 String processing and creating new fields
@@ -463,13 +542,12 @@ dbGetQuery(db, "select * from questions_tags where tag like 'r-%' limit 10")
     ## 10   36913170       r-lavaan
 
 In Postgres, in addition to the basic use of LIKE to match character
-strings, one can use regular expression syntax with SIMILAR TO and one
-can extract substrings with SUBSTRING.
+strings, one can use regular expression syntax with SIMILAR TO.
 
-These keywords are not available in SQLite so the following can only be
-done in the Postgres instance of our example database. Here we’ll look
-for all tags that are of the form “r-”, “-r”, “r” or “-r-”. SQL uses %
-as a wildcard (this is not standard regular expression syntax).
+SIMILAR TO is not available in SQLite so the following can only be done
+in the Postgres instance of our example database. Here we’ll look for
+all tags that are of the form “r-”, “-r”, “r” or “-r-”. SQL uses % as a
+wildcard (this is not standard regular expression syntax).
 
 ``` r
 ## Try in postgreSQL, not SQLite
@@ -478,15 +556,15 @@ result <- dbGetQuery(db, "select * from questions_tags where tag SIMILAR TO 'r-%
 ## result <- dbGetQuery(db, "select * from questions_tags where tag SIMILAR TO 'r-.*|.*-r|r|.*-r-.*' limit 10")
 ```
 
-Note that the matching does not find subsets, unless one uses wildcards
-at beginning and end of the pattern, so “r” will only find “r” and not,
-for example, “dyplr”.
+> **Note**: The matching does not match on substrins, unless one uses
+> wildcards at beginning and end of the pattern, so “r” will only find
+> “r” and not, for example, “dplyr”.
 
-To extract substrings we use SUBSTRING. Postgres requires that the
-pattern to be extracted be surrounded by `#"` (one could use another
-character in place of `#`), but for use from R we need to escape the
-double-quote with a backslash so it is treated as a part of the string
-passed to Postgres and not treated by R as indicating where the
+To extract substrings we can SUBSTRING in Postgres. Postgres requires
+that the pattern to be extracted be surrounded by `#"` (one could use
+another character in place of `#`), but for use from R we need to escape
+the double-quote with a backslash so it is treated as a part of the
+string passed to Postgres and not treated by R as indicating where the
 character string stops/starts.
 
 ``` r
@@ -494,8 +572,9 @@ dbGetQuery(db, "select substring(creationdate from '#\"[[:digit:]]{4}#\"%' for '
                from questions limit 3")
 ```
 
-Note that SQLite provides SUBSTR for substrings, but the flexibility of
-SUBSTR seems to be much less than use of SUBSTRING in PostgreSQL.
+> **Warning**: SQLite provides SUBSTR for substrings, but the
+> flexibility of SUBSTR seems to be much less than use of SUBSTRING in
+> PostgreSQL.
 
 Here is some [documentation on string functions in
 PostgreSQL](https://www.postgresql.org/docs/current/functions-string.html).
@@ -623,7 +702,7 @@ plot(as.numeric(result$hour), result$n, xlab = 'hour of day (UTC/Greenwich???)',
                                         ylab = 'number of questions')
 ```
 
-![](sql_files/figure-markdown_github/unnamed-chunk-16-1.png)
+![](sql_files/figure-markdown_github/unnamed-chunk-19-1.png)
 
 Here’s some [documentation of the syntax for the functions, including
 `stftime`](https://www.sqlite.org/lang_datefunc.html).
@@ -660,7 +739,7 @@ system.time(
 ```
 
     ##    user  system elapsed 
-    ##   8.775   3.554  29.949
+    ##   8.204   3.081  28.686
 
 Alternatively we can do a self-join. Note that the syntax gets
 complicated as we are doing multiple joins.
@@ -680,7 +759,7 @@ system.time(
 ```
 
     ##    user  system elapsed 
-    ##  12.466   8.823  38.825
+    ##  12.459   8.327  38.494
 
 ``` r
 identical(result1, result2)
