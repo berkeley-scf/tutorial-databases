@@ -725,7 +725,7 @@ system.time(
 ```
 
     ##    user  system elapsed 
-    ##   8.829   3.331  30.105
+    ##   8.781   3.417  30.245
 
 Alternatively we can do a self-join. Note that the syntax gets
 complicated as we are doing multiple joins.
@@ -745,7 +745,7 @@ system.time(
 ```
 
     ##    user  system elapsed 
-    ##  12.380   8.637  38.728
+    ##  12.293   8.734  39.112
 
 ``` r
 identical(result1, result2)
@@ -789,9 +789,9 @@ to use in a query. Here we’ll do it in the context of a join.
 
 ``` r
 dbGetQuery(db, "select * from questions join answers A on questions.questionid = A.questionid
-                join 
-            (select ownerid, count(*) as n_answered from answers 
-            group by ownerid order by n_answered desc limit 1000) most_responsive on
+                join
+                (select ownerid, count(*) as n_answered from answers
+                group by ownerid order by n_answered desc limit 1000) most_responsive on
                 A.ownerid = most_responsive.ownerid")
 ```
 
@@ -1133,13 +1133,12 @@ messages only on mobile in the last month.
 ## 4.1 Overview
 
 In general, your DBMS should examine your query and try to implement it
-in the fastest way possible. And as discussed above, putting an indexes
-on your tables will often speed things up substantially, but only for
-certain types of queries.
+in the fastest way possible.
 
 Some tips for faster queries include:
 
--   use indexes on fields used in WHERE and JOIN clauses
+-   use indexes on fields used in WHERE and JOIN clauses (see next
+    section)
     -   try to avoid wildcards at the start of LIKE string comparison
         when you have an index on the field (as this requires looking at
         all of the rows)
@@ -1174,20 +1173,37 @@ Here’s how we create an index, with some time comparison for a simple
 query.
 
 ``` r
-system.time(dbGetQuery(db, "select * from questions where viewcount > 10000"))     # 2.4 seconds
-system.time(dbExecute(db, "create index count_index on questions (viewcount)"))  # 5.6 seconds
-system.time(dbGetQuery(db, "select * from questions where viewcount > 10000"))    # 0.9 seconds
+system.time(dbGetQuery(db, "select * from questions where viewcount > 10000"))  # 2.4 seconds
+system.time(dbExecute(db, "create index count_index on questions (viewcount)")) # 5.6 seconds
+system.time(dbGetQuery(db, "select * from questions where viewcount > 10000"))   # 0.9 seconds
 ## restore earlier state by removing index
 system.time(dbExecute(db, "drop index count_index"))
 ```
 
-In other contexts, an index can save huge amounts of time. So if you’re
-working with a database and speed is important, check to see if there
-are indexes.
+In many contexts (but not the examle above), an index can save huge
+amounts of time. So if you’re working with a database and speed is
+important, check to see if there are indexes.
 
-That being said, using indexes in a lookup is not always advantageous.
+One downside of indexes is that creation of indexes can be very
+time-consuming, as seen above). And if the database is updated
+frequently, this could be detrimental.
 
-### How indexes work
+Finally, using indexes in a lookup is not always advantageous, as
+discussed next.
+
+### 4.2.1 Index lookup vs. sequential scan
+
+Using an index is good in that can go to the data needed very quickly
+based on random access to the disk locations of the data of interest,
+but if it requires the computer to examine a large number of rows, it
+may not be better than sequential scan. An advantage of sequential scan
+is that it will make good use of the CPU cache, reading chunks of data
+and then accessing the individual pieces of data quickly.
+
+Ideally you’d do sequential scan of exactly the subset of the rows that
+you need, with that subset available in contiguous storage.
+
+### 4.2.2 How indexes work
 
 Indexes are often implemented using tree-based methods. For example in
 Postgres, b-tree indexes are used for indexes on things that have an
@@ -1212,10 +1228,6 @@ such trees are constructed and searched.
 In SQLite, indexes are implemented by creating a separate index table
 that maps from the value to the row index in the indexed table, allowing
 for fast lookup of a row.
-
-One downside of indexes is that creation of indexes can be very
-time-consuming. And if the database is updated frequently, this could be
-detrimental.
 
 ## 4.3 SQL query plans and EXPLAIN
 
@@ -1311,19 +1323,7 @@ dbGetQuery(db, "explain select * from questions cross join questions_tags where
 We see that the query plan indicates the two queries are using the same
 steps, with the same cost.
 
-## 4.4 Index lookup vs. sequential scan
-
-Using an index is good in that can go to the data needed very quickly
-based on random access to the disk locations of the data of interest,
-but if it requires the computer to examine a large number of rows, it
-may not be better than sequential scan. An advantage of sequential scan
-is that it will make good use of the CPU cache, reading chunks of data
-and then accessing the individual pieces of data quickly.
-
-Ideally you’d do sequential scan of exactly the subset of the rows that
-you need, with that subset available in contiguous storage.
-
-## 4.5 Disk caching
+## 4.4 Disk caching
 
 You might think that database queries will generally be slow (and slower
 than in-memory manipulation such as in R or Python when all the data can
@@ -1342,7 +1342,7 @@ Given this, it generally won’t be helpful to force your database to
 reside in memory (e.g., using `:memory:` for SQLite or putting the
 database on a RAM disk).
 
-### 4.6 Parallelization and partitioning
+## 4.5 Parallelization and partitioning
 
 To speed up your work, one might try to split up one’s queries into
 multiple queries that you run in parallel. However, you’re likely to
