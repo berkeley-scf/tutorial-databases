@@ -725,7 +725,7 @@ system.time(
 ```
 
     ##    user  system elapsed 
-    ##   8.755   3.321  29.894
+    ##   8.829   3.331  30.105
 
 Alternatively we can do a self-join. Note that the syntax gets
 complicated as we are doing multiple joins.
@@ -745,7 +745,7 @@ system.time(
 ```
 
     ##    user  system elapsed 
-    ##  12.439   8.601  38.905
+    ##  12.380   8.637  38.728
 
 ``` r
 identical(result1, result2)
@@ -789,28 +789,29 @@ to use in a query. Here we’ll do it in the context of a join.
 
 ``` r
 dbGetQuery(db, "select * from questions join answers A on questions.questionid = A.questionid
-
                 join 
-            (select *, count(*) as n_answered from answers 
+            (select ownerid, count(*) as n_answered from answers 
             group by ownerid order by n_answered desc limit 1000) most_responsive on
                 A.ownerid = most_responsive.ownerid")
 ```
 
-It might be hard to just come up with that all at once. A good strategy
-is probably to think about creating a view that is the result of the
-inner query and then have the outer query use that. You can then piece
-together the complicated query in a modular way. For big databases, you
-are likely to want to submit this as a single query and not two queries
-so that the SQL optimizer can determine the best way to do the
-operations. But you want to start with code that you’re confident will
-give you the right answer!
+It might be hard to just come up with that full query all at once. A
+good strategy is probably to think about creating a view that is the
+result of the inner query and then have the outer query use that. You
+can then piece together the complicated query in a modular way. For big
+databases, you are likely to want to submit this as a single query and
+not two queries so that the SQL optimizer can determine the best way to
+do the operations. But you want to start with code that you’re confident
+will give you the right answer!
 
 Note we could also have done that query using a subquery in the WHERE
-statement.
+statement, as discussed next.
 
 > **Challenge**: Write a query that, for each question, will return the
 > question title, number of answers, and the answer to that question
-> written by the user with the highest reputation.
+> written by the user with the highest reputation. Hint: first think
+> about a query that will find the number of answers to each question
+> and the answer by the user with the highest reputation.
 
 Finally one can use subqueries in the SELECT clause to create new
 variables, but we won’t go into that here.
@@ -827,16 +828,16 @@ users who have posted a question with the tag “python”.
 
 ``` r
 dbGetQuery(db, "select avg(UpVotes) from users where userid in
-               (select distinct ownerid from
-               questions join questions_tags on questions.questionid = questions_tags.questionid
-               where tag = 'python')")       
+                (select distinct ownerid from
+                questions join questions_tags on questions.questionid = questions_tags.questionid
+                where tag = 'python')")       
 ```
 
     ##   avg(UpVotes)
     ## 1      70.7917
 
-In some cases one can do a join rather than using a subquery, but in
-this example, it fails.
+In some cases one can do a join rather than using a subquery, but in the
+following example, it fails.
 
 > **Challenge**: What’s wrong with the following query as an attempt to
 > answer the question above? (See if you can figure it out before
@@ -844,21 +845,21 @@ this example, it fails.
 
 ``` r
 dbGetQuery(db, "select avg(UpVotes) from questions, questions_tags, users
-               where questions.questionid = questions_tags.questionid and
-               questions.ownerid = users.userid and
-               tag = 'python'")
+                where questions.questionid = questions_tags.questionid and
+                questions.ownerid = users.userid and
+                tag = 'python'")
 ```
 
-For more details on subqueries, see the video on “subqueries in where
-statements” in this [Introduction to Databases
-MOOC](http://cs.stanford.edu/people/widom/DB-mooc.html).
-
-(Answer: In the subquery, we find the Ids of the users we are looking
+(Answer: In the subquery, we find the IDs of the users we are looking
 for and then average over the UpVotes of those individuals. In the join
 version we found all the questions that had a Python tag and averaged
 over the UpVotes of the individuals associated with those questions. So
 the latter includes multiple UpVotes values from individuals who have
 posted multiple Python questions.)
+
+For more details on subqueries, see the video on “subqueries in where
+statements” in this [Introduction to Databases
+MOOC](http://cs.stanford.edu/people/widom/DB-mooc.html).
 
 > **Challenge**: Write a query that would return the users who have
 > answered a question with the Python tag. We’ve seen this challenge
@@ -926,31 +927,6 @@ dbGetQuery(db, "select *,
 
 ``` r
 ## Rank (based on ordering by creationdate) of questions by owner
-dbGetQuery(db, "select *,
-                rank() over (partition by ownerid order by creationdate) as rank
-                from questions limit 5")
-```
-
-    ##   questionid        creationdate score viewcount
-    ## 1   34552558 2016-01-01 00:01:27     1       190
-    ## 2   34552612 2016-01-01 00:13:10     0        42
-    ## 3   34552655 2016-01-01 00:21:58     2       383
-    ## 4   34552875 2016-01-01 01:16:40     0        56
-    ## 5   34552973 2016-01-01 01:44:31     2      5824
-    ##                                                                                                     title
-    ## 1                                   Force delete Session records for the current login User : Laravel 5.2
-    ## 2                                                             How do I impliment [example.text intValue]?
-    ## 3                                                            RGB to HSV conversion results in noisy image
-    ## 4                                                                     When session is considered accessed
-    ## 5 What does "cannot invoke initializer for type 'Int' with an argument list of type 'UITextField' " mean?
-    ##   ownerid rank
-    ## 1      NA    1
-    ## 2      NA    2
-    ## 3      NA    3
-    ## 4      NA    4
-    ## 5      NA    5
-
-``` r
 dbGetQuery(db, "select *,
                 rank() over (partition by ownerid order by creationdate) as rank
                 from questions order by ownerid desc limit 10")
@@ -1106,9 +1082,9 @@ What does that query do?
 > **Challenge**: Use a window function to compute the average viewcount
 > for each ownerid for the 10 questions preceding each question.
 
-***Challenge (hard)***: Find the users who have asked one question that
-is highly-viewed (viewcount &gt; 1000) with their remaining questions
-not highly-viewed (viewcount &lt; 20 for all other questions).
+> **Challenge (hard)**: Find the users who have asked one question that
+> is highly-viewed (viewcount &gt; 1000) with their remaining questions
+> not highly-viewed (viewcount &lt; 20 for all other questions).
 
 ## 3.4 Putting it all together to do complicated queries
 

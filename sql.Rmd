@@ -459,18 +459,17 @@ We can use subqueries in the FROM statement to create a temporary table to use i
 
 ```{r, eval=FALSE}
 dbGetQuery(db, "select * from questions join answers A on questions.questionid = A.questionid
-
                 join 
-	        (select *, count(*) as n_answered from answers 
+	        (select ownerid, count(*) as n_answered from answers 
 	        group by ownerid order by n_answered desc limit 1000) most_responsive on
                 A.ownerid = most_responsive.ownerid")
 ```
 
-It might be hard to just come up with that all at once. A good strategy is probably to think about creating a view that is the result of the inner query and then have the outer query use that. You can then piece together the complicated query in a modular way. For big databases, you are likely to want to submit this as a single query and not two queries so that the SQL optimizer can determine the best way to do the operations. But you want to start with code that you're confident will give you the right answer!
+It might be hard to just come up with that full query all at once. A good strategy is probably to think about creating a view that is the result of the inner query and then have the outer query use that. You can then piece together the complicated query in a modular way. For big databases, you are likely to want to submit this as a single query and not two queries so that the SQL optimizer can determine the best way to do the operations. But you want to start with code that you're confident will give you the right answer!
 
-Note we could also have done that query using a subquery in the WHERE statement. 
+Note we could also have done that query using a subquery in the WHERE statement, as discussed next. 
 
-> **Challenge**: Write a query that, for each question, will return the question title, number of answers, and the answer to that question written by the user with the highest reputation.
+> **Challenge**: Write a query that, for each question, will return the question title, number of answers, and the answer to that question written by the user with the highest reputation. Hint: first think about a query that will find the number of answers to each question and the answer by the user with the highest reputation.
 
 Finally one can use subqueries in the SELECT clause to create new variables, but we won't go into that here.
 
@@ -482,26 +481,25 @@ For example, suppose we want to know the average number of UpVotes for users who
 
 ```{r, eval=TRUE}
 dbGetQuery(db, "select avg(UpVotes) from users where userid in
-               (select distinct ownerid from
-               questions join questions_tags on questions.questionid = questions_tags.questionid
-               where tag = 'python')")       
+                (select distinct ownerid from
+                questions join questions_tags on questions.questionid = questions_tags.questionid
+                where tag = 'python')")       
 ```
 
-In some cases one can do a join rather than using a subquery, but in this example, it fails.
+In some cases one can do a join rather than using a subquery, but in the following example, it fails.
 
 > **Challenge**: What's wrong with the following query as an attempt to answer the question above? (See if you can figure it out before looking at the answer below.)
 
 ```{r}
 dbGetQuery(db, "select avg(UpVotes) from questions, questions_tags, users
-               where questions.questionid = questions_tags.questionid and
-               questions.ownerid = users.userid and
-               tag = 'python'")
+                where questions.questionid = questions_tags.questionid and
+                questions.ownerid = users.userid and
+                tag = 'python'")
 ```
 
+(Answer: In the subquery, we find the IDs of the users we are looking for and then average over the UpVotes of those individuals. In the join version we found all the questions that had a Python tag and averaged over the UpVotes of the individuals associated with those questions. So the latter includes multiple UpVotes values from individuals who have posted multiple Python questions.)
+
 For more details on subqueries, see the video on "subqueries in where statements" in this [Introduction to Databases MOOC](http://cs.stanford.edu/people/widom/DB-mooc.html).
-
-(Answer: In the subquery, we find the Ids of the users we are looking for and then average over the UpVotes of those individuals. In the join version we found all the questions that had a Python tag and averaged over the UpVotes of the individuals associated with those questions. So the latter includes multiple UpVotes values from individuals who have posted multiple Python questions.)
-
 
 > **Challenge**: Write a query that would return the users who have answered a question with the Python tag. We've seen this challenge before, but do it now based on a subquery.
 
@@ -536,9 +534,6 @@ dbGetQuery(db, "select *,
  - Compute cumulative calculations; note the need for the 'order by'
 ```{r, eval=TRUE}
 ## Rank (based on ordering by creationdate) of questions by owner
-dbGetQuery(db, "select *,
-                rank() over (partition by ownerid order by creationdate) as rank
-                from questions limit 5")
 dbGetQuery(db, "select *,
                 rank() over (partition by ownerid order by creationdate) as rank
                 from questions order by ownerid desc limit 10")
@@ -599,7 +594,7 @@ What does that query do?
 
 > **Challenge**: Use a window function to compute the average viewcount for each ownerid for the 10 questions preceding each question.
 
-***Challenge (hard)***: Find the users who have asked one question that is highly-viewed (viewcount > 1000) with their remaining questions not highly-viewed (viewcount < 20 for all other questions).
+> **Challenge (hard)**: Find the users who have asked one question that is highly-viewed (viewcount > 1000) with their remaining questions not highly-viewed (viewcount < 20 for all other questions).
 
 ## 3.4 Putting it all together to do complicated queries
 
@@ -609,9 +604,9 @@ Here are some real-world style questions one might try to create queries to answ
 ```
 date | session_id | user_id | session_time
 ```
-calculate the distribution of the average daily
-total session time in the last month. I.e., you want to get each user's daily average and then find the distribution over users. The output should be something
-like:
+
+calculate the distribution of the average daily total session time in the last month. I.e., you want to get each user's daily average and then find the distribution over users. The output should be something like:
+
 ```
 minutes_per_day' | number_of_users
 ```
@@ -640,11 +635,11 @@ if you look at the users who have sent messages only on mobile in the last month
 
 ## 4.1 Overview
 
-In general, your DBMS should examine your query and try to implement it in the fastest way possible. And as discussed above, putting an indexes on your tables will often speed things up substantially, but only for certain types of queries.
+In general, your DBMS should examine your query and try to implement it in the fastest way possible. 
 
 Some tips for faster queries include:
 
- - use indexes on fields used in WHERE and JOIN clauses
+ - use indexes on fields used in WHERE and JOIN clauses (see next section)
     - try to avoid wildcards at the start of LIKE string comparison when you have an index on the field (as this requires looking at all of the rows)
     - similarly try to avoid using functions on indexed columns in a WHERE clause as this requires doing the calculation on all the rows in order to check the condition
  - only select the columns you really need
@@ -663,9 +658,9 @@ DBMS use indexing to provide sub-linear time lookup. Without indexes, a database
 Here's how we create an index, with some time comparison for a simple query.
 
 ```{r}
-system.time(dbGetQuery(db, "select * from questions where viewcount > 10000"))     # 2.4 seconds
-system.time(dbExecute(db, "create index count_index on questions (viewcount)"))  # 5.6 seconds
-system.time(dbGetQuery(db, "select * from questions where viewcount > 10000"))    # 0.9 seconds
+system.time(dbGetQuery(db, "select * from questions where viewcount > 10000"))  # 2.4 seconds
+system.time(dbExecute(db, "create index count_index on questions (viewcount)")) # 5.6 seconds
+system.time(dbGetQuery(db, "select * from questions where viewcount > 10000"))   # 0.9 seconds
 ## restore earlier state by removing index
 system.time(dbExecute(db, "drop index count_index"))
 ```
@@ -796,7 +791,7 @@ You might think that database queries will generally be slow (and slower than in
 Given this, it generally won't be helpful to force your database to reside in memory (e.g., using `:memory:` for SQLite or putting the database on a RAM disk). 
 
 
-### 4.6 Parallelization and partitioning
+## 4.6 Parallelization and partitioning
 
 To speed up your work, one might try to split up one's queries into multiple queries that you run in parallel. However, you're likely to have problems with parallel queries from a single R or Python session.
 
