@@ -37,13 +37,13 @@ Now let's see some more interesting usage of other SQL syntax.
 First we get the questions that are viewed the most by filtering to the rows for which the 'viewcount' is greater than 100000. We'll limit the results to the first 5 rows so we don't print too much out.
 
 ```{r, eval=TRUE}
-## get the questions that are viewed the most
-dbGetQuery(db, "select * from questions where viewcount > 100000 limit 10")
+dbGetQuery(db, "select * from questions where viewcount > 100000 limit 5")
 ```
 
 Next, let's find the number of views for the 15 questions viewed the most.
 ```{r, eval=TRUE}
-dbGetQuery(db, "select distinct viewcount from questions order by viewcount desc limit 20")
+dbGetQuery(db, "select distinct viewcount from questions 
+                order by viewcount desc limit 15")
 ```
 
 Let's lay out the various verbs in SQL. Here's the form of a standard query (but note that the sorting done by ORDER BY is computationally expensive and would be used sparingly):
@@ -133,7 +133,8 @@ Let's see an example join on the Stack Overflow database. In particular let's se
 
 ```{r, eval=SLOWEVAL}
 result1 <- dbGetQuery(db, "select * from questions join questions_tags 
-           on questions.questionid = questions_tags.questionid where tag = 'python'")
+                           on questions.questionid = questions_tags.questionid 
+                           where tag = 'python'")
 head(result1)           
 ```
 
@@ -141,7 +142,8 @@ It's also possible to get the same exact result without using the JOIN keyword, 
 
 ```{r, eval=SLOWEVAL}
 result2 <- dbGetQuery(db, "select * from questions, questions_tags
-        where questions.questionid = questions_tags.questionid and tag = 'python'")
+                           where questions.questionid = questions_tags.questionid 
+                           and tag = 'python'")
 
 
 identical(result1, result2)
@@ -153,17 +155,18 @@ Here's a three-way join (both with and without the JOIN keyword) with some addit
 
 ```{r, eval=SLOWEVAL}
 result1 <- dbGetQuery(db, "select * from questions Q
-        join questions_tags T on Q.questionid = T.questionid
-        join users U on Q.ownerid = U.userid
-        where tag = 'python' and age > 70")
+                           join questions_tags T on Q.questionid = T.questionid
+                           join users U on Q.ownerid = U.userid
+                           where tag = 'python' and age > 70")
+```
 
+Once again, we could do that without JOIN and using WHERE to match the rows appropriately.
+
+```{r}
 result2 <- dbGetQuery(db, "select * from questions Q, questions_tags T, users U
-        where Q.questionid = T.questionid 
-          and Q.ownerid = U.userid
-          and tag = 'python' 
-          and age > 70")
-
-identical(result1, result2)
+                           where Q.questionid = T.questionid 
+                           and Q.ownerid = U.userid
+                           and tag = 'python' and age > 70")
 ```
 
 > **Challenge**: Write a query that would return all the answers to questions with the Python tag.
@@ -227,7 +230,7 @@ This would look like this:
 
 ```{r}
 dbGetQuery(db, "select * from questions Q1 join questions Q2
-               on Q1.ownerid = Q2.ownerid")
+                on Q1.ownerid = Q2.ownerid")
 ```
 
 That should create a new table with all pairs of questions asked by a single person.
@@ -240,9 +243,9 @@ A solution to that problem of having the same question paired with itself is:
 
 ```{r}
 dbGetQuery(db, "create view question_contrasts as
-               select * from questions Q1 join questions Q2
-               on Q1.ownerid = Q2.ownerid
-               where Q1.creationdate != Q2.creationdate")
+                select * from questions Q1 join questions Q2
+                on Q1.ownerid = Q2.ownerid
+                where Q1.creationdate != Q2.creationdate")
 ```
 
 > **Challenge**: There's actually a further similar problem. What is the problem and how can we fix it by changing two characters in the query above? Hint, even as character strings, the creationdate column has an ordering.
@@ -260,6 +263,7 @@ dbExecute(db, "create view questions_plus as
                select questionid, questions.creationdate, score, viewcount, 
                       title, ownerid, age, displayname
                from questions join users on questions.ownerid = users.userid")
+
 ## don't be confused by the "0" response --
 ## it just means that nothing is returned to R; the view _has_ been created
                
@@ -281,7 +285,7 @@ Often one would create tables from within R or Python (though one can [create ta
 ```{r}
 ## Option 1: pass directly from CSV to database
 dbWriteTable(conn = db, name = "student", value = "student.csv", row.names = FALSE,
-                  header = TRUE)
+             header = TRUE)
 
 ## Option 2: pass from data in an R data frame
 ## First create your data frame:
@@ -289,7 +293,7 @@ dbWriteTable(conn = db, name = "student", value = "student.csv", row.names = FAL
 ## or
 # student_df <- read.csv(...)
 dbWriteTable(conn = db, name = "student", value = student_df, row.names = FALSE,
-                  append = FALSE)
+             append = FALSE)
 ```
 
 ## 2.2 String processing and creating new fields
@@ -307,9 +311,11 @@ SIMILAR TO is not available in SQLite so the following can only be done in the P
 
 ```{r, eval=FALSE}
 ## Try in postgreSQL, not SQLite
-result <- dbGetQuery(db, "select * from questions_tags where tag SIMILAR TO 'r-%|%-r|r|%-r-%' limit 10")
+result <- dbGetQuery(db, "select * from questions_tags 
+                          where tag similar to 'r-%|%-r|r|%-r-%' limit 10")
 ## Standard regex for 'any character' doesn't seem to work:
-## result <- dbGetQuery(db, "select * from questions_tags where tag SIMILAR TO 'r-.*|.*-r|r|.*-r-.*' limit 10")
+## result <- dbGetQuery(db, "select * from questions_tags 
+                             where tag SIMILAR TO 'r-.*|.*-r|r|.*-r-.*' limit 10")
 ```
 
 > **Note**: The matching does not match on substrins, unless one uses wildcards at beginning and end of the pattern, so "r" will only find "r" and not, for example, "dplyr".
@@ -317,8 +323,9 @@ result <- dbGetQuery(db, "select * from questions_tags where tag SIMILAR TO 'r-%
 To extract substrings we can SUBSTRING in Postgres. Postgres requires that the pattern to be extracted be surrounded by `#"` (one could use another character in place of `#`), but for use from R we need to escape the double-quote with a backslash so it is treated as a part of the string passed to Postgres and not treated by R as indicating where the character string stops/starts. 
 
 ```{r}
-dbGetQuery(db, "select substring(creationdate from '#\"[[:digit:]]{4}#\"%' for '#') as year
-               from questions limit 3")
+dbGetQuery(db, "select substring(creationdate from
+                '#\"[[:digit:]]{4}#\"%' for '#') as year
+                from questions limit 3")
 ```
 
 > **Warning**: SQLite provides SUBSTR for substrings, but the flexibility of SUBSTR seems to be much less than use of SUBSTRING in PostgreSQL.
@@ -386,22 +393,22 @@ Here's some [documentation of the syntax for the functions, including `stftime`]
 
 You can do set operations like union, intersection, and set difference using the UNION, INTERSECT, and EXCEPT keywords on tables that have the same schema (same column names and types), though most often these would be used on single columns (i.e., single-column tables).
 
-Note that one can often set up an equivalent query without using INTERSECT or UNION.
+> **Note**: One can often set up an equivalent query without using INTERSECT or UNION.
 
 Here's an example of a query that can be done with or without an intersection. Suppose we want to know the names of all individuals who have asked both an R question and a Python question. We can do this with INTERSECT:
 
 
 ```{r, eval=TRUE}
 system.time(
-        result1 <- dbGetQuery(db, "select displayname, userid from
-               questions Q join users U on U.userid = Q.ownerid
-               join questions_tags T on Q.questionid = T.questionid
-               where tag = 'r'
-               intersect
-               select displayname, userid from
-               questions Q join users U on U.userid = Q.ownerid
-               join questions_tags T on Q.questionid = T.questionid
-               where tag = 'python'")
+   result1 <- dbGetQuery(db, "select displayname, userid from
+                              questions Q join users U on U.userid = Q.ownerid
+                              join questions_tags T on Q.questionid = T.questionid
+                              where tag = 'r'
+                              intersect
+                              select displayname, userid from
+                              questions Q join users U on U.userid = Q.ownerid
+                              join questions_tags T on Q.questionid = T.questionid
+                              where tag = 'python'")
                )
 ```
 
@@ -409,18 +416,19 @@ Alternatively we can do a self-join. Note that the syntax gets complicated as we
 
 ```{r, eval=TRUE}
 system.time(
-        result2 <- dbGetQuery(db, "select displayname, userid from
-               (questions Q1 join questions_tags T1
-               on Q1.questionid = T1.questionid)
-               join
-               (questions Q2 join questions_tags T2
-               on Q2.questionid = T2.questionid)
-               on Q1.ownerid = Q2.ownerid
-               join users on Q1.ownerid = users.userid
-               where T1.tag = 'r' and T2.tag = 'python'")
+   result2 <- dbGetQuery(db, "select displayname, userid from
+                              (questions Q1 join questions_tags T1
+                              on Q1.questionid = T1.questionid)
+                              join
+                              (questions Q2 join questions_tags T2
+                              on Q2.questionid = T2.questionid)
+                              on Q1.ownerid = Q2.ownerid
+                              join users on Q1.ownerid = users.userid
+                              where T1.tag = 'r' and T2.tag = 'python'")
                )
 identical(result1, result2)
 ```
+> **Challenge**: Those two queries return equivalent information, but the results are not exactly the same. What causes the difference? How can we modify the second query to get the exact same results as the first?
 
 Note that the second query will return duplicates where we have a person asking multiple R or Python queries. But we know how to solve that by including a DISTINCT:
 
@@ -440,6 +448,8 @@ Or we could use UNION or EXCEPT to find people who have asked either or only one
 
 ## 3.2 Subqueries
 
+A subquery is a full query that is embedded in a larger query. 
+
 ###  3.2.1 Subqueries in the FROM statement
 
 We can use subqueries in the FROM statement to create a temporary table to use in a query. Here we'll do it in the context of a join.
@@ -448,10 +458,12 @@ We can use subqueries in the FROM statement to create a temporary table to use i
 
 
 ```{r, eval=FALSE}
-dbGetQuery(db, "select * from questions join answers A on questions.questionid = A.questionid join 
-	       (select *, count(*) as n_answered from users 
-	       group by userid order by n_answered desc limit 1000) most_responsive on
-               A.ownerid = most_responsive.userid")
+dbGetQuery(db, "select * from questions join answers A on questions.questionid = A.questionid
+
+                join 
+	        (select *, count(*) as n_answered from answers 
+	        group by ownerid order by n_answered desc limit 1000) most_responsive on
+                A.ownerid = most_responsive.ownerid")
 ```
 
 It might be hard to just come up with that all at once. A good strategy is probably to think about creating a view that is the result of the inner query and then have the outer query use that. You can then piece together the complicated query in a modular way. For big databases, you are likely to want to submit this as a single query and not two queries so that the SQL optimizer can determine the best way to do the operations. But you want to start with code that you're confident will give you the right answer!

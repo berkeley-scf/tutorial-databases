@@ -50,49 +50,34 @@ rows for which the ‘viewcount’ is greater than 100000. We’ll limit the
 results to the first 5 rows so we don’t print too much out.
 
 ``` r
-## get the questions that are viewed the most
-dbGetQuery(db, "select * from questions where viewcount > 100000 limit 10")
+dbGetQuery(db, "select * from questions where viewcount > 100000 limit 5")
 ```
 
-    ##    questionid        creationdate score viewcount
-    ## 1    34579099 2016-01-03 16:55:16     8    129624
-    ## 2    34814368 2016-01-15 15:24:36   206    134399
-    ## 3    35062852 2016-01-28 13:28:39   730    112000
-    ## 4    35429801 2016-02-16 10:21:09   400    100125
-    ## 5    35588699 2016-02-23 21:37:06    57    126752
-    ## 6    35890257 2016-03-09 11:25:05    51    129874
-    ## 7    35990995 2016-03-14 15:01:17   104    127764
-    ## 8    36668374 2016-04-16 18:57:19    20    196469
-    ## 9    37280274 2016-05-17 15:21:49    23    106995
-    ## 10   37806538 2016-06-14 08:16:21   223    174790
-    ##                                                                                                                                 title
-    ## 1                                                             Fatal error: Uncaught Error: Call to undefined function mysql_connect()
-    ## 2                                                                                            "Gradle Version 2.10 is required." Error
-    ## 3                                                                         NPM vs. Bower vs. Browserify vs. Gulp vs. Grunt vs. Webpack
-    ## 4                                                                              This action could not be completed. Try Again (-22421)
-    ## 5                                                           Response to preflight request doesn't pass access control check AngularJs
-    ## 6                                                   Android- Error:Execution failed for task ':app:transformClassesWithDexForRelease'
-    ## 7                                                                                      Unsupported major.minor version 52.0 in my app
-    ## 8                                                           How to solve "server DNS address could not be found" error in windows 10?
-    ## 9                                                                "SyntaxError: Unexpected token < in JSON at position 0" in React App
-    ## 10 Code signing is required for product type 'Application' in SDK 'iOS 10.0' - StickerPackExtension requires a development team error
-    ##    ownerid
-    ## 1  3656666
-    ## 2  3319176
-    ## 3  2761509
-    ## 4  5881764
-    ## 5  2896963
-    ## 6  1118886
-    ## 7  1629278
-    ## 8  1707976
-    ## 9  4043633
-    ## 10 1554347
+    ##   questionid        creationdate score viewcount
+    ## 1   34579099 2016-01-03 16:55:16     8    129624
+    ## 2   34814368 2016-01-15 15:24:36   206    134399
+    ## 3   35062852 2016-01-28 13:28:39   730    112000
+    ## 4   35429801 2016-02-16 10:21:09   400    100125
+    ## 5   35588699 2016-02-23 21:37:06    57    126752
+    ##                                                                       title
+    ## 1   Fatal error: Uncaught Error: Call to undefined function mysql_connect()
+    ## 2                                  "Gradle Version 2.10 is required." Error
+    ## 3               NPM vs. Bower vs. Browserify vs. Gulp vs. Grunt vs. Webpack
+    ## 4                    This action could not be completed. Try Again (-22421)
+    ## 5 Response to preflight request doesn't pass access control check AngularJs
+    ##   ownerid
+    ## 1 3656666
+    ## 2 3319176
+    ## 3 2761509
+    ## 4 5881764
+    ## 5 2896963
 
 Next, let’s find the number of views for the 15 questions viewed the
 most.
 
 ``` r
-dbGetQuery(db, "select distinct viewcount from questions order by viewcount desc limit 20")
+dbGetQuery(db, "select distinct viewcount from questions 
+                order by viewcount desc limit 15")
 ```
 
     ##    viewcount
@@ -111,11 +96,6 @@ dbGetQuery(db, "select distinct viewcount from questions order by viewcount desc
     ## 13     98093
     ## 14     95866
     ## 15     92994
-    ## 16     92983
-    ## 17     86348
-    ## 18     85682
-    ## 19     84106
-    ## 20     80923
 
 Let’s lay out the various verbs in SQL. Here’s the form of a standard
 query (but note that the sorting done by ORDER BY is computationally
@@ -227,7 +207,8 @@ let’s select only the questions with the tag “python”.
 
 ``` r
 result1 <- dbGetQuery(db, "select * from questions join questions_tags 
-           on questions.questionid = questions_tags.questionid where tag = 'python'")
+                           on questions.questionid = questions_tags.questionid 
+                           where tag = 'python'")
 head(result1)           
 ```
 
@@ -259,7 +240,8 @@ matched correctly.
 
 ``` r
 result2 <- dbGetQuery(db, "select * from questions, questions_tags
-        where questions.questionid = questions_tags.questionid and tag = 'python'")
+                           where questions.questionid = questions_tags.questionid 
+                           and tag = 'python'")
 
 
 identical(result1, result2)
@@ -275,20 +257,20 @@ this query ask for?
 
 ``` r
 result1 <- dbGetQuery(db, "select * from questions Q
-        join questions_tags T on Q.questionid = T.questionid
-        join users U on Q.ownerid = U.userid
-        where tag = 'python' and age > 70")
-
-result2 <- dbGetQuery(db, "select * from questions Q, questions_tags T, users U
-        where Q.questionid = T.questionid 
-          and Q.ownerid = U.userid
-          and tag = 'python' 
-          and age > 70")
-
-identical(result1, result2)
+                           join questions_tags T on Q.questionid = T.questionid
+                           join users U on Q.ownerid = U.userid
+                           where tag = 'python' and age > 70")
 ```
 
-    ## [1] TRUE
+Once again, we could do that without JOIN and using WHERE to match the
+rows appropriately.
+
+``` r
+result2 <- dbGetQuery(db, "select * from questions Q, questions_tags T, users U
+                           where Q.questionid = T.questionid 
+                           and Q.ownerid = U.userid
+                           and tag = 'python' and age > 70")
+```
 
 > **Challenge**: Write a query that would return all the answers to
 > questions with the Python tag.
@@ -441,7 +423,7 @@ This would look like this:
 
 ``` r
 dbGetQuery(db, "select * from questions Q1 join questions Q2
-               on Q1.ownerid = Q2.ownerid")
+                on Q1.ownerid = Q2.ownerid")
 ```
 
 That should create a new table with all pairs of questions asked by a
@@ -456,9 +438,9 @@ itself is:
 
 ``` r
 dbGetQuery(db, "create view question_contrasts as
-               select * from questions Q1 join questions Q2
-               on Q1.ownerid = Q2.ownerid
-               where Q1.creationdate != Q2.creationdate")
+                select * from questions Q1 join questions Q2
+                on Q1.ownerid = Q2.ownerid
+                where Q1.creationdate != Q2.creationdate")
 ```
 
 > **Challenge**: There’s actually a further similar problem. What is the
@@ -484,6 +466,7 @@ dbExecute(db, "create view questions_plus as
                select questionid, questions.creationdate, score, viewcount, 
                       title, ownerid, age, displayname
                from questions join users on questions.ownerid = users.userid")
+
 ## don't be confused by the "0" response --
 ## it just means that nothing is returned to R; the view _has_ been created
                
@@ -509,7 +492,7 @@ interfaces](db-management) as well). Here’s the syntax from R.
 ``` r
 ## Option 1: pass directly from CSV to database
 dbWriteTable(conn = db, name = "student", value = "student.csv", row.names = FALSE,
-                  header = TRUE)
+             header = TRUE)
 
 ## Option 2: pass from data in an R data frame
 ## First create your data frame:
@@ -517,7 +500,7 @@ dbWriteTable(conn = db, name = "student", value = "student.csv", row.names = FAL
 ## or
 # student_df <- read.csv(...)
 dbWriteTable(conn = db, name = "student", value = student_df, row.names = FALSE,
-                  append = FALSE)
+             append = FALSE)
 ```
 
 ## 2.2 String processing and creating new fields
@@ -551,9 +534,11 @@ wildcard (this is not standard regular expression syntax).
 
 ``` r
 ## Try in postgreSQL, not SQLite
-result <- dbGetQuery(db, "select * from questions_tags where tag SIMILAR TO 'r-%|%-r|r|%-r-%' limit 10")
+result <- dbGetQuery(db, "select * from questions_tags 
+                          where tag similar to 'r-%|%-r|r|%-r-%' limit 10")
 ## Standard regex for 'any character' doesn't seem to work:
-## result <- dbGetQuery(db, "select * from questions_tags where tag SIMILAR TO 'r-.*|.*-r|r|.*-r-.*' limit 10")
+## result <- dbGetQuery(db, "select * from questions_tags 
+                             where tag SIMILAR TO 'r-.*|.*-r|r|.*-r-.*' limit 10")
 ```
 
 > **Note**: The matching does not match on substrins, unless one uses
@@ -568,8 +553,9 @@ string passed to Postgres and not treated by R as indicating where the
 character string stops/starts.
 
 ``` r
-dbGetQuery(db, "select substring(creationdate from '#\"[[:digit:]]{4}#\"%' for '#') as year
-               from questions limit 3")
+dbGetQuery(db, "select substring(creationdate from
+                '#\"[[:digit:]]{4}#\"%' for '#') as year
+                from questions limit 3")
 ```
 
 > **Warning**: SQLite provides SUBSTR for substrings, but the
@@ -702,7 +688,7 @@ plot(as.numeric(result$hour), result$n, xlab = 'hour of day (UTC/Greenwich???)',
                                         ylab = 'number of questions')
 ```
 
-![](sql_files/figure-markdown_github/unnamed-chunk-19-1.png)
+![](sql_files/figure-markdown_github/unnamed-chunk-20-1.png)
 
 Here’s some [documentation of the syntax for the functions, including
 `stftime`](https://www.sqlite.org/lang_datefunc.html).
@@ -716,8 +702,8 @@ using the UNION, INTERSECT, and EXCEPT keywords on tables that have the
 same schema (same column names and types), though most often these would
 be used on single columns (i.e., single-column tables).
 
-Note that one can often set up an equivalent query without using
-INTERSECT or UNION.
+> **Note**: One can often set up an equivalent query without using
+> INTERSECT or UNION.
 
 Here’s an example of a query that can be done with or without an
 intersection. Suppose we want to know the names of all individuals who
@@ -726,46 +712,51 @@ INTERSECT:
 
 ``` r
 system.time(
-        result1 <- dbGetQuery(db, "select displayname, userid from
-               questions Q join users U on U.userid = Q.ownerid
-               join questions_tags T on Q.questionid = T.questionid
-               where tag = 'r'
-               intersect
-               select displayname, userid from
-               questions Q join users U on U.userid = Q.ownerid
-               join questions_tags T on Q.questionid = T.questionid
-               where tag = 'python'")
+   result1 <- dbGetQuery(db, "select displayname, userid from
+                              questions Q join users U on U.userid = Q.ownerid
+                              join questions_tags T on Q.questionid = T.questionid
+                              where tag = 'r'
+                              intersect
+                              select displayname, userid from
+                              questions Q join users U on U.userid = Q.ownerid
+                              join questions_tags T on Q.questionid = T.questionid
+                              where tag = 'python'")
                )
 ```
 
     ##    user  system elapsed 
-    ##   8.204   3.081  28.686
+    ##   8.755   3.321  29.894
 
 Alternatively we can do a self-join. Note that the syntax gets
 complicated as we are doing multiple joins.
 
 ``` r
 system.time(
-        result2 <- dbGetQuery(db, "select displayname, userid from
-               (questions Q1 join questions_tags T1
-               on Q1.questionid = T1.questionid)
-               join
-               (questions Q2 join questions_tags T2
-               on Q2.questionid = T2.questionid)
-               on Q1.ownerid = Q2.ownerid
-               join users on Q1.ownerid = users.userid
-               where T1.tag = 'r' and T2.tag = 'python'")
+   result2 <- dbGetQuery(db, "select displayname, userid from
+                              (questions Q1 join questions_tags T1
+                              on Q1.questionid = T1.questionid)
+                              join
+                              (questions Q2 join questions_tags T2
+                              on Q2.questionid = T2.questionid)
+                              on Q1.ownerid = Q2.ownerid
+                              join users on Q1.ownerid = users.userid
+                              where T1.tag = 'r' and T2.tag = 'python'")
                )
 ```
 
     ##    user  system elapsed 
-    ##  12.459   8.327  38.494
+    ##  12.439   8.601  38.905
 
 ``` r
 identical(result1, result2)
 ```
 
     ## [1] FALSE
+
+> **Challenge**: Those two queries return equivalent information, but
+> the results are not exactly the same. What causes the difference? How
+> can we modify the second query to get the exact same results as the
+> first?
 
 Note that the second query will return duplicates where we have a person
 asking multiple R or Python queries. But we know how to solve that by
@@ -787,6 +778,8 @@ only one type of question, respectively.
 
 ## 3.2 Subqueries
 
+A subquery is a full query that is embedded in a larger query.
+
 ### 3.2.1 Subqueries in the FROM statement
 
 We can use subqueries in the FROM statement to create a temporary table
@@ -795,10 +788,12 @@ to use in a query. Here we’ll do it in the context of a join.
 > **Challenge**: What does the following do?
 
 ``` r
-dbGetQuery(db, "select * from questions join answers A on questions.questionid = A.questionid join 
-           (select *, count(*) as n_answered from users 
-           group by userid order by n_answered desc limit 1000) most_responsive on
-               A.ownerid = most_responsive.userid")
+dbGetQuery(db, "select * from questions join answers A on questions.questionid = A.questionid
+
+                join 
+            (select *, count(*) as n_answered from answers 
+            group by ownerid order by n_answered desc limit 1000) most_responsive on
+                A.ownerid = most_responsive.ownerid")
 ```
 
 It might be hard to just come up with that all at once. A good strategy
