@@ -725,7 +725,7 @@ system.time(
 ```
 
     ##    user  system elapsed 
-    ##   8.732   3.444  30.364
+    ##   8.660   3.525  30.280
 
 Alternatively we can do a self-join. Note that the syntax gets
 complicated as we are doing multiple joins.
@@ -745,7 +745,7 @@ system.time(
 ```
 
     ##    user  system elapsed 
-    ##  12.260   8.834  39.092
+    ##  12.200   8.809  38.978
 
 ``` r
 identical(result1, result2)
@@ -786,8 +786,8 @@ dbGetQuery(db, "select * from questions join answers A
                 on questions.questionid = A.questionid
                 join
                 (select ownerid, count(*) as n_answered from answers
-                group by ownerid order by n_answered desc limit 1000) most_responsive on
-                A.ownerid = most_responsive.ownerid")
+                group by ownerid order by n_answered desc limit 1000) most_responsive
+                on A.ownerid = most_responsive.ownerid")
 ```
 
 It might be hard to just come up with that full query all at once. A
@@ -897,15 +897,20 @@ The syntax is a bit involved, so let’s see with a range of examples:
 ## Total number of questions for each owner
 dbGetQuery(db, "select ownerid,
                 count() over (partition by ownerid) as n
-                from questions limit 5")
+                from questions where ownerid is not NULL limit 10")
 ```
 
-    ##   ownerid     n
-    ## 1      NA 14194
-    ## 2      NA 14194
-    ## 3      NA 14194
-    ## 4      NA 14194
-    ## 5      NA 14194
+    ##    ownerid n
+    ## 1       13 1
+    ## 2       25 1
+    ## 3       33 4
+    ## 4       33 4
+    ## 5       33 4
+    ## 6       33 4
+    ## 7       56 3
+    ## 8       56 3
+    ## 9       56 3
+    ## 10      62 3
 
 -   Compute cumulative calculations; note the need for ORDER BY within
     the PARTITION clause (the othe ORDER BY is just for display purposes
@@ -1167,12 +1172,12 @@ system.time(dbGetQuery(db, "select * from questions where viewcount > 10000"))  
 system.time(dbExecute(db, "drop index count_index"))
 ```
 
-In many contexts (but not the examle above), an index can save huge
+In many contexts (but not the example above), an index can save huge
 amounts of time. So if you’re working with a database and speed is
 important, check to see if there are indexes.
 
 One downside of indexes is that creation of indexes can be very
-time-consuming, as seen above). And if the database is updated
+time-consuming, as seen above. And if the database is updated
 frequently, this could be detrimental.
 
 Finally, using indexes in a lookup is not always advantageous, as
@@ -1315,15 +1320,16 @@ steps, with the same cost.
 You might think that database queries will generally be slow (and slower
 than in-memory manipulation such as in R or Python when all the data can
 fit in memory) because the database stores the data on disk. However, as
-mentioned earlier the operating system will generally cache files/data
-in memory when it reads from disk. Then if that information is still in
-memory the next time it is needed, it will be much faster to access it
-the second time around. Other processes might need memory and
-‘invalidate’ the cache, but often once the data is read once, the
-database will be able to do queries quite quickly. This also means that
-even if you’re using a database, you can benefit from a machine with a
-lot of memory if you have a large database (ideally a machine with
-rather more RAM than the size of the table(s) you’ll be accessing).
+mentioned on the introduction page, the operating system will generally
+cache files/data in memory when it reads from disk. Then if that
+information is still in memory the next time it is needed, it will be
+much faster to access it the second time around. Other processes might
+need memory and ‘invalidate’ the cache, but often once the data is read
+once, the database will be able to do queries quite quickly. This also
+means that even if you’re using a database, you can benefit from a
+machine with a lot of memory if you have a large database (ideally a
+machine with rather more RAM than the size of the table(s) you’ll be
+accessing).
 
 Given this, it generally won’t be helpful to force your database to
 reside in memory (e.g., using `:memory:` for SQLite or putting the

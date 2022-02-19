@@ -455,8 +455,8 @@ dbGetQuery(db, "select * from questions join answers A
                 on questions.questionid = A.questionid
                 join
                 (select ownerid, count(*) as n_answered from answers
-                group by ownerid order by n_answered desc limit 1000) most_responsive on
-                A.ownerid = most_responsive.ownerid")
+                group by ownerid order by n_answered desc limit 1000) most_responsive
+                on A.ownerid = most_responsive.ownerid")
 ```
 
 It might be hard to just come up with that full query all at once. A good strategy is probably to think about creating a view that is the result of the inner query and then have the outer query use that. You can then piece together the complicated query in a modular way. For big databases, you are likely to want to submit this as a single query and not two queries so that the SQL optimizer can determine the best way to do the operations. But you want to start with code that you're confident will give you the right answer!
@@ -523,7 +523,7 @@ The syntax is a bit involved, so let's see with a range of examples:
 ## Total number of questions for each owner
 dbGetQuery(db, "select ownerid,
                 count() over (partition by ownerid) as n
-                from questions limit 5")
+                from questions where ownerid is not NULL limit 10")
 ```
 
  - Compute cumulative calculations; note the need for ORDER BY  within the PARTITION clause (the othe ORDER BY is just for display purposes here):
@@ -597,19 +597,15 @@ What does that query do?
 Here are some real-world style questions one might try to create queries to answer. The context for these questions is a situation in which  you have data on user sessions on a website or data on messages between users. 
 
   1. Given a table of user sessions with the format
-
 ```
 date | session_id | user_id | session_time
 ```
-
 calculate the distribution of the average daily total session time in the last month. I.e., you want to get each user's daily average and then find the distribution over users. The output should be something like:
-
 ```
 minutes_per_day | number_of_users
 ```
 
  2. Consider a table of messages of the form
-
 ```
 sender_id | receiver_id | message_id
 ```
