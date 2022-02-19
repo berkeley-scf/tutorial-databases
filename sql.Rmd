@@ -393,7 +393,7 @@ Here's some [documentation of the syntax for the functions, including `stftime`]
 
 You can do set operations like union, intersection, and set difference using the UNION, INTERSECT, and EXCEPT keywords on tables that have the same schema (same column names and types), though most often these would be used on single columns (i.e., single-column tables).
 
-> **Note**: One can often set up an equivalent query without using INTERSECT or UNION.
+> **Note**: While one can often set up an equivalent query without using INTERSECT or UNION, set operations can be very handy.
 
 Here's an example of a query that can be done with or without an intersection. Suppose we want to know the names of all individuals who have asked both an R question and a Python question. We can do this with INTERSECT:
 
@@ -430,16 +430,9 @@ identical(result1, result2)
 ```
 > **Challenge**: Those two queries return equivalent information, but the results are not exactly the same. What causes the difference? How can we modify the second query to get the exact same results as the first?
 
-Note that the second query will return duplicates where we have a person asking multiple R or Python queries. But we know how to solve that by including a DISTINCT:
-
-```
-select distinct displayname, userid from ...
-``` 
-
 Which is faster? The second one looks more involved in terms of the joins, so the timing results seen above make sense.
 
-
-Or we could use UNION or EXCEPT to find people who have asked either or only one type of question, respectively.
+We could use UNION or EXCEPT to find people who have asked either or only one type of question, respectively.
 
 > **Challenge**: Find the users who have asked either an R question or a Python question.
 
@@ -458,7 +451,8 @@ We can use subqueries in the FROM statement to create a temporary table to use i
 
 
 ```{r, eval=FALSE}
-dbGetQuery(db, "select * from questions join answers A on questions.questionid = A.questionid
+dbGetQuery(db, "select * from questions join answers A
+                on questions.questionid = A.questionid
                 join
                 (select ownerid, count(*) as n_answered from answers
                 group by ownerid order by n_answered desc limit 1000) most_responsive on
@@ -467,7 +461,7 @@ dbGetQuery(db, "select * from questions join answers A on questions.questionid =
 
 It might be hard to just come up with that full query all at once. A good strategy is probably to think about creating a view that is the result of the inner query and then have the outer query use that. You can then piece together the complicated query in a modular way. For big databases, you are likely to want to submit this as a single query and not two queries so that the SQL optimizer can determine the best way to do the operations. But you want to start with code that you're confident will give you the right answer!
 
-Note we could also have done that query using a subquery in the WHERE statement, as discussed next. 
+Note we could also have done that query using a subquery in the WHERE statement, as discussed in the next section. 
 
 > **Challenge**: Write a query that, for each question, will return the question title, number of answers, and the answer to that question written by the user with the highest reputation. Hint: first think about a query that will find the number of answers to each question and the answer by the user with the highest reputation.
 
@@ -482,7 +476,8 @@ For example, suppose we want to know the average number of UpVotes for users who
 ```{r, eval=TRUE}
 dbGetQuery(db, "select avg(UpVotes) from users where userid in
                 (select distinct ownerid from
-                questions join questions_tags on questions.questionid = questions_tags.questionid
+                questions join questions_tags
+                on questions.questionid = questions_tags.questionid
                 where tag = 'python')")       
 ```
 
@@ -526,12 +521,13 @@ The syntax is a bit involved, so let's see with a range of examples:
  
 ```{r, eval=TRUE}
 ## Total number of questions for each owner
-dbGetQuery(db, "select *,
+dbGetQuery(db, "select ownerid,
                 count() over (partition by ownerid) as n
-                from questions order by creationdate limit 5")
+                from questions limit 5")
 ```
 
- - Compute cumulative calculations; note the need for the 'order by'
+ - Compute cumulative calculations; note the need for ORDER BY  within the PARTITION clause (the othe ORDER BY is just for display purposes here):
+
 ```{r, eval=TRUE}
 ## Rank (based on ordering by creationdate) of questions by owner
 dbGetQuery(db, "select *,
@@ -598,9 +594,10 @@ What does that query do?
 
 ## 3.4 Putting it all together to do complicated queries
 
-Here are some real-world style questions one might try to create queries to answer. The context would be if you have data on user sessions on a website or data on messages between users. 
+Here are some real-world style questions one might try to create queries to answer. The context for these questions is a situation in which  you have data on user sessions on a website or data on messages between users. 
 
-1) Given a table of user sessions with the format
+  1. Given a table of user sessions with the format
+
 ```
 date | session_id | user_id | session_time
 ```
@@ -608,17 +605,17 @@ date | session_id | user_id | session_time
 calculate the distribution of the average daily total session time in the last month. I.e., you want to get each user's daily average and then find the distribution over users. The output should be something like:
 
 ```
-minutes_per_day' | number_of_users
+minutes_per_day | number_of_users
 ```
 
-2) Consider a table of messages of the form
+ 2. Consider a table of messages of the form
+
 ```
 sender_id | receiver_id | message_id
 ```
 For each user, find the three users they message the most.
 
-3) Suppose you have are running an online experiment and have a table on
-the experimental design
+ 3. Suppose you have are running an online experiment and have a table on the experimental design:
 ```
 user_id | test_group | date_first_exposed
 ```
@@ -665,9 +662,9 @@ system.time(dbGetQuery(db, "select * from questions where viewcount > 10000"))  
 system.time(dbExecute(db, "drop index count_index"))
 ```
 
-In many contexts (but not the examle above), an index can save huge amounts of time. So if you're working with a database and speed is important, check to see if there are indexes.
+In many contexts (but not the example above), an index can save huge amounts of time. So if you're working with a database and speed is important, check to see if there are indexes.
 
-One downside of indexes is that creation of indexes can be very time-consuming, as seen above). And if the database is updated frequently, this could be detrimental. 
+One downside of indexes is that creation of indexes can be very time-consuming, as seen above. And if the database is updated frequently, this could be detrimental. 
 
 Finally, using indexes in a lookup is not always advantageous, as discussed next.
 
@@ -788,7 +785,7 @@ We see that the query plan indicates the two queries are using the same steps, w
 
 ## 4.4 Disk caching 
 
-You might think that database queries will generally be slow (and slower than in-memory manipulation such as in R or Python when all the data can fit in memory) because the database stores the data on disk. However, as mentioned earlier the operating system will generally cache files/data in memory when it reads from disk. Then if that information is still in memory the next time it is needed, it will be much faster to access it the second time around. Other processes might need memory and 'invalidate' the cache, but often once the data is read once, the database will be able to do queries quite quickly. This also means that even if you're using a database, you can benefit from a machine with a lot of memory if you have a large database (ideally a machine with rather more RAM than the size of the table(s) you'll be accessing). 
+You might think that database queries will generally be slow (and slower than in-memory manipulation such as in R or Python when all the data can fit in memory) because the database stores the data on disk. However, as mentioned on the introduction page, the operating system will generally cache files/data in memory when it reads from disk. Then if that information is still in memory the next time it is needed, it will be much faster to access it the second time around. Other processes might need memory and 'invalidate' the cache, but often once the data is read once, the database will be able to do queries quite quickly. This also means that even if you're using a database, you can benefit from a machine with a lot of memory if you have a large database (ideally a machine with rather more RAM than the size of the table(s) you'll be accessing). 
 
 Given this, it generally won't be helpful to force your database to reside in memory (e.g., using `:memory:` for SQLite or putting the database on a RAM disk). 
 

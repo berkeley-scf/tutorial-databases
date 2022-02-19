@@ -702,8 +702,8 @@ using the UNION, INTERSECT, and EXCEPT keywords on tables that have the
 same schema (same column names and types), though most often these would
 be used on single columns (i.e., single-column tables).
 
-> **Note**: One can often set up an equivalent query without using
-> INTERSECT or UNION.
+> **Note**: While one can often set up an equivalent query without using
+> INTERSECT or UNION, set operations can be very handy.
 
 Here’s an example of a query that can be done with or without an
 intersection. Suppose we want to know the names of all individuals who
@@ -725,7 +725,7 @@ system.time(
 ```
 
     ##    user  system elapsed 
-    ##   8.781   3.417  30.245
+    ##   8.732   3.444  30.364
 
 Alternatively we can do a self-join. Note that the syntax gets
 complicated as we are doing multiple joins.
@@ -745,7 +745,7 @@ system.time(
 ```
 
     ##    user  system elapsed 
-    ##  12.293   8.734  39.112
+    ##  12.260   8.834  39.092
 
 ``` r
 identical(result1, result2)
@@ -758,16 +758,10 @@ identical(result1, result2)
 > can we modify the second query to get the exact same results as the
 > first?
 
-Note that the second query will return duplicates where we have a person
-asking multiple R or Python queries. But we know how to solve that by
-including a DISTINCT:
-
-    select distinct displayname, userid from ...
-
 Which is faster? The second one looks more involved in terms of the
 joins, so the timing results seen above make sense.
 
-Or we could use UNION or EXCEPT to find people who have asked either or
+We could use UNION or EXCEPT to find people who have asked either or
 only one type of question, respectively.
 
 > **Challenge**: Find the users who have asked either an R question or a
@@ -788,7 +782,8 @@ to use in a query. Here we’ll do it in the context of a join.
 > **Challenge**: What does the following do?
 
 ``` r
-dbGetQuery(db, "select * from questions join answers A on questions.questionid = A.questionid
+dbGetQuery(db, "select * from questions join answers A
+                on questions.questionid = A.questionid
                 join
                 (select ownerid, count(*) as n_answered from answers
                 group by ownerid order by n_answered desc limit 1000) most_responsive on
@@ -805,7 +800,7 @@ do the operations. But you want to start with code that you’re confident
 will give you the right answer!
 
 Note we could also have done that query using a subquery in the WHERE
-statement, as discussed next.
+statement, as discussed in the next section.
 
 > **Challenge**: Write a query that, for each question, will return the
 > question title, number of answers, and the answer to that question
@@ -829,7 +824,8 @@ users who have posted a question with the tag “python”.
 ``` r
 dbGetQuery(db, "select avg(UpVotes) from users where userid in
                 (select distinct ownerid from
-                questions join questions_tags on questions.questionid = questions_tags.questionid
+                questions join questions_tags
+                on questions.questionid = questions_tags.questionid
                 where tag = 'python')")       
 ```
 
@@ -899,31 +895,21 @@ The syntax is a bit involved, so let’s see with a range of examples:
 
 ``` r
 ## Total number of questions for each owner
-dbGetQuery(db, "select *,
+dbGetQuery(db, "select ownerid,
                 count() over (partition by ownerid) as n
-                from questions order by creationdate limit 5")
+                from questions limit 5")
 ```
 
-    ##   questionid        creationdate score viewcount
-    ## 1   34552550 2016-01-01 00:00:03     0       108
-    ## 2   34552551 2016-01-01 00:00:07     1       151
-    ## 3   34552552 2016-01-01 00:00:39     2      1942
-    ## 4   34552554 2016-01-01 00:00:50     0       153
-    ## 5   34552555 2016-01-01 00:00:51    -1        54
-    ##                                                                                   title
-    ## 1                                                                 Scope between methods
-    ## 2      Rails - Unknown Attribute - Unable to add a new field to a form on create/update
-    ## 3 Selenium Firefox webdriver won't load a blank page after changing Firefox preferences
-    ## 4                                                       Android Studio styles.xml Error
-    ## 5                         Java: reference to non-finial local variables inside a thread
-    ##   ownerid  n
-    ## 1 5684416 83
-    ## 2 2457617  1
-    ## 3 5732525  5
-    ## 4 5735112  2
-    ## 5 4646288 10
+    ##   ownerid     n
+    ## 1      NA 14194
+    ## 2      NA 14194
+    ## 3      NA 14194
+    ## 4      NA 14194
+    ## 5      NA 14194
 
--   Compute cumulative calculations; note the need for the ‘order by’
+-   Compute cumulative calculations; note the need for ORDER BY within
+    the PARTITION clause (the othe ORDER BY is just for display purposes
+    here):
 
 ``` r
 ## Rank (based on ordering by creationdate) of questions by owner
@@ -1089,8 +1075,9 @@ What does that query do?
 ## 3.4 Putting it all together to do complicated queries
 
 Here are some real-world style questions one might try to create queries
-to answer. The context would be if you have data on user sessions on a
-website or data on messages between users.
+to answer. The context for these questions is a situation in which you
+have data on user sessions on a website or data on messages between
+users.
 
 1.  Given a table of user sessions with the format
 
@@ -1102,7 +1089,7 @@ calculate the distribution of the average daily total session time in
 the last month. I.e., you want to get each user’s daily average and then
 find the distribution over users. The output should be something like:
 
-    minutes_per_day' | number_of_users
+    minutes_per_day | number_of_users
 
 1.  Consider a table of messages of the form
 
@@ -1113,7 +1100,7 @@ find the distribution over users. The output should be something like:
 For each user, find the three users they message the most.
 
 1.  Suppose you have are running an online experiment and have a table
-    on the experimental design
+    on the experimental design:
 
 <!-- -->
 
