@@ -725,7 +725,7 @@ system.time(
 ```
 
     ##    user  system elapsed 
-    ##   8.660   3.525  30.280
+    ##   7.993   2.867  27.923
 
 Alternatively we can do a self-join. Note that the syntax gets
 complicated as we are doing multiple joins.
@@ -745,7 +745,7 @@ system.time(
 ```
 
     ##    user  system elapsed 
-    ##  12.200   8.809  38.978
+    ##  11.781   9.467  38.523
 
 ``` r
 identical(result1, result2)
@@ -1104,10 +1104,8 @@ find the distribution over users. The output should be something like:
 
 For each user, find the three users they message the most.
 
-1.  Suppose you have are running an online experiment and have a table
-    on the experimental design:
-
-<!-- -->
+3.) Suppose you have are running an online experiment and have a table
+on the experimental design:
 
     user_id | test_group | date_first_exposed
 

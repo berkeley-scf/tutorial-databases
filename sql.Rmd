@@ -596,7 +596,8 @@ What does that query do?
 
 Here are some real-world style questions one might try to create queries to answer. The context for these questions is a situation in which  you have data on user sessions on a website or data on messages between users. 
 
-  1. Given a table of user sessions with the format
+1) Given a table of user sessions with the format
+
 ```
 date | session_id | user_id | session_time
 ```
@@ -605,13 +606,15 @@ calculate the distribution of the average daily total session time in the last m
 minutes_per_day | number_of_users
 ```
 
- 2. Consider a table of messages of the form
+2) Consider a table of messages of the form
+
 ```
 sender_id | receiver_id | message_id
 ```
 For each user, find the three users they message the most.
 
- 3. Suppose you have are running an online experiment and have a table on the experimental design:
+3.) Suppose you have are running an online experiment and have a table on the experimental design:
+
 ```
 user_id | test_group | date_first_exposed
 ```

@@ -25,7 +25,7 @@ Materials for this tutorial, including the Markdown files and associated code fi
 git clone https://github.com/berkeley-scf/tutorial-databases
 ```
 
-The example data files are not part of the GitHub repository. You can get the example data files (both Stack Overflow data and Wikipedia webtraffic data for the year 2016) [here](http://www.stat.berkeley.edu/share/paciorek/tutorial-databases-data.zip).
+The example data files are not part of the GitHub repository. You can get the example data files (both Stack Overflow data and Wikipedia webtraffic data for the year 2016) [here](https://www.stat.berkeley.edu/share/paciorek/tutorial-databases-data.zip).
 
 Solutions to the SQL challenges are available on request. 
 
