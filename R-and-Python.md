@@ -319,15 +319,15 @@ head(oldFolks)
     ## # … with 5 more variables: displayname <chr>, upvotes <int>,
     ## #   downvotes <int>, age <int>, accountid <int>
 
-Note that uses lazy evaluation when interfacing with databases – it only
-does the query and return results when the results are needed (in this
-case when we call `head`).
+> **Note**: dplyr uses lazy evaluation when interfacing with databases –
+> it only does the query and return results when the results are needed
+> (in this case when we call `head`).
 
 # 3 Manipulating datasets quickly in memory in R and Python
 
 ## 3.1 `data.table` in R
 
-The `data.table` package provides a lot of functionality for fast
+The *data.table* package provides a lot of functionality for fast
 manipulation of datasets in memory. data.table can do the standard SQL
 operations such as indexing, merges/joins, assignment, grouping, etc.
 Plus data.table objects are data frames (i.e., they inherit from data
@@ -394,7 +394,6 @@ usefulness of that.
 ``` r
 wikiDT2 <- lazy_dt(wikiDT)
 system.time(sub <- wikiDT2 %>% filter(count == 512)) # 0.1 sec.
-as.data.frame(sub)
 ```
 
 Finally the `tidytable` package also allows you to use dplyr syntax as
@@ -422,6 +421,10 @@ There are a variety of packages that allow you to work with very large
 datasets on disk without loading them fully into memory. Some of these
 are also very good at compressing files to reduce disk storage.
 
+I recommend first considering Arrow or fst as they work well with the
+usual data frame manipulations, but the other packages mentioned here
+may also be useful.
+
 And note that one can use `sqldf::read.csv.sql` to avoid reading all the
 data in from disk.
 
@@ -435,13 +438,9 @@ wikiDF <- readr::read_table(file = pipe("gzip -cd data/part-0000?.gz"),
         col_types = c('nnccnn'))
 ```
 
-I recommend first considering Arrow or fst as they work well with the
-usual data frame manipulations, but the other packages mentioned here
-may also be useful.
-
 ## 4.1 Arrow
 
-The Arrow package allows you to read and write from datasets stored as
+The *arrow* package allows you to read and write from datasets stored as
 one or (often) more files in various formats, including:
 
 -   parquet: a space-efficient, standard format;
@@ -464,7 +463,7 @@ of file formats.
 
 ## 4.2 fst
 
-The fst package for R provides the ability to quickly read and write
+The *fst* package for R provides the ability to quickly read and write
 data frames in parallel from data stored on disk in the efficient fst
 format. A key feature in terms of reducing memory use is that data can
 be quickly accessed by column or by row (O(1) lookup), allowing one to
@@ -582,7 +581,7 @@ sub <- datLaf[dat$count[] == 635,]
 If you run this you’ll see that the `laf_open_csv` took no time,
 indicating LaF is using lazy evaluation.
 
-## 4.3.3 bigmemory for matrices
+### 4.3.3 bigmemory for matrices
 
 `bigmemory` is similar to ff in providing the ability to load datasets
 into R without having them in memory, but rather stored in clever ways
@@ -596,7 +595,7 @@ can access the matrix stored on disk.
 The `biglm` package provides the ability to fit linear models and GLMs
 to big datasets, with integration with ff and bigmemory.
 
-# 4.4 Online (batch) processing of data in R and Python
+## 4.4 Online (batch) processing of data in R and Python
 
 Another approach is to manually process the data in batches, only
 reading in chunks of data that can fit in memory before doing some
@@ -611,7 +610,7 @@ Not surprisingly there is a ton more functionality than shown below (in
 both Python and R) for reading chunks from files as well as skipping
 ahead in a file via a file connection or stream.
 
-## 4.4.1 Online processing in R
+### 4.4.1 Online processing in R
 
 In R, various input functions can read in a subset of a file or can skip
 ahead. In general the critical step is to use a *connection* rather than
@@ -629,10 +628,10 @@ of interest:
 
 ``` r
 fn <- file.path('data', 'questions-2016.csv')
-system.time(dat1 <- read.csv(fn, nrows = 100000, header = TRUE))  # 2.0 sec.
-system.time(dat2 <- read.csv(fn, nrows = 100000, skip = 100001, header = FALSE)) # 2.5 sec.
-system.time(dat3 <- read.csv(fn, nrows = 1, skip = 100001, header = FALSE)) # 0.5 sec.
-system.time(dat4 <- read.csv(fn, nrows = 100000, skip = 1000001, header = FALSE)) # 9.3 sec.
+system.time(dat1 <- read.csv(fn, nrows = 100000, header = TRUE))  # 0.3 sec.
+system.time(dat2 <- read.csv(fn, nrows = 100000, skip = 100001, header = FALSE)) # 0.5 sec.
+system.time(dat3 <- read.csv(fn, nrows = 1, skip = 100001, header = FALSE)) # 0.15 sec.
+system.time(dat4 <- read.csv(fn, nrows = 100000, skip = 1000001, header = FALSE)) # 3.7 sec.
 ```
 
 If we use a connection, this cost is avoided (although there is still a
@@ -642,34 +641,35 @@ the last chunk left off):
 ``` r
 fn <- file.path('data', 'questions-2016.csv')
 con <- file(fn, open = 'r')
-system.time(dat1c <- read.csv(con, nrows = 100000, header = TRUE)) # 1.4 sec.
-system.time(dat2c <- read.csv(con, nrows = 100000, header = FALSE)) # 1.4 sec.
+system.time(dat1c <- read.csv(con, nrows = 100000, header = TRUE)) # 0.3 sec.
+system.time(dat2c <- read.csv(con, nrows = 100000, header = FALSE)) # 0.3 sec.
 system.time(dat3c <- read.csv(con, nrows = 1, header = FALSE)) # .001 sec.
-system.time(dat5c <- read.csv(con, skip = 100000, nrows = 1, header = FALSE)) # .5 sec
+system.time(dat5c <- read.csv(con, nrows = 1, skip = 100000, header = FALSE)) # .15 sec
 ```
 
 You can use `gzfile`, `bzfile`, `url`, and `pipe` to open connections to
 zipped files, files on the internet, and inputs processed through
 UNIX-style piping.
 
-`read_csv` is much faster and seems to be able to skip ahead efficiently
-even though it is not using a connection (which surprises me given that
-with a CSV file you don’t know how big each line is so one would think
-one needs to process through each line in some fashion).
+`read_csv` is generally somewhat faster and seems to be able to skip
+ahead efficiently even though it is not using a connection (which
+surprises me given that with a CSV file you don’t know how big each line
+is so one would think one needs to process through each line in some
+fashion).
 
 ``` r
 library(readr)
 fn <- file.path('data', 'questions-2016.csv')
-system.time(dat1r <- read_csv(fn, n_max = 100000, col_names = TRUE))   # 0.2 sec.
-system.time(dat2r <- read_csv(fn, n_max = 100000, skip = 100001, col_names = FALSE)) # 0.3 sec
-system.time(dat3r <- read_csv(fn, n_max = 1, skip = 200001, col_names = FALSE)) # 0.1 sec
-system.time(dat4r <- read_csv(fn, n_max = 100000, skip = 1000001, col_names = FALSE)) # 0.6 sec
+system.time(dat1r <- read_csv(fn, n_max = 100000, col_names = TRUE))   # 0.4 sec.
+system.time(dat2r <- read_csv(fn, n_max = 100000, skip = 100001, col_names = FALSE)) # 0.13 sec
+system.time(dat3r <- read_csv(fn, n_max = 1, skip = 200001, col_names = FALSE)) # 0.07 sec
+system.time(dat4r <- read_csv(fn, n_max = 100000, skip = 1000001, col_names = FALSE)) # 0.18 sec
 ```
 
 Note that `read_csv` can handle zipped inputs, but does not handle a
 standard text file connection.
 
-## 4.4.2 Online processing in Python
+### 4.4.2 Online processing in Python
 
 Pandas’ `read_csv` has similar functionality in terms of reading a fixed
 number of rows and skipping rows, and it can decompress zipped files on
