@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Working with large data in R and Python
+title: Working with big data in R and Python
 ---
 
 ```{r setup, include=FALSE}

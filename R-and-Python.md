@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Working with large data in R and Python
+title: Working with big data in R and Python
 ---
 
 This section aims to provide an overview of working with large datasets
