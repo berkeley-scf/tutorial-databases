@@ -12,7 +12,7 @@ SLOWEVAL <- TRUE
 
 This section aims to provide an overview of working with large datasets in R and (to a lesser extent) Python. Given the scope of topics, this is not meant to be a detailed treatment of each topic.
 
-We'll start with a refresher on data frames in R and Python and some discussion of the dplyr package, whose standard operations are similar to using SQL syntax. Note that what is referred to as split-apply-combine functionality in dplyr in R and in pandas in Python is the same concept as the use of SQL's GROUP BY combined with aggregation operations such as MIN, MAX, AVG, COUNT.
+We'll start with a refresher on data frames in R and Python and some discussion of the *dplyr* package, whose standard operations are similar to using SQL syntax. Note that what is referred to as split-apply-combine functionality in dplyr in R and in pandas in Python is the same concept as the use of SQL's GROUP BY combined with aggregation operations such as MIN, MAX, AVG, COUNT.
 
 The CSV files for the 2016 Stack Overflow data and the space-delimited files for the Wikipedia traffic data used in the examples below can be obtained [here](http://www.stat.berkeley.edu/share/paciorek/tutorial-databases-data.zip).
 
@@ -43,7 +43,7 @@ joined <- merge(users, questions, by.x = 'userid', by.y = 'ownerid',
 
 ## 1.2 Using SQL syntax with R data frames: `sqldf`
 
-The sqldf package provides the ability to use SQL queries on R data frames (via `sqldf`) and on-the-fly when reading from CSV files (via `read.csv.sql`). The latter can help you avoid reading in the entire dataset into memory in R if you just need a subset of it.
+The *sqldf* package provides the ability to use SQL queries on R data frames (via `sqldf`) and on-the-fly when reading from CSV files (via `read.csv.sql`). The latter can help you avoid reading in the entire dataset into memory in R if you just need a subset of it.
 
 The basic sequence of operations that happens is that the data frame (if using `sqldf`) or the file (if using `read.csv.sql`) is read temporarily into a database and then the requested query is performed on the database, returning the result as a regular R data frame. So you might find things to be a bit slow because of the time involved in creating the database.
 
@@ -79,7 +79,8 @@ questions = pd.read_csv(os.path.join('data', 'questions-2016.csv'))
 type(users)
 users[['userid', 'upvotes']]   # select columns         
 users[users.upvotes > 10000]   # filter by row (i.e., sql WHERE)
-users.groupby('age')['upvotes'].agg({'med': 'median', 'avg': 'mean'}) # group by (i.e., aggregation)
+# group by (i.e., aggregation)
+users.groupby('age')['upvotes'].agg({'med': 'median', 'avg': 'mean'}) 
 joined = pd.merge(users, questions, how= 'inner', left_on= 'userid',
         right_on = 'ownerid')
 ```
@@ -92,7 +93,7 @@ dplyr is part of the [tidyverse](http://tidyverse.org/), a set of R packages spe
 
 There's lots to dplyr, but here we'll just illustrate the basic operations by analogy with SQL.
 
-Here we'll read the data in and do some basic subsetting. In reading the data in we'll use another part of the tidyverse: the `readr` package, which provides `read_csv` as a faster version of `read.csv`. Sidenote: `read_csv` defaults to not using factors -- those of you familiar with this issue will understand why I'm mentioning it, but others can ignore this comment.
+Here we'll read the data in and do some basic subsetting. In reading the data in we'll use another part of the tidyverse: the `readr` package, which provides `read_csv` as a faster version of `read.csv`. 
 
 ```{r, dplyr1, eval = TRUE}
 library(dplyr)
@@ -105,10 +106,12 @@ dim(result)
 
 ## 2.2 Piping
 
-dplyr is often combined with piping from the `magrittr` package, which allows you to build up a sequence of operations (from left to right), as if you were using UNIX pipes or reading a series of instructions. Here's a very simple example where we combine column selection and filtering in a readable way:
+dplyr is often combined with piping, which allows you to build up a sequence of operations (from left to right), as if you were using UNIX pipes or reading a series of instructions. Here's a very simple example where we combine column selection and filtering in a readable way:
 
 ```{r, dplyr2, eval = TRUE}
 result <- users %>% select(displayname, userid, age) %>% filter(age > 75)
+## Or using the new pipe operator from base R:
+result <- users |> select(displayname, userid, age) |> filter(age > 75)
 ```
 
 What happens here is that the operations are run from left to right (except for the assignment into `result`) and the result of the left-hand side of a `%>%` is passed into the right-hand side function as the first argument. So this one liner is equivalent to:
@@ -178,17 +181,18 @@ myfun(questions, 'age')
 
 ## 2.5 dplyr with SQL and databases
 
-We can connect to an SQLite or Postgres database (using `src_sqlite` and `src_postgres`) and then query it using dplyr syntax:
+We can connect to an SQLite or Postgres database  and then query it using dplyr syntax:
 
 ```{r, eval=TRUE}
-stackoverflow <- src_sqlite(file.path('data', 'stackoverflow-2016.db'))
-users <- tbl(stackoverflow, 'users')
+library(RSQLite)
+drv <- dbDriver("SQLite")
+db <- dbConnect(drv, dbname = file.path('data', 'stackoverflow-2016.db'))
+users <- tbl(db, 'users')
 oldFolks <- users %>% filter(age > 75)
-collect(oldFolks)
 head(oldFolks)
 ```
 
-The `collect` statement after the filtering is needed because dplyr uses lazy evaluation when interfacing with databases -- it only does the query and return results when the results are needed.
+Note that  uses lazy evaluation when interfacing with databases -- it only does the query and return results when the results are needed (in this case when we call `head`).
 
 # 3 Manipulating datasets quickly in memory in R and Python
 

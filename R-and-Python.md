@@ -8,7 +8,7 @@ in R and (to a lesser extent) Python. Given the scope of topics, this is
 not meant to be a detailed treatment of each topic.
 
 We’ll start with a refresher on data frames in R and Python and some
-discussion of the dplyr package, whose standard operations are similar
+discussion of the *dplyr* package, whose standard operations are similar
 to using SQL syntax. Note that what is referred to as
 split-apply-combine functionality in dplyr in R and in pandas in Python
 is the same concept as the use of SQL’s GROUP BY combined with
@@ -56,7 +56,7 @@ joined <- merge(users, questions, by.x = 'userid', by.y = 'ownerid',
 
 ## 1.2 Using SQL syntax with R data frames: `sqldf`
 
-The sqldf package provides the ability to use SQL queries on R data
+The *sqldf* package provides the ability to use SQL queries on R data
 frames (via `sqldf`) and on-the-fly when reading from CSV files (via
 `read.csv.sql`). The latter can help you avoid reading in the entire
 dataset into memory in R if you just need a subset of it.
@@ -109,7 +109,8 @@ questions = pd.read_csv(os.path.join('data', 'questions-2016.csv'))
 type(users)
 users[['userid', 'upvotes']]   # select columns         
 users[users.upvotes > 10000]   # filter by row (i.e., sql WHERE)
-users.groupby('age')['upvotes'].agg({'med': 'median', 'avg': 'mean'}) # group by (i.e., aggregation)
+# group by (i.e., aggregation)
+users.groupby('age')['upvotes'].agg({'med': 'median', 'avg': 'mean'}) 
 joined = pd.merge(users, questions, how= 'inner', left_on= 'userid',
         right_on = 'ownerid')
 ```
@@ -129,10 +130,7 @@ operations by analogy with SQL.
 
 Here we’ll read the data in and do some basic subsetting. In reading the
 data in we’ll use another part of the tidyverse: the `readr` package,
-which provides `read_csv` as a faster version of `read.csv`. Sidenote:
-`read_csv` defaults to not using factors – those of you familiar with
-this issue will understand why I’m mentioning it, but others can ignore
-this comment.
+which provides `read_csv` as a faster version of `read.csv`.
 
 ``` r
 library(dplyr)
@@ -152,14 +150,15 @@ dim(result)
 
 ## 2.2 Piping
 
-dplyr is often combined with piping from the `magrittr` package, which
-allows you to build up a sequence of operations (from left to right), as
-if you were using UNIX pipes or reading a series of instructions. Here’s
-a very simple example where we combine column selection and filtering in
-a readable way:
+dplyr is often combined with piping, which allows you to build up a
+sequence of operations (from left to right), as if you were using UNIX
+pipes or reading a series of instructions. Here’s a very simple example
+where we combine column selection and filtering in a readable way:
 
 ``` r
 result <- users %>% select(displayname, userid, age) %>% filter(age > 75)
+## Or using the new pipe operator from base R:
+result <- users |> select(displayname, userid, age) |> filter(age > 75)
 ```
 
 What happens here is that the operations are run from left to right
@@ -294,41 +293,15 @@ myfun(questions, 'age')
 
 ## 2.5 dplyr with SQL and databases
 
-We can connect to an SQLite or Postgres database (using `src_sqlite` and
-`src_postgres`) and then query it using dplyr syntax:
+We can connect to an SQLite or Postgres database and then query it using
+dplyr syntax:
 
 ``` r
-stackoverflow <- src_sqlite(file.path('data', 'stackoverflow-2016.db'))
-```
-
-    ## Warning: `src_sqlite()` was deprecated in dplyr 1.0.0.
-    ## Please use `tbl()` directly with a database connection
-    ## This warning is displayed once every 8 hours.
-    ## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was generated.
-
-``` r
-users <- tbl(stackoverflow, 'users')
+library(RSQLite)
+drv <- dbDriver("SQLite")
+db <- dbConnect(drv, dbname = file.path('data', 'stackoverflow-2016.db'))
+users <- tbl(db, 'users')
 oldFolks <- users %>% filter(age > 75)
-collect(oldFolks)
-```
-
-    ## # A tibble: 481 × 10
-    ##     userid creationdate        lastaccessdate location reputation
-    ##      <int> <chr>               <chr>          <chr>         <int>
-    ##  1  210754 2009-11-13 21:31:17 2017-03-11 23… Washing…       3519
-    ##  2 1461979 2012-06-17 15:14:02 2016-05-07 03… <NA>             21
-    ##  3 1523314 2012-07-13 10:38:30 2016-05-27 14… Deil, N…         34
-    ##  4 2063329 2013-02-12 02:41:28 2017-03-13 20… Honolul…        136
-    ##  5 3770909 2014-06-24 11:08:34 2017-02-23 09… Amsterd…          6
-    ##  6 6007961 2016-03-02 13:16:52 2016-03-30 11… Netherl…          1
-    ##  7   11339 2008-09-16 07:15:48 2017-03-13 18… Greece        11936
-    ##  8  130964 2009-06-30 09:53:17 2017-03-13 16… Cambrid…      18420
-    ##  9 1616742 2012-08-22 11:07:31 2017-02-27 15… Deil, N…        113
-    ## 10 1762193 2012-10-20 21:16:31 2017-03-05 15… United …       1977
-    ## # … with 471 more rows, and 5 more variables: displayname <chr>,
-    ## #   upvotes <int>, downvotes <int>, age <int>, accountid <int>
-
-``` r
 head(oldFolks)
 ```
 
@@ -346,9 +319,9 @@ head(oldFolks)
     ## # … with 5 more variables: displayname <chr>, upvotes <int>,
     ## #   downvotes <int>, age <int>, accountid <int>
 
-The `collect` statement after the filtering is needed because dplyr uses
-lazy evaluation when interfacing with databases – it only does the query
-and return results when the results are needed.
+Note that uses lazy evaluation when interfacing with databases – it only
+does the query and return results when the results are needed (in this
+case when we call `head`).
 
 # 3 Manipulating datasets quickly in memory in R and Python
 
