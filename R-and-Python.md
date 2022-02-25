@@ -417,9 +417,9 @@ structures](https://cran.r-project.org/web/packages/arrow/vignettes/dataset.html
 
 # 4 Working with large datasets on disk
 
-There are a variety of packages that allow you to work with very large
-datasets on disk without loading them fully into memory. Some of these
-are also very good at compressing files to reduce disk storage.
+There are a variety of packages in R that allow you to work with very
+large datasets on disk without loading them fully into memory. Some of
+these are also very good at compressing files to reduce disk storage.
 
 I recommend first considering Arrow or fst as they work well with the
 usual data frame manipulations, but the other packages mentioned here
@@ -460,6 +460,9 @@ vignette](https://cran.r-project.org/web/packages/arrow/vignettes/dataset.html)
 covering basic usage, as well as [this
 discussion](https://stackoverflow.com/questions/56472727/difference-between-apache-parquet-and-arrow)
 of file formats.
+
+The *PyArrow* package is available for Python, but I haven’t explored
+it.
 
 ## 4.2 fst
 
