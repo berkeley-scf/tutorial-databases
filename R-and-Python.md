@@ -455,6 +455,10 @@ your computations (how much has to be read depends on the file format,
 with the native arrow format best in this regard), which can reduce I/O
 and memory usage.
 
+> **Note**: If you’re going to be reading the data frequently off disk,
+> storing the files in text/CSV is not a good idea as it will be much
+> faster to read from the Parquet or Arrow formats.
+
 There’s a [nice
 vignette](https://cran.r-project.org/web/packages/arrow/vignettes/dataset.html)
 covering basic usage, as well as [this
