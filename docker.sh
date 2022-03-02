@@ -9,7 +9,7 @@
 ## If you follow the steps below you will be in a a Docker container in which you can create a PostgreSQL database, add data to the database and then access it from R, we do in the tutorial. 
 
 
-## Run a container with R already installed, starting a bash shell terminal session in the container. Also forward port 5432 on the container to local port 63333 for later use.
+## Run a container with R already installed, starting a bash shell terminal session in the container. Also forward local port 63333  to port 5432 on the container for later use.
 docker run --rm -p 63333:5432 -ti  rocker/r-base /bin/bash
 
 ## install Postgres and SSH/SCP (the latter for copying files into the container)
@@ -35,7 +35,7 @@ unzip tutorial-databases-data.zip
 su - postgres
 psql
 
-## now run commands shown in databases.html to create a database and tables and put data in the tables.
+## now run commands shown in db-management.Rmd to create a database and tables and put data in the tables.
 
 exit
 
