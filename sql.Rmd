@@ -613,7 +613,7 @@ sender_id | receiver_id | message_id
 ```
 For each user, find the three users they message the most.
 
-3.) Suppose you have are running an online experiment and have a table on the experimental design:
+3) Suppose you have are running an online experiment and have a table on the experimental design:
 
 ```
 user_id | test_group | date_first_exposed
