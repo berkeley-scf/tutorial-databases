@@ -505,9 +505,8 @@ We can easily see the tables and their fields:
 dbListTables(db)
 ```
 
-    ## [1] "V1"             "V2"             "answers"       
-    ## [4] "qtTable"        "questions"      "questions_tags"
-    ## [7] "rAndPyQs"       "users"
+    ## [1] "answers"        "questions"      "questions_tags"
+    ## [4] "users"
 
 ``` r
 dbListFields(db, "questions")
