@@ -33,7 +33,7 @@ git clone https://github.com/berkeley-scf/tutorial-databases
 The example data files are not part of the GitHub repository. You can
 get the example data files (both Stack Overflow data and Wikipedia
 webtraffic data for the year 2016)
-[here](http://www.stat.berkeley.edu/share/paciorek/tutorial-databases-data.zip).
+[here](https://www.stat.berkeley.edu/share/paciorek/tutorial-databases-data.zip).
 
 Solutions to the SQL challenges are available on request.
 
@@ -584,8 +584,8 @@ For SQLite:
 
 ``` python
 import sqlite3 as sq
-dir <- 'data' # relative or absolute path to where the .db file is
-dbFilename <- 'stackoverflow-2016.db'
+dir = 'data' # relative or absolute path to where the .db file is
+dbFilename = 'stackoverflow-2016.db'
 import os
 db = sq.connect(os.path.join('data', dbFilename))
 c = db.cursor()
