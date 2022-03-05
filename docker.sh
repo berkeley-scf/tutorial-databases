@@ -13,7 +13,7 @@
 docker run --rm -p 63333:5432 -ti  rocker/r-base /bin/bash
 
 ## install Postgres and SSH/SCP (the latter for copying files into the container)
-apt-get-update
+apt-get update
 apt-get install -y postgresql postgresql-contrib libpq-dev
 apt-get install -y openssh-client
 

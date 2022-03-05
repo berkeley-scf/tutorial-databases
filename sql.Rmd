@@ -112,7 +112,7 @@ dbGetQuery(db, "select tag, count(*) as n from questions_tags
                 group by tag having n > 100000 limit 10")
 ```
 
-> **Challenge**: Write a query that will count the number of answers for each question, returning the IDs of the most answered questions. Hint: consider which field in the "answers" table we do the grouping on (and you shouldn't need to use the "questions" table. 
+> **Challenge**: Write a query that will count the number of answers for each question, returning the IDs of the most answered questions. Hint: consider which field in the "answers" table we do the grouping on (and you shouldn't need to use the "questions" table). 
 
 
 ## 1.4 Joins
@@ -596,7 +596,7 @@ What does that query do?
 
 Here are some real-world style questions one might try to create queries to answer. The context for these questions is a situation in which  you have data on user sessions on a website or data on messages between users. 
 
-1) Given a table of user sessions with the format
+(1) Given a table of user sessions with the format
 
 ```
 date | session_id | user_id | session_time
@@ -606,14 +606,14 @@ calculate the distribution of the average daily total session time in the last m
 minutes_per_day | number_of_users
 ```
 
-2) Consider a table of messages of the form
+(2) Consider a table of messages of the form
 
 ```
 sender_id | receiver_id | message_id
 ```
 For each user, find the three users they message the most.
 
-3) Suppose you have are running an online experiment and have a table on the experimental design:
+(3) Suppose you have are running an online experiment and have a table on the experimental design:
 
 ```
 user_id | test_group | date_first_exposed
@@ -670,6 +670,9 @@ Finally, using indexes in a lookup is not always advantageous, as discussed next
 ### 4.2.1 Index lookup vs. sequential scan 
 
 Using an index is good in that can go to the data needed very quickly based on random access to the disk locations of the data of interest, but if it requires the computer to examine a large number of rows, it may not be better than sequential scan. An advantage of sequential scan is that it will make good use of the CPU cache, reading chunks of data and then accessing the individual pieces of data quickly. 
+
+For example, if you compare the change the query above that filters on viewcount
+to use a much smaller threshold than 10000, you will probably see that the time used when there is an index is more than without an index.
 
 Ideally you'd do sequential scan of exactly the subset of the rows that you need, with that subset available in contiguous storage. 
 

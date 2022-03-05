@@ -54,22 +54,22 @@ dbGetQuery(db, "select * from questions where viewcount > 100000 limit 5")
 ```
 
     ##   questionid        creationdate score viewcount
-    ## 1   34579099 2016-01-03 16:55:16     8    129624
-    ## 2   34814368 2016-01-15 15:24:36   206    134399
-    ## 3   35062852 2016-01-28 13:28:39   730    112000
-    ## 4   35429801 2016-02-16 10:21:09   400    100125
+    ## 1   35429801 2016-02-16 10:21:09   400    100125
+    ## 2   37280274 2016-05-17 15:21:49    23    106995
+    ## 3   37937984 2016-06-21 07:23:00   202    109422
+    ## 4   35062852 2016-01-28 13:28:39   730    112000
     ## 5   35588699 2016-02-23 21:37:06    57    126752
     ##                                                                       title
-    ## 1   Fatal error: Uncaught Error: Call to undefined function mysql_connect()
-    ## 2                                  "Gradle Version 2.10 is required." Error
-    ## 3               NPM vs. Bower vs. Browserify vs. Gulp vs. Grunt vs. Webpack
-    ## 4                    This action could not be completed. Try Again (-22421)
+    ## 1                    This action could not be completed. Try Again (-22421)
+    ## 2      "SyntaxError: Unexpected token < in JSON at position 0" in React App
+    ## 3                                 Git refusing to merge unrelated histories
+    ## 4               NPM vs. Bower vs. Browserify vs. Gulp vs. Grunt vs. Webpack
     ## 5 Response to preflight request doesn't pass access control check AngularJs
     ##   ownerid
-    ## 1 3656666
-    ## 2 3319176
-    ## 3 2761509
-    ## 4 5881764
+    ## 1 5881764
+    ## 2 4043633
+    ## 3 2670370
+    ## 4 2761509
     ## 5 2896963
 
 Next, let’s find the number of views for the 15 questions viewed the
@@ -179,7 +179,7 @@ dbGetQuery(db, "select tag, count(*) as n from questions_tags
 > **Challenge**: Write a query that will count the number of answers for
 > each question, returning the IDs of the most answered questions. Hint:
 > consider which field in the “answers” table we do the grouping on (and
-> you shouldn’t need to use the “questions” table.
+> you shouldn’t need to use the “questions” table).
 
 ## 1.4 Joins
 
@@ -725,7 +725,7 @@ system.time(
 ```
 
     ##    user  system elapsed 
-    ##   8.546   3.252  28.582
+    ##   8.732   3.536  29.497
 
 Alternatively we can do a self-join. Note that the syntax gets
 complicated as we are doing multiple joins.
@@ -745,7 +745,7 @@ system.time(
 ```
 
     ##    user  system elapsed 
-    ##  12.195   8.451  37.603
+    ##  12.488   8.673  38.480
 
 ``` r
 identical(result1, result2)
@@ -1191,6 +1191,11 @@ but if it requires the computer to examine a large number of rows, it
 may not be better than sequential scan. An advantage of sequential scan
 is that it will make good use of the CPU cache, reading chunks of data
 and then accessing the individual pieces of data quickly.
+
+For example, if you compare the change the query above that filters on
+viewcount to use a much smaller threshold than 10000, you will probably
+see that the time used when there is an index is more than without an
+index.
 
 Ideally you’d do sequential scan of exactly the subset of the rows that
 you need, with that subset available in contiguous storage.
