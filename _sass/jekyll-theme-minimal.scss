@@ -220,10 +220,12 @@ footer {
 
 .menu {
     position:fixed;
-    top:20px;
+    top:0px;
     font-size:20px;
     background-color:white;
     width:100%;
+    padding-top:20px;
+    padding-bottom:20px;
 }
 
 .main {
