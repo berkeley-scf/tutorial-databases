@@ -218,12 +218,14 @@ footer {
   -webkit-font-smoothing:subpixel-antialiased;
 }
 
-.menu {
-    position:fixed
+nav.menu {
+  position:fixed;
+  font-size:15px;
 }
 
-.material{
-      top: 50px;
+div.material{
+  top:50px;
+  border-top:50px;
 }
 
 // This causes weird behavior of toc within header appearing at top of page
