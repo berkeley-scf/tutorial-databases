@@ -219,12 +219,16 @@ footer {
 }
 
 nav.menu {
-  position:fixed;
-  font-size:20px;
+    position:fixed;
+    top:0;
+    font-size:20px;
+    background-color:white;
 }
 
-div.material{
-    font-size:20px;
+.main {
+   // top:100px;
+    margin-top:200px;
+   // border-top:300px;
 }
 
 // This causes weird behavior of toc within header appearing at top of page
