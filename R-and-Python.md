@@ -115,7 +115,14 @@ joined = pd.merge(users, questions, how= 'inner', left_on= 'userid',
         right_on = 'ownerid')
 ```
 
-# 2 dplyr
+## 1.4 Distributed data frames in Dask in Python
+
+The Dask package provides the ability to divide data frames across
+multiple workers (and across nodes), allowing one to handle very large
+datasets, as discussed in [this
+tutorial](https://berkeley-scf.github.io/tutorial-dask-future/python-dask#4-dask-distributed-datastructures-and-automatic-parallel-operations-on-them).
+
+# 2 dplyr in R
 
 ## 2.1 Overview
 
@@ -323,7 +330,7 @@ head(oldFolks)
 > it only does the query and return results when the results are needed
 > (in this case when we call `head`).
 
-# 3 Manipulating datasets quickly in memory in R and Python
+# 3 Manipulating datasets quickly in memory in R
 
 ## 3.1 `data.table` in R
 
@@ -496,7 +503,7 @@ The 8 seconds to read the data compares to 55 seconds to read the data
 from the gzipped files via a connection using `readr::read_table` and 29
 seconds via `data.table::fread`.
 
-## 4.3 Additional packages (ff, LaF, bigmemory)
+## 4.3 Additional packages in R (ff, LaF, bigmemory)
 
 ### 4.3.1 ff
 
@@ -602,7 +609,25 @@ can access the matrix stored on disk.
 The `biglm` package provides the ability to fit linear models and GLMs
 to big datasets, with integration with ff and bigmemory.
 
-## 4.4 Online (batch) processing of data in R and Python
+## 4.4 Strategies in Python
+
+Python provides a variety of packages and approaches you can use to
+avoid reading large datasets fully into memory. Here is a brief overview
+of a few approaches:
+
+-   Use the [Dask
+    package](https://berkeley-scf.github.io/tutorial-dask-future/python-dask#4-dask-distributed-datastructures-and-automatic-parallel-operations-on-them)
+    to break up datasets into chunks. Dask processes the data in chunks,
+    so one often doesn’t need a lot of memory, even just on one machine.
+-   Use `numpy.load` with the `mmap_mode` argument to access a numpy
+    array (stored in a .npy file) on disk via memory mapping, reading
+    only the pieces of the array that you need into memory, as discussed
+    [here](https://numpy.org/doc/stable/reference/generated/numpy.load.html).
+
+See [here](https://pythonspeed.com/articles/mmap-vs-zarr-hdf5) for more
+discussion of accessing data on disk from Python.
+
+## 4.5 Online (batch) processing of data in R and Python
 
 Another approach is to manually process the data in batches, only
 reading in chunks of data that can fit in memory before doing some
@@ -617,7 +642,7 @@ Not surprisingly there is a ton more functionality than shown below (in
 both Python and R) for reading chunks from files as well as skipping
 ahead in a file via a file connection or stream.
 
-### 4.4.1 Online processing in R
+### 4.5.1 Online processing in R
 
 In R, various input functions can read in a subset of a file or can skip
 ahead. In general the critical step is to use a *connection* rather than
@@ -676,7 +701,7 @@ system.time(dat4r <- read_csv(fn, n_max = 100000, skip = 1000001, col_names = FA
 Note that `read_csv` can handle zipped inputs, but does not handle a
 standard text file connection.
 
-### 4.4.2 Online processing in Python
+### 4.5.2 Online processing in Python
 
 Pandas’ `read_csv` has similar functionality in terms of reading a fixed
 number of rows and skipping rows, and it can decompress zipped files on

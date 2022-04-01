@@ -545,16 +545,26 @@ result <- dbGetQuery(db, "select * from questions_tags
 > wildcards at beginning and end of the pattern, so “r” will only find
 > “r” and not, for example, “dplyr”.
 
-To extract substrings we can SUBSTRING in Postgres. Postgres requires
-that the pattern to be extracted be surrounded by `#"` (one could use
-another character in place of `#`), but for use from R we need to escape
-the double-quote with a backslash so it is treated as a part of the
-string passed to Postgres and not treated by R as indicating where the
-character string stops/starts.
+To extract substrings we can SUBSTRING in Postgres. Here’s a basic
+example:
+
+``` r
+dbGetQuery(db, "select substring(creationdate from '^[[:digit:]]{4}') as year
+                from questions limit 3")
+```
+
+If you need to specify the pattern to be extracted relative to the
+surrounding characters, then Postgres requires that the pattern to be
+extracted be surrounded by `#"` (one could use another character in
+place of `#`), but for use from R we need to escape the double-quote
+with a backslash so it is treated as a part of the string passed to
+Postgres and not treated by R as indicating where the character string
+stops/starts. We also need the % wildcard character when extracting in
+this way.
 
 ``` r
 dbGetQuery(db, "select substring(creationdate from
-                '#\"[[:digit:]]{4}#\"%' for '#') as year
+                '%-#\"[[:digit:]]{4}#\"-%' for '#') as month
                 from questions limit 3")
 ```
 
@@ -688,7 +698,7 @@ plot(as.numeric(result$hour), result$n, xlab = 'hour of day (UTC/Greenwich???)',
                                         ylab = 'number of questions')
 ```
 
-![](sql_files/figure-markdown_github/unnamed-chunk-20-1.png)
+![](sql_files/figure-markdown_github/unnamed-chunk-21-1.png)
 
 Here’s some [documentation of the syntax for the functions, including
 `stftime`](https://www.sqlite.org/lang_datefunc.html).
@@ -725,7 +735,7 @@ system.time(
 ```
 
     ##    user  system elapsed 
-    ##   8.732   3.536  29.497
+    ##   9.272   3.533  30.736
 
 Alternatively we can do a self-join. Note that the syntax gets
 complicated as we are doing multiple joins.
@@ -745,7 +755,7 @@ system.time(
 ```
 
     ##    user  system elapsed 
-    ##  12.488   8.673  38.480
+    ##  13.051   9.209  46.396
 
 ``` r
 identical(result1, result2)
