@@ -330,7 +330,7 @@ head(oldFolks)
 > it only does the query and return results when the results are needed
 > (in this case when we call `head`).
 
-# 3 Manipulating datasets quickly in memory in R
+# 3 Manipulating datasets quickly in memory
 
 ## 3.1 `data.table` in R
 
@@ -380,7 +380,7 @@ sophisticated queries and manipulations (including aggregation
 operations), but it has its own somewhat involved syntax and concepts.
 The above just scratches the surface of what you can do with it.
 
-## 3.2 Using dplyr syntax with data.table
+## 3.2 Using dplyr syntax with data.table in R
 
 Rather than learning the data.table syntax, one can also use dplyr
 syntax with data.table objects.
@@ -409,10 +409,10 @@ well as other tidyverse syntax, such as `tidyr` functions.
 ## 3.3 Arrow
 
 Apache Arrow provides efficient data structures for working with data in
-memory, usable in R via the `arrow` package. Data are stored by column,
-with values in a column stored sequentially and in such a way that one
-can access a specific value without reading the other values in the
-column (O(1) lookup).
+memory, usable in R via the `arrow` package and the `PyArrow` package in
+Python. Data are stored by column, with values in a column stored
+sequentially and in such a way that one can access a specific value
+without reading the other values in the column (O(1) lookup).
 
 Arrow is designed to read data from various file formats, including
 Parquet, native Arrow format, and text files. In general Arrow will only
@@ -421,6 +421,15 @@ memory. We’ll discuss this concept more in the next section.
 
 One can use [dplyr syntax to work with data in the Arrow data
 structures](https://cran.r-project.org/web/packages/arrow/vignettes/dataset.html).
+
+## 3.4 Polars dataframes in Python
+
+I haven’t investigated it, but
+[Polars](https://pola-rs.github.io/polars-book/user-guide/index.html) is
+advertized as a very fast in-memory package for working with dataframes
+that provides a Python interface. It uses the Arrow columnar format. It
+also provides a lazy execution model like Spark or Dask that allows for
+automatic optimization of queries.
 
 # 4 Working with large datasets on disk
 
