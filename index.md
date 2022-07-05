@@ -33,9 +33,8 @@ git clone https://github.com/berkeley-scf/tutorial-databases
 ```
 
 The example data files are not part of the GitHub repository. You can
-get the example data files (both Stack Overflow data and Wikipedia
-webtraffic data for the year 2016)
-[here](https://www.stat.berkeley.edu/share/paciorek/tutorial-databases-data.zip).
+get [the example data files](https://www.stat.berkeley.edu/share/paciorek/tutorial-databases-data.zip) (both Stack Overflow data and Wikipedia
+webtraffic data for the year 2016).
 
 Solutions to the SQL challenges are available on request.
 
@@ -429,10 +428,8 @@ to that.
 
 ### Getting the database
 
-You can download a copy of the SQLite version of the Stack Overflow
-database (only data for the year 2016) from
-[here](http://www.stat.berkeley.edu/share/paciorek/tutorial-databases-data.zip)
-as part of the overall zip with all of the example datasets as discussed
+You can download a [copy of the SQLite version of the Stack Overflow
+database](http://www.stat.berkeley.edu/share/paciorek/tutorial-databases-data.zip) (only data for the year 2016) as part of the overall zip with all of the example datasets as discussed
 in the introduction of this tutorial.
 
 In the next section I’ll assume the .db file is placed in the
@@ -442,8 +439,7 @@ Note that all of the code used to download the data from the Stack
 Overflow website and to manipulate it to create a complete Postgres
 database and (for the year 2016 only) an SQLite database and CSVs for
 each table is in the [`data/prep_stackoverflow`
-subdirectory](https://github.com/berkeley-scf/tutorial-databases/tree/gh-pages/data/prep_stackoverflow)
-of this repository. Note that as of February 2022, [the data are still
+subdirectory of this repository](https://github.com/berkeley-scf/tutorial-databases/tree/gh-pages/data/prep_stackoverflow). Note that as of February 2022, [the data are still
 being kept up to date
 online](https://archive.org/download/stackexchange).
 

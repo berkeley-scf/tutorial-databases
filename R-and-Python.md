@@ -16,10 +16,7 @@ split-apply-combine functionality in dplyr in R and in pandas in Python
 is the same concept as the use of SQL’s GROUP BY combined with
 aggregation operations such as MIN, MAX, AVG, COUNT.
 
-The CSV files for the 2016 Stack Overflow data and the space-delimited
-files for the Wikipedia traffic data used in the examples below can be
-obtained
-[here](http://www.stat.berkeley.edu/share/paciorek/tutorial-databases-data.zip).
+You can get [the CSV files for the 2016 Stack Overflow data and the space-delimited files for the Wikipedia traffic data](http://www.stat.berkeley.edu/share/paciorek/tutorial-databases-data.zip) used in the examples below.
 
 ## 1 Data frames in R and Python
 
@@ -122,7 +119,7 @@ joined = pd.merge(users, questions, how= 'inner', left_on= 'userid',
 The Dask package provides the ability to divide data frames across
 multiple workers (and across nodes), allowing one to handle very large
 datasets, as discussed in [this
-tutorial](https://berkeley-scf.github.io/tutorial-dask-future/python-dask#4-dask-distributed-datastructures-and-automatic-parallel-operations-on-them).
+tutorial on Dask](https://berkeley-scf.github.io/tutorial-dask-future/python-dask#4-dask-distributed-datastructures-and-automatic-parallel-operations-on-them).
 
 ## 2 dplyr in R
 
@@ -477,11 +474,9 @@ and memory usage.
 > storing the files in text/CSV is not a good idea as it will be much
 > faster to read from the Parquet or Arrow formats.
 
-There’s a [nice
-vignette](https://cran.r-project.org/web/packages/arrow/vignettes/dataset.html)
+There’s a [nice Arrow vignette](https://cran.r-project.org/web/packages/arrow/vignettes/dataset.html)
 covering basic usage, as well as [this
-discussion](https://stackoverflow.com/questions/56472727/difference-between-apache-parquet-and-arrow)
-of file formats.
+discussion of file formats](https://stackoverflow.com/questions/56472727/difference-between-apache-parquet-and-arrow).
 
 The *PyArrow* package is available for Python, but I haven’t explored
 it.
@@ -630,13 +625,12 @@ of a few approaches:
     package](https://berkeley-scf.github.io/tutorial-dask-future/python-dask#4-dask-distributed-datastructures-and-automatic-parallel-operations-on-them)
     to break up datasets into chunks. Dask processes the data in chunks,
     so one often doesn’t need a lot of memory, even just on one machine.
--   Use `numpy.load` with the `mmap_mode` argument to access a numpy
+-   Use [`numpy.load`](https://numpy.org/doc/stable/reference/generated/numpy.load.html)
+    with the `mmap_mode` argument to access a numpy
     array (stored in a .npy file) on disk via memory mapping, reading
-    only the pieces of the array that you need into memory, as discussed
-    [here](https://numpy.org/doc/stable/reference/generated/numpy.load.html).
+    only the pieces of the array that you need into memory. 
 
-See [here](https://pythonspeed.com/articles/mmap-vs-zarr-hdf5) for more
-discussion of accessing data on disk from Python.
+See also [this discussion of accessing data on disk from Python](https://pythonspeed.com/articles/mmap-vs-zarr-hdf5).
 
 ### 4.5 Online (batch) processing of data in R and Python
 

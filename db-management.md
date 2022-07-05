@@ -13,8 +13,7 @@ available through Amazon Web Services (AWS) because in the data posted
 on AWS, the datetime information is part of the filename, rather tha
 field(s) in the table.
 
-You can get the raw input files of Wikistats data
-[here](http://www.stat.berkeley.edu/share/paciorek/tutorial-databases-data.zip)
+You can get the [raw input files of Wikistats data](http://www.stat.berkeley.edu/share/paciorek/tutorial-databases-data.zip)
 
 ## 1 SQLite
 

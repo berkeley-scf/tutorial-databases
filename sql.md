@@ -700,7 +700,7 @@ plot(as.numeric(result$hour), result$n, xlab = 'hour of day (UTC/Greenwich???)',
                                         ylab = 'number of questions')
 ```
 
-![](sql_files/figure-markdown_github/unnamed-chunk-21-1.png)
+![Plot of number of questions by hour of the day](assets/img/questions_by_time.png)
 
 Here’s some [documentation of the syntax for the functions, including
 `stftime`](https://www.sqlite.org/lang_datefunc.html).
@@ -1230,9 +1230,7 @@ condition at each split in the tree until one finds the elements
 corresponding to the value and then getting the addresses for where the
 desired rows are stored.
 
-Here’s [some
-information](https://use-the-index-luke.com/sql/anatomy/the-tree) on how
-such trees are constructed and searched.
+Here’s [some information on how such trees are constructed and searched](https://use-the-index-luke.com/sql/anatomy/the-tree).
 
 In SQLite, indexes are implemented by creating a separate index table
 that maps from the value to the row index in the indexed table, allowing
