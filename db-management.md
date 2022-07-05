@@ -3,6 +3,8 @@ layout: default
 title: Database management
 ---
 
+# Database management
+
 We’ll illustrate some basic database management using a different
 example dataset that contains some data on webtraffic to Wikipedia
 pages. Note that the input file used here involved some pre-processing
@@ -14,9 +16,9 @@ field(s) in the table.
 You can get the raw input files of Wikistats data
 [here](http://www.stat.berkeley.edu/share/paciorek/tutorial-databases-data.zip)
 
-# 1 SQLite
+## 1 SQLite
 
-## 1.1 Setting up a database and using the SQLite command line
+### 1.1 Setting up a database and using the SQLite command line
 
 With SQLite you don’t need to deal with all the permissions and
 administrative overhead of a client-server style of DBMS because an
@@ -38,7 +40,7 @@ create table webtraffic
 .quit
 ```
 
-## 1.2 Populating a table
+### 1.2 Populating a table
 
 Here’s an example of reading from multiple files into SQLite using the
 command line. We create a file `import.sql` that has the configuration
@@ -57,7 +59,7 @@ for file in $(ls part*gz); do
 done
 ```
 
-## 1.3 Data cleaning
+### 1.3 Data cleaning
 
 A problem in this example with importing from the data files into SQLite
 as above is the presence of double quote (") characters that are not
@@ -76,9 +78,9 @@ done
 > *will* need to do something about the quotes; I haven’t stripped them
 > out of the files.
 
-# 2 PostgreSQL
+## 2 PostgreSQL
 
-## 2.1 Setting up a database and using the Postgres command line
+### 2.1 Setting up a database and using the Postgres command line
 
 First make sure Postgres is installed on your machine.
 
@@ -134,7 +136,7 @@ do things like this:
     create user paciorek with password 'test';
     grant all privileges on database wikistats to paciorek;
 
-## 2.2 Populating a table
+### 2.2 Populating a table
 
 Here’s an example of importing a single file into Postgres from within
 the psql interpreter running as the special postgres user. In this case
@@ -192,7 +194,7 @@ done
 > one to operate as a regular user and to use relative paths. In turn
 > `\copy` invokes `copy` in a specific way.
 
-## 2.3 Data cleaning
+### 2.3 Data cleaning
 
 One complication is that often the input files will have anomalies in
 them. Examples include missing columns for some rows, individual
@@ -223,7 +225,7 @@ done
 Note that this restriction to rows with a full set of fields has already
 been done in the data files I provide to you.
 
-# 3 Database administration and configuration miscellanea
+## 3 Database administration and configuration miscellanea
 
 You can often get configuration information by making a query. For
 example, here’s how one can get information on the cache size in SQLite
@@ -241,7 +243,7 @@ dbGetQuery(db, "select * from pg_settings")
 dbGetQuery(db, "select * from pg_settings where name='dynamic_shared_memory_type'") 
 ```
 
-# 4 Remote access to PostgreSQL databases
+## 4 Remote access to PostgreSQL databases
 
 If you want to connect to a Postgres database running on a different
 machine, here’s one approach that involves SSH port forwarding. For
@@ -275,9 +277,9 @@ db <- dbConnect(drv, dbname = 'wikistats', user = 'yourUserName',
    password = 'yourPassword', host = 'localhost', port = 63333)
 ```
 
-# 5 UNIX tools for examining disk access (I/O) and memory use
+## 5 UNIX tools for examining disk access (I/O) and memory use
 
-## 5.1 I/O
+### 5.1 I/O
 
 `iotop` shows disk input/output in real time on a per-process basis,
 while iostat shows overall disk use.
@@ -287,7 +289,7 @@ iotop    # shows usage in real time
 iostat 1 # shows usage every second
 ```
 
-## 5.2 Memory
+### 5.2 Memory
 
 To see how much memory is available, one needs to have a clear
 understanding of disk caching. As discussed above, the operating system

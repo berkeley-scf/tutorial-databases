@@ -4,7 +4,9 @@ layout: default
 title: 'Working with large datasets using SQL, R, and Python'
 ---
 
-# 1 This Tutorial
+# Working with large datasets using SQL, R, and Python
+
+## 1 This Tutorial
 
 This tutorial covers tools for manipulating large datasets, including
 those living in SQL databases or in data frames and related objects in R
@@ -18,7 +20,7 @@ Python are very similar because the core reliance is on SQL.
 
 This tutorial assumes you have a working knowledge of R or Python.
 
-## 1.1 Materials
+### 1.1 Materials
 
 Materials for this tutorial, including the Markdown files and associated
 code files that were used to create these documents are available on
@@ -41,9 +43,9 @@ This tutorial by Christopher Paciorek of the UC Berkeley Statistical
 Computing Facility is licensed under a Creative Commons Attribution 3.0
 Unported License.
 
-## 1.2 Prerequisite Software
+### 1.2 Prerequisite Software
 
-### 1.2.1 Using SQLite from R or Python
+#### 1.2.1 Using SQLite from R or Python
 
 The simplest way to use a database is with SQLite, a lightweight
 database engine under which the database is stored simply in a single
@@ -53,7 +55,7 @@ Both R and Python can easily interact with an SQLite database. For R
 you’ll need the “DBI” and “RSQLite” packages. For Python you’ll need the
 `sqlite3` package.
 
-### 1.2.2 Using PostgreSQL on Mac or Windows
+#### 1.2.2 Using PostgreSQL on Mac or Windows
 
 To replicate the (non-essential) PostgreSQL administration portion of
 this tutorial, you’ll need access to a machine on which you can run a
@@ -77,9 +79,9 @@ several options for accessing a Linux environment:
 This tutorial by Christopher Paciorek is licensed under a Creative
 Commons Attribution 3.0 Unported License (CC BY).
 
-# 2 Background
+## 2 Background
 
-## 2.1 Data size
+### 2.1 Data size
 
 The techniques and tools discussed here are designed for datasets in the
 range of gigabytes to tens of gigabytes, though they may scale to larger
@@ -96,7 +98,7 @@ scope of this tutorial. However, this tutorial will be useful if you’re
 doing SQL queries on professionally-administered databases or databases
 in the cloud or in a Spark context.
 
-## 2.2 Memory vs. disk
+### 2.2 Memory vs. disk
 
 On a computer there is a hierarchy of locations where data can be
 stored. The hierarchy has the trade-off that the locations that the CPU
@@ -125,9 +127,9 @@ document](db-management).
 And conversely, R and Python have mechanisms for storing large datasets
 on disk in a way that they can be accessed fairly quickly.
 
-# 3 Database systems and SQL
+## 3 Database systems and SQL
 
-## 3.1 Overview of databases
+### 3.1 Overview of databases
 
 Basically, standard SQL databases are *relational* databases that are a
 collection of rectangular format datasets (*tables*, also called
@@ -174,7 +176,7 @@ There are often multiple ways to interact with a DBMS, including
 directly using command line tools provided by the DBMS or via Python or
 R, among others.
 
-### 3.1.1 Relational Database Management Systems (DBMS)
+#### 3.1.1 Relational Database Management Systems (DBMS)
 
 There are a variety of relational database management systems (DBMS).
 Some that are commonly used by the intended audience of this tutorial
@@ -190,7 +192,7 @@ Python, etc. However, it does not have some useful functionality that
 other DBMS have. For example, you can’t use `ALTER TABLE` to modify
 column types or drop columns.
 
-### 3.1.2 NoSQL databases
+#### 3.1.2 NoSQL databases
 
 NoSQL (not only SQL) systems have to do with working with datasets that
 are not handled well in traditional DBMS, and not specifically about the
@@ -222,7 +224,7 @@ Some NoSQL systems include
     is a document), and
 -   graph storage systems (e.g., for social networks).
 
-## 3.2 SQL
+### 3.2 SQL
 
 SQL is a declarative language that tells the database system what
 results you want. The system then parses the SQL syntax and determines
@@ -239,7 +241,7 @@ a database that one has connected to:
 select * from questions limit 5
 ```
 
-# 4 Schema and normalization
+## 4 Schema and normalization
 
 To truly leverage the conceptual and computational power of a database
 you’ll want to have your data in a normalized form, which means
@@ -348,7 +350,7 @@ schema in which those tables are actually combined in the database. It
 is possible to be too pure about normalization! We can also create a
 virtual table, called a *view*, as discussed later.)
 
-## Keys
+### Keys
 
 A key is a field or collection of fields that give(s) a unique value for
 every row/observation. A table in a database should then have a primary
@@ -372,7 +374,7 @@ Some examples of foreign keys would be:
 -   class\_ID as the foreign key in ClassAssignment for joining with
     Class based on Class.ID
 
-# 5 Stack Overflow example database
+## 5 Stack Overflow example database
 
 I’ve obtained data from [Stack Overflow](https://stackoverflow.com), the
 popular website for asking coding questions, and placed it into a
@@ -425,7 +427,7 @@ keys in another table. The schema in the actual databases of Stack
 Overflow data we’ll use in this tutorial is similar to but not identical
 to that.
 
-## Getting the database
+### Getting the database
 
 You can download a copy of the SQLite version of the Stack Overflow
 database (only data for the year 2016) from
@@ -445,7 +447,7 @@ of this repository. Note that as of February 2022, [the data are still
 being kept up to date
 online](https://archive.org/download/stackexchange).
 
-# 6 Accessing a database and using SQL from other languages
+## 6 Accessing a database and using SQL from other languages
 
 Although DBMS have their own interfaces (we’ll see a bit of this later),
 databases are commonly accessed from other programs. For data analysts
@@ -455,7 +457,7 @@ Most of our examples of making SQL queries on a database will be done
 from R, but they could just as easily have been done from Python or
 other programs.
 
-## 6.1 Using SQL from R
+### 6.1 Using SQL from R
 
 The *DBI* package provides a front-end for manipulating databases from a
 variety of DBMS (SQLite, MySQL, PostgreSQL, among others). Basically,
@@ -577,7 +579,7 @@ Apart from the different manner of connecting, all of the queries above
 are the same regardless of whether the back-end DBMS is SQLite,
 PostgreSQL, etc.
 
-## 6.2 Using SQL from Python
+### 6.2 Using SQL from Python
 
 For SQLite:
 
@@ -606,7 +608,7 @@ db = pg.connect("dbname = 'stackoverflow' user = 'paciorek' host = 'localhost' p
 c = db.cursor()
 ```
 
-# 7 References and Other Resources
+## 7 References and Other Resources
 
 In addition to various material found online, including various software
 manuals and vignettes, much of the SQL material was based on the
