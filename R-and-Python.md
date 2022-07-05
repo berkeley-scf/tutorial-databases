@@ -625,7 +625,7 @@ of a few approaches:
     package](https://berkeley-scf.github.io/tutorial-dask-future/python-dask#4-dask-distributed-datastructures-and-automatic-parallel-operations-on-them)
     to break up datasets into chunks. Dask processes the data in chunks,
     so one often doesn’t need a lot of memory, even just on one machine.
--   Use [`numpy.load`](https://numpy.org/doc/stable/reference/generated/numpy.load.html)
+-   Use [numpy.load](https://numpy.org/doc/stable/reference/generated/numpy.load.html)
     with the `mmap_mode` argument to access a numpy
     array (stored in a .npy file) on disk via memory mapping, reading
     only the pieces of the array that you need into memory. 
