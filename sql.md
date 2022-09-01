@@ -3,11 +3,9 @@ layout: default
 title: SQL
 ---
 
-# SQL 
+# 1 Introduction to SQL
 
-## 1 Introduction to SQL
-
-### 1.1 Getting started
+## 1.1 Getting started
 
 Here is a simple query that selects the first five rows (and all
 columns, based on the `*` wildcard) from the questions table.
@@ -110,13 +108,13 @@ won’t necessarily do that in this tutorial.
 
 And here is a table of some important keywords:
 
-| Keyword                                         | What it does                                       |
-|-------------------------------------------------|----------------------------------------------------|
-| SELECT                                          | select columns                                     |
-| FROM                                            | which table to operate on                          |
-| WHERE                                           | filter (choose) rows satisfying certain conditions |
-| LIKE, IN, &lt;, &gt;, =, &lt;=, &gt;=, !=, etc. | used as part of filtering conditions               |
-| ORDER BY                                        | sort based on columns                              |
+| Keyword                                 | What it does                                       |
+|------------------------------------|------------------------------------|
+| SELECT                                  | select columns                                     |
+| FROM                                    | which table to operate on                          |
+| WHERE                                   | filter (choose) rows satisfying certain conditions |
+| LIKE, IN, \<, \>, =, \<=, \>=, !=, etc. | used as part of filtering conditions               |
+| ORDER BY                                | sort based on columns                              |
 
 Some other keywords are: DISTINCT, ON, JOIN, GROUP BY, AS, USING, UNION,
 INTERSECT, HAVING, SIMILAR TO (not available in SQLite), SUBSTR in
@@ -128,7 +126,7 @@ SQLite and SUBSTRING in PostgreSQL.
 
 > **Challenge**: Find the oldest users in the database.
 
-### 1.2 Getting unique results (DISTINCT)
+## 1.2 Getting unique results (DISTINCT)
 
 A useful SQL keyword is DISTINCT, which allows you to eliminate
 duplicate rows from any table (or remove duplicate values when one only
@@ -144,7 +142,7 @@ dbGetQuery(db, "select count(distinct tag) from questions_tags")
     ##   count(distinct tag)
     ## 1               41006
 
-### 1.3 Grouping / stratifying (GROUP BY)
+## 1.3 Grouping / stratifying (GROUP BY)
 
 A common pattern of operation is to stratify the dataset, i.e., collect
 it into mutually exclusive and exhaustive subsets. One would then
@@ -183,9 +181,9 @@ dbGetQuery(db, "select tag, count(*) as n from questions_tags
 > consider which field in the “answers” table we do the grouping on (and
 > you shouldn’t need to use the “questions” table).
 
-### 1.4 Joins
+## 1.4 Joins
 
-#### 1.4.1 Introduction to joins
+### 1.4.1 Introduction to joins
 
 Suppose in the example of students in classes, we want a result that has
 the grades of all students in 9th grade. For this we need information
@@ -285,7 +283,7 @@ result2 <- dbGetQuery(db, "select * from questions Q, questions_tags T, users U
 > **Challenge**: Write a query that would return the users who have
 > answered a question with the Python tag.
 
-#### 1.4.2 Types of joins
+### 1.4.2 Types of joins
 
 We’ve seen a bunch of joins but haven’t discussed the full taxonomy of
 types of joins. There are various possibilities for how to do a join
@@ -329,47 +327,13 @@ answer to that question.
 
 Here’s a table of the different kinds of joins:
 
-<table>
-<colgroup>
-<col style="width: 25%" />
-<col style="width: 27%" />
-<col style="width: 47%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th>Type of join</th>
-<th>Rows from first table</th>
-<th>Rows from second table</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>inner (default)</td>
-<td>all that match on specified condition</td>
-<td>all that match on specified condition</td>
-</tr>
-<tr class="even">
-<td>left outer</td>
-<td>all</td>
-<td>all that match first table</td>
-</tr>
-<tr class="odd">
-<td>right outer</td>
-<td>all that match second table</td>
-<td>all</td>
-</tr>
-<tr class="even">
-<td>full outer</td>
-<td>all</td>
-<td>all</td>
-</tr>
-<tr class="odd">
-<td>cross</td>
-<td>all combined pairwise with second table</td>
-<td>all combined pairwise with first table</td>
-</tr>
-</tbody>
-</table>
+| Type of join    | Rows from first table                   | Rows from second table                 |
+|-------------------|--------------------|----------------------------------|
+| inner (default) | all that match on specified condition   | all that match on specified condition  |
+| left outer      | all                                     | all that match first table             |
+| right outer     | all that match second table             | all                                    |
+| full outer      | all                                     | all                                    |
+| cross           | all combined pairwise with second table | all combined pairwise with first table |
 
 A ‘natural’ join is an inner join that doesn’t require you to specify
 the common columns between tables on which to enforce equality, but it’s
@@ -409,7 +373,7 @@ last of these queries is the same as the others.
 > unanswered? (You should need two different kinds of joins to answer
 > this.)
 
-#### 1.4.3 Joining a table with itself (self join)
+### 1.4.3 Joining a table with itself (self join)
 
 Sometimes we want to query information across rows of the same table.
 For example supposed we want to analyze the time lags between when the
@@ -450,7 +414,7 @@ dbGetQuery(db, "create view question_contrasts as
 > above? Hint, even as character strings, the creationdate column has an
 > ordering.
 
-### 1.5 Temporary tables and views
+## 1.5 Temporary tables and views
 
 You can think of a view as a temporary table that is the result of a
 query and can be used in subsequent queries. In any given query you can
@@ -483,9 +447,9 @@ have if you simply had one data frame in R or Python.
 dbExecute(db, "drop view questions_plus") # drop the view if we no longer need it
 ```
 
-## 2 Additional SQL topics
+# 2 Additional SQL topics
 
-### 2.1 Creating database tables
+## 2.1 Creating database tables
 
 Often one would create tables from within R or Python (though one can
 [create tables from within the `sqlite` and `psql` command line
@@ -505,7 +469,7 @@ dbWriteTable(conn = db, name = "student", value = student_df, row.names = FALSE,
              append = FALSE)
 ```
 
-### 2.2 String processing and creating new fields
+## 2.2 String processing and creating new fields
 
 We can do some basic matching with LIKE, using % as a wildcard and \_ to
 stand in for any single character:
@@ -588,7 +552,7 @@ PostgreSQL](https://www.postgresql.org/docs/current/functions-string.html).
 > string manipulation but you would want to handle dates and times using
 > the material in the next section and not use string processing.
 
-### 2.3 Dates and times
+## 2.3 Dates and times
 
 Here we’ll see how you can work with dates and times in SQLite, but the
 functionality should be similar in other DBMS.
@@ -700,14 +664,14 @@ plot(as.numeric(result$hour), result$n, xlab = 'hour of day (UTC/Greenwich???)',
                                         ylab = 'number of questions')
 ```
 
-![Plot of number of questions by hour of the day](assets/img/questions_by_time.png)
+![](sql_files/figure-markdown_github/unnamed-chunk-21-1.png)
 
 Here’s some [documentation of the syntax for the functions, including
 `stftime`](https://www.sqlite.org/lang_datefunc.html).
 
-## 3 More advanced SQL
+# 3 More advanced SQL
 
-### 3.1 Set operations: UNION, INTERSECT, EXCEPT
+## 3.1 Set operations: UNION, INTERSECT, EXCEPT
 
 You can do set operations like union, intersection, and set difference
 using the UNION, INTERSECT, and EXCEPT keywords on tables that have the
@@ -737,7 +701,7 @@ system.time(
 ```
 
     ##    user  system elapsed 
-    ##   9.272   3.533  30.736
+    ##   7.604   3.093  36.774
 
 Alternatively we can do a self-join. Note that the syntax gets
 complicated as we are doing multiple joins.
@@ -757,7 +721,7 @@ system.time(
 ```
 
     ##    user  system elapsed 
-    ##  13.051   9.209  46.396
+    ##  10.953   7.164  44.028
 
 ``` r
 identical(result1, result2)
@@ -782,11 +746,11 @@ only one type of question, respectively.
 > **Challenge**: Find the users who have asked only an R question and
 > not a Python question.
 
-### 3.2 Subqueries
+## 3.2 Subqueries
 
 A subquery is a full query that is embedded in a larger query.
 
-#### 3.2.1 Subqueries in the FROM statement
+### 3.2.1 Subqueries in the FROM statement
 
 We can use subqueries in the FROM statement to create a temporary table
 to use in a query. Here we’ll do it in the context of a join.
@@ -823,7 +787,7 @@ statement, as discussed in the next section.
 Finally one can use subqueries in the SELECT clause to create new
 variables, but we won’t go into that here.
 
-#### 3.2.2 Subqueries in the WHERE statement
+### 3.2.2 Subqueries in the WHERE statement
 
 Instead of a join, we can use subqueries as a way to combine information
 across tables, with the subquery involved in a WHERE statement. The
@@ -880,7 +844,7 @@ MOOC](http://cs.stanford.edu/people/widom/DB-mooc.html).
 > most answered questions. Note there is a way to do this with a JOIN
 > and a way without a JOIN.
 
-### 3.3 Window functions
+## 3.3 Window functions
 
 [Window
 functions](https://www.postgresql.org/docs/current/functions-window.html)
@@ -925,8 +889,8 @@ dbGetQuery(db, "select ownerid,
     ## 10      62 3
 
 -   Compute cumulative calculations; note the need for ORDER BY within
-    the PARTITION clause (the othe ORDER BY is just for display purposes
-    here):
+    the PARTITION clause (the other ORDER BY is just for display
+    purposes here):
 
 ``` r
 ## Rank (based on ordering by creationdate) of questions by owner
@@ -1086,10 +1050,10 @@ What does that query do?
 > for each ownerid for the 10 questions preceding each question.
 
 > **Challenge (hard)**: Find the users who have asked one question that
-> is highly-viewed (viewcount &gt; 1000) with their remaining questions
-> not highly-viewed (viewcount &lt; 20 for all other questions).
+> is highly-viewed (viewcount \> 1000) with their remaining questions
+> not highly-viewed (viewcount \< 20 for all other questions).
 
-### 3.4 Putting it all together to do complicated queries
+## 3.4 Putting it all together to do complicated queries
 
 Here are some real-world style questions one might try to create queries
 to answer. The context for these questions is a situation in which you
@@ -1132,9 +1096,9 @@ What is the average (over users) in the average number of messages sent
 per day for each test group if you look at the users who have sent
 messages only on mobile in the last month.
 
-## 4 Efficient SQL queries
+# 4 Efficient SQL queries
 
-### 4.1 Overview
+## 4.1 Overview
 
 In general, your DBMS should examine your query and try to implement it
 in the fastest way possible.
@@ -1157,7 +1121,7 @@ Some tips for faster queries include:
 -   use LIMIT as seen in the examples here if you only need some of the
     rows a query returns
 
-### 4.2 Indexes
+## 4.2 Indexes
 
 An index is an ordering of rows based on one or more fields. DBMS use
 indexes to look up values quickly, either when filtering (if the index
@@ -1195,7 +1159,7 @@ frequently, this could be detrimental.
 Finally, using indexes in a lookup is not always advantageous, as
 discussed next.
 
-#### 4.2.1 Index lookup vs. sequential scan
+### 4.2.1 Index lookup vs. sequential scan
 
 Using an index is good in that can go to the data needed very quickly
 based on random access to the disk locations of the data of interest,
@@ -1212,7 +1176,7 @@ index.
 Ideally you’d do sequential scan of exactly the subset of the rows that
 you need, with that subset available in contiguous storage.
 
-#### 4.2.2 How indexes work
+### 4.2.2 How indexes work
 
 Indexes are often implemented using tree-based methods. For example in
 Postgres, b-tree indexes are used for indexes on things that have an
@@ -1230,13 +1194,15 @@ condition at each split in the tree until one finds the elements
 corresponding to the value and then getting the addresses for where the
 desired rows are stored.
 
-Here’s [some information on how such trees are constructed and searched](https://use-the-index-luke.com/sql/anatomy/the-tree).
+Here’s [some
+information](https://use-the-index-luke.com/sql/anatomy/the-tree) on how
+such trees are constructed and searched.
 
 In SQLite, indexes are implemented by creating a separate index table
 that maps from the value to the row index in the indexed table, allowing
 for fast lookup of a row.
 
-### 4.3 SQL query plans and EXPLAIN
+## 4.3 SQL query plans and EXPLAIN
 
 You can actually examine the query plan that the system is going to use
 for a query using the EXPLAIN keyword. I’d suggest trying this in
@@ -1330,7 +1296,7 @@ dbGetQuery(db, "explain select * from questions cross join questions_tags where
 We see that the query plan indicates the two queries are using the same
 steps, with the same cost.
 
-### 4.4 Disk caching
+## 4.4 Disk caching
 
 You might think that database queries will generally be slow (and slower
 than in-memory manipulation such as in R or Python when all the data can
@@ -1350,7 +1316,7 @@ Given this, it generally won’t be helpful to force your database to
 reside in memory (e.g., using `:memory:` for SQLite or putting the
 database on a RAM disk).
 
-### 4.5 Parallelization and partitioning
+## 4.5 Parallelization and partitioning
 
 To speed up your work, one might try to split up one’s queries into
 multiple queries that you run in parallel. However, you’re likely to
@@ -1373,4 +1339,4 @@ subtables for each month or each year. This would allow faster queries
 when considering data that reside on one or a small number of partitions
 and could also ease manual implementation of parallelization. Here’s
 some information:
-<a href="https://www.postgresql.org/docs/current/static/ddl-partitioning.html" class="uri">https://www.postgresql.org/docs/current/static/ddl-partitioning.html</a>.
+<https://www.postgresql.org/docs/current/static/ddl-partitioning.html>.

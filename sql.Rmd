@@ -534,7 +534,7 @@ dbGetQuery(db, "select ownerid,
                 from questions where ownerid is not NULL limit 10")
 ```
 
- - Compute cumulative calculations; note the need for ORDER BY  within the PARTITION clause (the othe ORDER BY is just for display purposes here):
+ - Compute cumulative calculations; note the need for ORDER BY  within the PARTITION clause (the other ORDER BY is just for display purposes here):
 
 ```{r, eval=TRUE}
 ## Rank (based on ordering by creationdate) of questions by owner

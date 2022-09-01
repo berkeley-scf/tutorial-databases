@@ -10,7 +10,7 @@ library(DBI)
 SLOWEVAL <- TRUE
 ```
 
-We'll illustrate some basic database management using a different example dataset that contains some data on webtraffic to Wikipedia pages. Note that the input file used here involved some pre-processing relative to the data you get the directly from the Wikistats dataset available through Amazon Web Services (AWS) because in the data posted on AWS, the datetime information is part of the filename, rather tha field(s) in the table.
+We'll illustrate some basic database management using a different example dataset that contains some data on webtraffic to Wikipedia pages. Note that the input file used here involved some pre-processing relative to the data you get the directly from the Wikistats dataset available through Amazon Web Services (AWS) because in the data posted on AWS, the datetime information is part of the filename, rather than field(s) in the table.
 
 You can get the raw input files of Wikistats data [here](http://www.stat.berkeley.edu/share/paciorek/tutorial-databases-data.zip)
 
