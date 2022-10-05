@@ -481,6 +481,9 @@ discussion of file formats](https://stackoverflow.com/questions/56472727/differe
 The *PyArrow* package is available for Python, but I haven’t explored
 it.
 
+Note that *arrow* basically subsumes *feather* and you can work with
+feather-formatted files using *arrow*.
+
 ### 4.2 fst
 
 The *fst* package for R provides the ability to quickly read and write
