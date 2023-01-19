@@ -109,7 +109,7 @@ won’t necessarily do that in this tutorial.
 And here is a table of some important keywords:
 
 | Keyword                                 | What it does                                       |
-|------------------------------------|------------------------------------|
+|-----------------------------------------|----------------------------------------------------|
 | SELECT                                  | select columns                                     |
 | FROM                                    | which table to operate on                          |
 | WHERE                                   | filter (choose) rows satisfying certain conditions |
@@ -328,7 +328,7 @@ answer to that question.
 Here’s a table of the different kinds of joins:
 
 | Type of join    | Rows from first table                   | Rows from second table                 |
-|-------------------|--------------------|----------------------------------|
+|-----------------|-----------------------------------------|----------------------------------------|
 | inner (default) | all that match on specified condition   | all that match on specified condition  |
 | left outer      | all                                     | all that match first table             |
 | right outer     | all that match second table             | all                                    |
@@ -446,6 +446,10 @@ have if you simply had one data frame in R or Python.
 ``` r
 dbExecute(db, "drop view questions_plus") # drop the view if we no longer need it
 ```
+
+If you want to create a temporary table just for a single query, you can
+use a subquery or a WITH clause, as dicussed in [Section
+3.2](#32-subqueries).
 
 # 2 Additional SQL topics
 
@@ -664,7 +668,7 @@ plot(as.numeric(result$hour), result$n, xlab = 'hour of day (UTC/Greenwich???)',
                                         ylab = 'number of questions')
 ```
 
-![](sql_files/figure-markdown_github/unnamed-chunk-21-1.png)
+![](sql_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
 
 Here’s some [documentation of the syntax for the functions, including
 `stftime`](https://www.sqlite.org/lang_datefunc.html).
@@ -701,7 +705,7 @@ system.time(
 ```
 
     ##    user  system elapsed 
-    ##   7.604   3.093  36.774
+    ##   7.311   3.030  46.637
 
 Alternatively we can do a self-join. Note that the syntax gets
 complicated as we are doing multiple joins.
@@ -721,7 +725,7 @@ system.time(
 ```
 
     ##    user  system elapsed 
-    ##  10.953   7.164  44.028
+    ##  11.311   8.324  43.209
 
 ``` r
 identical(result1, result2)
@@ -843,6 +847,43 @@ MOOC](http://cs.stanford.edu/people/widom/DB-mooc.html).
 > **Challenge**: Create a frequency list of the tags used in the top 100
 > most answered questions. Note there is a way to do this with a JOIN
 > and a way without a JOIN.
+
+### 3.2.3 Using WITH
+
+The WITH clause allows you to create a temporary table to then use in an
+associated SELECT statement. So it provides similar functionality to
+using a view but without it being a persistent part of the database. The
+temporary table is only available within the associated SELECT
+statement. WITH can only occur as part of a query with SELECT.
+
+Let’s see use of WITH to accomplish what we did with a subquery in the
+FROM statement above.
+
+``` r
+dbGetQuery(db, "with most_responsive as (
+                select ownerid, count(*) as n_answered from answers
+                group by ownerid order by n_answered desc limit 1000
+                )
+                select * from questions join answers A
+                on questions.questionid = A.questionid
+                join most_responsive on A.ownerid = most_responsive.ownerid")
+```
+
+One could also replace the subquery in the WHERE statement above using
+WITH.
+
+``` r
+dbGetQuery(db, "with tmp as (select distinct ownerid from
+                questions join questions_tags
+                on questions.questionid = questions_tags.questionid
+                where tag = 'python')
+                select avg(UpVotes) from users where userid in
+                tmp")       
+```
+
+Finally, you can create multiple temporary tables in the WITH clause.
+This can help make your query more modular without the complication of
+creating views that will only be used once.
 
 ## 3.3 Window functions
 
@@ -1060,7 +1101,7 @@ to answer. The context for these questions is a situation in which you
 have data on user sessions on a website or data on messages between
 users.
 
-1.  Given a table of user sessions with the format
+1)  Given a table of user sessions with the format
 
 <!-- -->
 
@@ -1072,7 +1113,7 @@ find the distribution over users. The output should be something like:
 
     minutes_per_day | number_of_users
 
-1.  Consider a table of messages of the form
+2)  Consider a table of messages of the form
 
 <!-- -->
 
@@ -1080,7 +1121,7 @@ find the distribution over users. The output should be something like:
 
 For each user, find the three users they message the most.
 
-1.  Suppose you have are running an online experiment and have a table
+3)  Suppose you have are running an online experiment and have a table
     on the experimental design:
 
 <!-- -->
