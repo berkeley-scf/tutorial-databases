@@ -705,7 +705,7 @@ system.time(
 ```
 
     ##    user  system elapsed 
-    ##   7.311   3.030  46.637
+    ##   6.658   2.771  34.795
 
 Alternatively we can do a self-join. Note that the syntax gets
 complicated as we are doing multiple joins.
@@ -725,7 +725,7 @@ system.time(
 ```
 
     ##    user  system elapsed 
-    ##  11.311   8.324  43.209
+    ##  10.089   7.504  43.862
 
 ``` r
 identical(result1, result2)

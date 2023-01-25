@@ -5,6 +5,6 @@ library(RPostgreSQL)
 
 drv <- dbDriver("PostgreSQL")
 con <- dbConnect(drv, 
-                 dbname = "stackoverflow", 
+                 dbname = "stackoverflow2", 
                  user = 'paciorek', 
                  password = 'test')

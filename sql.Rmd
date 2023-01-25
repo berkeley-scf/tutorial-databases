@@ -104,13 +104,10 @@ The result of a query that uses `group by` is a table with as many rows as group
 
 > **Warning**: To filter the result of a grouping operation, we need to use `having` rather than `where`.
 
-
-
-
-```{r}
-dbGetQuery(db, "select tag, count(*) as n from questions_tags
-                group by tag having n > 100000 limit 10")
-```
+  ```{r}
+  dbGetQuery(db, "select tag, count(*) as n from questions_tags
+                  group by tag having n > 100000 limit 10")
+  ```
 
 > **Challenge**: Write a query that will count the number of answers for each question, returning the IDs of the most answered questions. Hint: consider which field in the "answers" table we do the grouping on (and you shouldn't need to use the "questions" table). 
 
