@@ -14,9 +14,9 @@ We'll illustrate some basic database management using a different example datase
 
 You can get the raw input files of Wikistats data [here](http://www.stat.berkeley.edu/share/paciorek/tutorial-databases-data.zip)
 
-# 1 SQLite
+## 1 SQLite
 
-## 1.1 Setting up a database and using the SQLite command line
+### 1.1 Setting up a database and using the SQLite command line
 
 With SQLite you don't need to deal with all the permissions and administrative overhead of a client-server style of DBMS because an SQLite database is simply a file that you can access without a password or connecting to a database server process.
 
@@ -33,7 +33,7 @@ create table webtraffic (date char(8), hour char(6), site varchar, page varchar,
 .quit
 ```
 
-## 1.2 Populating a table
+### 1.2 Populating a table
 
 Here's an example of reading from multiple files into SQLite using the command line.
 We create a file `import.sql` that has the configuration for the import:
@@ -58,7 +58,7 @@ Let's check that the records are in the database. We could do this from R or Pyt
 select * from webtraffic limit 5;
 ```
 
-## 1.3 Data cleaning
+### 1.3 Data cleaning
 
 A problem in this example with importing from the data files into SQLite as above is the presence of double quote (") characters that are not meant to delineate strings but are actually part of a field. In this case probably the easiest thing is simply to strip out those quotes from UNIX. Here we use `sed` to search and replace to create versions of the input files that don't have the quotes.
 
@@ -70,9 +70,9 @@ done
 
 > **Warning**: If you want to read the data into SQLite yourself, you *will* need to do something about the quotes; I haven't stripped them out of the files.
 
-# 2 PostgreSQL
+## 2 PostgreSQL
 
-## 2.1 Setting up a database and using the Postgres command line
+### 2.1 Setting up a database and using the Postgres command line
 
 First make sure Postgres is installed on your machine.
 
@@ -124,7 +124,7 @@ create user paciorek with password 'test';
 grant all privileges on database wikistats to paciorek;
 ```
 
-## 2.2 Populating a table 
+### 2.2 Populating a table 
 
 Here's an example of importing a single file into Postgres from within the psql interpreter running as the special postgres user. In this case we have space-delimited text files. You can obtain the file `part-00000` as discussed in the introduction (you'll need to run `gunzip part-00000.gz` first).
 
@@ -160,7 +160,7 @@ done
 > **Note**: Using `\copy` as above invokes the psql `copy` command (`copy` would invoke the standard SQL `copy` command), which allows one to operate as a regular user and to use relative paths. In turn `\copy` invokes `copy` in a specific way. 
 
 
-## 2.3 Data cleaning
+### 2.3 Data cleaning
 
 One complication is that often the input files will have anomalies in them. Examples include missing columns for some rows, individual elements in a column that are not of the correct type (e.g., a string in a numeric column), and characters that can't be handled. In the Wikistats data case, one issue was lines without the full set of columns and another was the presence of a backslash character at the end of the text for a column.
 
@@ -176,7 +176,7 @@ done
 
 Note that this restriction to rows with a full set of fields has already been done in the data files I provide to you.
 
-# 3 Database administration and configuration miscellanea
+## 3 Database administration and configuration miscellanea
 
 You can often get configuration information by making a query. For example, here's how one can get information on the cache size in SQLite or on various settings in Postgres.
 
@@ -192,7 +192,7 @@ dbGetQuery(db, "select * from pg_settings")
 dbGetQuery(db, "select * from pg_settings where name='dynamic_shared_memory_type'") 
 ```
 
-# 4 Remote access to PostgreSQL databases
+## 4 Remote access to PostgreSQL databases
 
 If you want to connect to a Postgres database running on a different machine, here's one approach that involves SSH port forwarding. For example, you could connect to a Postgres database running on some server while working as usual in R or Python on your laptop.
 
@@ -215,9 +215,9 @@ db <- dbConnect(drv, dbname = 'wikistats', user = 'yourUserName',
    password = 'yourPassword', host = 'localhost', port = 63333)
 ```
 
-# 5  UNIX tools for examining disk access (I/O) and memory use
+## 5  UNIX tools for examining disk access (I/O) and memory use
 
-## 5.1 I/O
+### 5.1 I/O
 
 `iotop` shows disk input/output in real time on a per-process basis, while iostat shows overall disk use. 
 
@@ -226,7 +226,7 @@ iotop    # shows usage in real time
 iostat 1 # shows usage every second
 ```
 
-## 5.2 Memory
+### 5.2 Memory
 
 To see how much memory is available, one needs to have a clear understanding of disk caching. As discussed above, the operating system will generally cache files/data in memory when it reads from disk. Then if that information is still in memory the next time it is needed, it will be much faster to access it the second time around. While the cached information is using memory, that same physical memory is immediately available to other processes, so the memory is available even though it is in use. 
 

@@ -3,9 +3,9 @@ layout: default
 title: SQL
 ---
 
-# 1 Introduction to SQL
+## 1 Introduction to SQL
 
-## 1.1 Getting started
+### 1.1 Getting started
 
 Here is a simple query that selects the first five rows (and all
 columns, based on the `*` wildcard) from the questions table.
@@ -132,7 +132,7 @@ SQLite and SUBSTRING in PostgreSQL.
 
 > **Challenge**: Find the oldest users in the database.
 
-## 1.2 Getting unique results (DISTINCT)
+### 1.2 Getting unique results (DISTINCT)
 
 A useful SQL keyword is DISTINCT, which allows you to eliminate
 duplicate rows from any table (or remove duplicate values when one only
@@ -148,7 +148,7 @@ dbGetQuery(db, "select count(distinct tag) from questions_tags")
     ##   count(distinct tag)
     ## 1               42137
 
-## 1.3 Grouping / stratifying (GROUP BY)
+### 1.3 Grouping / stratifying (GROUP BY)
 
 A common pattern of operation is to stratify the dataset, i.e., collect
 it into mutually exclusive and exhaustive subsets. One would then
@@ -187,9 +187,9 @@ dbGetQuery(db, "select tag, count(*) as n from questions_tags
 > consider which field in the “answers” table we do the grouping on (and
 > you shouldn’t need to use the “questions” table).
 
-## 1.4 Joins
+### 1.4 Joins
 
-### 1.4.1 Introduction to joins
+#### 1.4.1 Introduction to joins
 
 Suppose in the example of students in classes, we want a result that has
 the grades of all students in 9th grade. For this we need information
@@ -296,7 +296,7 @@ result2 <- dbGetQuery(db, "select * from questions Q, questions_tags T, users U
 > **Challenge**: Write a query that would return the users who have
 > answered a question with the Python tag.
 
-### 1.4.2 Types of joins
+#### 1.4.2 Types of joins
 
 We’ve seen a bunch of joins but haven’t discussed the full taxonomy of
 types of joins. There are various possibilities for how to do a join
@@ -386,7 +386,7 @@ last of these queries is the same as the others.
 > unanswered? (You should need two different kinds of joins to answer
 > this.)
 
-### 1.4.3 Joining a table with itself (self join)
+#### 1.4.3 Joining a table with itself (self join)
 
 Sometimes we want to query information across rows of the same table.
 For example supposed we want to analyze the time lags between when the
@@ -427,7 +427,7 @@ dbGetQuery(db, "create view question_contrasts as
 > above? Hint, even as character strings, the creationdate column has an
 > ordering.
 
-## 1.5 Temporary tables and views
+### 1.5 Temporary tables and views
 
 You can think of a view as a temporary table that is the result of a
 query and can be used in subsequent queries. In any given query you can
@@ -464,9 +464,9 @@ If you want to create a temporary table just for a single query, you can
 use a subquery or a WITH clause, as dicussed in [Section
 3.2](#32-subqueries).
 
-# 2 Additional SQL topics
+## 2 Additional SQL topics
 
-## 2.1 Creating database tables
+### 2.1 Creating database tables
 
 Often one would create tables from within R or Python (though one can
 [create tables from within the `sqlite` and `psql` command line
@@ -486,7 +486,7 @@ dbWriteTable(conn = db, name = "student", value = student_df, row.names = FALSE,
              append = FALSE)
 ```
 
-## 2.2 String processing and creating new fields
+### 2.2 String processing and creating new fields
 
 We can do some basic matching with LIKE, using % as a wildcard and \_ to
 stand in for any single character:
@@ -569,7 +569,7 @@ PostgreSQL](https://www.postgresql.org/docs/current/functions-string.html).
 > string manipulation but you would want to handle dates and times using
 > the material in the next section and not use string processing.
 
-## 2.3 Dates and times
+### 2.3 Dates and times
 
 Here we’ll see how you can work with dates and times in SQLite, but the
 functionality should be similar in other DBMS.
@@ -686,9 +686,9 @@ plot(as.numeric(result$hour), result$n, xlab = 'hour of day (UTC/Greenwich???)',
 Here’s some [documentation of the syntax for the functions, including
 `stftime`](https://www.sqlite.org/lang_datefunc.html).
 
-# 3 More advanced SQL
+## 3 More advanced SQL
 
-## 3.1 Set operations: UNION, INTERSECT, EXCEPT
+### 3.1 Set operations: UNION, INTERSECT, EXCEPT
 
 You can do set operations like union, intersection, and set difference
 using the UNION, INTERSECT, and EXCEPT keywords on tables that have the
@@ -718,7 +718,7 @@ system.time(
 ```
 
     ##    user  system elapsed 
-    ##   4.306   1.618   6.902
+    ##   4.479   1.494   6.906
 
 Alternatively we can do a self-join. Note that the syntax gets
 complicated as we are doing multiple joins.
@@ -738,7 +738,7 @@ system.time(
 ```
 
     ##    user  system elapsed 
-    ##   6.617   3.974  11.477
+    ##   6.151   3.677  10.822
 
 ``` r
 identical(result1, result2)
@@ -763,11 +763,11 @@ only one type of question, respectively.
 > **Challenge**: Find the users who have asked only an R question and
 > not a Python question.
 
-## 3.2 Subqueries
+### 3.2 Subqueries
 
 A subquery is a full query that is embedded in a larger query.
 
-### 3.2.1 Subqueries in the FROM statement
+#### 3.2.1 Subqueries in the FROM statement
 
 We can use subqueries in the FROM statement to create a temporary table
 to use in a query. Here we’ll do it in the context of a join.
@@ -804,7 +804,7 @@ statement, as discussed in the next section.
 Finally one can use subqueries in the SELECT clause to create new
 variables, but we won’t go into that here.
 
-### 3.2.2 Subqueries in the WHERE statement
+#### 3.2.2 Subqueries in the WHERE statement
 
 Instead of a join, we can use subqueries as a way to combine information
 across tables, with the subquery involved in a WHERE statement. The
@@ -861,7 +861,7 @@ MOOC](http://cs.stanford.edu/people/widom/DB-mooc.html).
 > most answered questions. Note there is a way to do this with a JOIN
 > and a way without a JOIN.
 
-### 3.2.3 Using WITH
+#### 3.2.3 Using WITH
 
 The WITH clause allows you to create a temporary table to then use in an
 associated SELECT statement. So it provides similar functionality to
@@ -898,7 +898,7 @@ Finally, you can create multiple temporary tables in the WITH clause.
 This can help make your query more modular without the complication of
 creating views that will only be used once.
 
-## 3.3 Window functions
+### 3.3 Window functions
 
 [Window
 functions](https://www.postgresql.org/docs/current/functions-window.html)
@@ -1118,7 +1118,7 @@ What does that query do?
 > is highly-viewed (viewcount \> 1000) with their remaining questions
 > not highly-viewed (viewcount \< 20 for all other questions).
 
-## 3.4 Putting it all together to do complicated queries
+### 3.4 Putting it all together to do complicated queries
 
 Here are some real-world style questions one might try to create queries
 to answer. The context for these questions is a situation in which you
@@ -1161,9 +1161,9 @@ What is the average (over users) in the average number of messages sent
 per day for each test group if you look at the users who have sent
 messages only on mobile in the last month.
 
-# 4 Efficient SQL queries
+## 4 Efficient SQL queries
 
-## 4.1 Overview
+### 4.1 Overview
 
 In general, your DBMS should examine your query and try to implement it
 in the fastest way possible.
@@ -1186,7 +1186,7 @@ Some tips for faster queries include:
 -   use LIMIT as seen in the examples here if you only need some of the
     rows a query returns
 
-## 4.2 Indexes
+### 4.2 Indexes
 
 An index is an ordering of rows based on one or more fields. DBMS use
 indexes to look up values quickly, either when filtering (if the index
@@ -1224,7 +1224,7 @@ frequently, this could be detrimental.
 Finally, using indexes in a lookup is not always advantageous, as
 discussed next.
 
-### 4.2.1 Index lookup vs. sequential scan
+#### 4.2.1 Index lookup vs. sequential scan
 
 Using an index is good in that can go to the data needed very quickly
 based on random access to the disk locations of the data of interest,
@@ -1241,7 +1241,7 @@ index.
 Ideally you’d do sequential scan of exactly the subset of the rows that
 you need, with that subset available in contiguous storage.
 
-### 4.2.2 How indexes work
+#### 4.2.2 How indexes work
 
 Indexes are often implemented using tree-based methods. For example in
 Postgres, b-tree indexes are used for indexes on things that have an
@@ -1267,7 +1267,7 @@ In SQLite, indexes are implemented by creating a separate index table
 that maps from the value to the row index in the indexed table, allowing
 for fast lookup of a row.
 
-## 4.3 SQL query plans and EXPLAIN
+### 4.3 SQL query plans and EXPLAIN
 
 You can actually examine the query plan that the system is going to use
 for a query using the EXPLAIN keyword. I’d suggest trying this in
@@ -1361,7 +1361,7 @@ dbGetQuery(db, "explain select * from questions cross join questions_tags where
 We see that the query plan indicates the two queries are using the same
 steps, with the same cost.
 
-## 4.4 Disk caching
+### 4.4 Disk caching
 
 You might think that database queries will generally be slow (and slower
 than in-memory manipulation such as in R or Python when all the data can
@@ -1381,7 +1381,7 @@ Given this, it generally won’t be helpful to force your database to
 reside in memory (e.g., using `:memory:` for SQLite or putting the
 database on a RAM disk).
 
-## 4.5 Parallelization and partitioning
+### 4.5 Parallelization and partitioning
 
 To speed up your work, one might try to split up one’s queries into
 multiple queries that you run in parallel. However, you’re likely to
