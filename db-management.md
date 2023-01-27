@@ -33,8 +33,7 @@ sqlite3 wikistats.db
 Here’s the syntax to create an (empty) table:
 
 ``` bash
-create table webtraffic
-(date char(8), hour char(6), site varchar, page varchar, count integer, size double precision);
+create table webtraffic (date char(8), hour char(6), site varchar, page varchar, count integer, size double precision);
 .quit
 ```
 
@@ -56,6 +55,11 @@ for file in $(ls part*gz); do
     gzip -cd $file | sqlite3 wikistats.db '.read import.sql'
 done
 ```
+
+Let’s check that the records are in the database. We could do this from
+R or Python, but here we’ll do it in the SQLite interface:
+
+    select * from webtraffic limit 5;
 
 ## 1.3 Data cleaning
 

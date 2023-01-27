@@ -25,7 +25,7 @@ Materials for this tutorial, including the Markdown files and associated code fi
 git clone https://github.com/berkeley-scf/tutorial-databases
 ```
 
-The example data files are not part of the GitHub repository. You can get the example data files (both Stack Overflow data and Wikipedia webtraffic data for the year 2016) [here](https://www.stat.berkeley.edu/share/paciorek/tutorial-databases-data.zip).
+The example data files are not part of the GitHub repository. You can get the example data files (both Stack Overflow data for 2021 and Wikipedia webtraffic data for the year 2008) [here](https://www.stat.berkeley.edu/share/paciorek/tutorial-databases-data.zip).
 
 Solutions to the SQL challenges are available on request. 
 
@@ -263,11 +263,11 @@ Don't peek until after you've thought about it, but you can view one [reasonable
 
 ## Getting the database
 
-You can download a copy of the SQLite version of the Stack Overflow database (only data for the year 2016) from [here](http://www.stat.berkeley.edu/share/paciorek/tutorial-databases-data.zip) as part of the overall zip with all of the example datasets as discussed in the introduction of this tutorial. 
+You can download a copy of the SQLite version of the Stack Overflow database (only data for the year 2021) from [here](http://www.stat.berkeley.edu/share/paciorek/tutorial-databases-data.zip) as part of the overall zip with all of the example datasets as discussed in the introduction of this tutorial. 
 
 In the next section I'll assume the .db file is placed in the subdirectory of the repository called `data`.
 
-Note that all of the code used to download the data from the Stack Overflow website and to manipulate it to create a complete Postgres database and (for the year 2016 only) an SQLite database and CSVs for each table is in the [`data/prep_stackoverflow` subdirectory](https://github.com/berkeley-scf/tutorial-databases/tree/gh-pages/data/prep_stackoverflow) of this repository. Note that as of February 2022, [the data are still being kept up to date online](https://archive.org/download/stackexchange).
+Note that all of the code used to download the data from the Stack Overflow website and to manipulate it to create a complete Postgres database and (for the year 2021 only) an SQLite database and CSVs for each table is in the [`data/prep_stackoverflow` subdirectory](https://github.com/berkeley-scf/tutorial-databases/tree/gh-pages/data/prep_stackoverflow) of this repository. Note that as of February 2022, [the data are still being kept up to date online](https://archive.org/download/stackexchange).
 
 # 6 Accessing a database and using SQL from other languages
 
@@ -288,7 +288,7 @@ You can access and navigate an SQLite database from R as follows.
 library(RSQLite)
 drv <- dbDriver("SQLite")
 dir <- 'data' # relative or absolute path to where the .db file is
-dbFilename <- 'stackoverflow-2016.db'
+dbFilename <- 'stackoverflow-2021.db'
 db <- dbConnect(drv, dbname = file.path(dir, dbFilename))
 # simple query to get 5 rows from a table
 dbGetQuery(db, "select * from questions limit 5")  
@@ -340,7 +340,7 @@ For SQLite:
 ```{python, eval=FALSE}
 import sqlite3 as sq
 dir = 'data' # relative or absolute path to where the .db file is
-dbFilename = 'stackoverflow-2016.db'
+dbFilename = 'stackoverflow-2021.db'
 import os
 db = sq.connect(os.path.join('data', dbFilename))
 c = db.cursor()
@@ -367,7 +367,7 @@ c = db.cursor()
 
 In addition to various material found online, including various software manuals and vignettes, much of the SQL material was based on the following two sources:
 
- - The Stanford online [Introduction to Databases course](http://cs.stanford.edu/people/widom/DB-mooc.html) (see also the [mini-courses version of the course](https://lagunita.stanford.edu/courses/DB/2014/SelfPaced/about)).
+ - The Stanford online Introduction to Databases course (MOOC) released in Fall 2011, a version of which is available [on edX](https://www.edx.org/course/databases-5-sql).
  - Harrison Dekker's materials from a [Statistics short course](https://github.com/uc-data-services/sql-workshop-2016) he taught in January 2016.
 
 I've heard good things about the interactive exercises/tutorials at [SQLZoo](https://sqlzoo.net) and the book Practical SQL by Anthony DeBarros (available through Berkeley's library); in particular the first 200 or so pages (through chapter 12) cover general SQL programming/querying.

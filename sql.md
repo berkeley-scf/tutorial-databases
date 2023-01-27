@@ -19,29 +19,29 @@ argument to `dbGetQuery`.
 library(RSQLite)
 drv <- dbDriver("SQLite")
 dir <- 'data' # relative or absolute path to where the .db file is
-dbFilename <- 'stackoverflow-2016.db'
+dbFilename <- 'stackoverflow-2021.db'
 db <- dbConnect(drv, dbname = file.path(dir, dbFilename))
 dbGetQuery(db, "select * from questions limit 5")
 ```
 
-    ##   questionid        creationdate score viewcount
-    ## 1   34552550 2016-01-01 00:00:03     0       108
-    ## 2   34552551 2016-01-01 00:00:07     1       151
-    ## 3   34552552 2016-01-01 00:00:39     2      1942
-    ## 4   34552554 2016-01-01 00:00:50     0       153
-    ## 5   34552555 2016-01-01 00:00:51    -1        54
-    ##                                                                                   title
-    ## 1                                                                 Scope between methods
-    ## 2      Rails - Unknown Attribute - Unable to add a new field to a form on create/update
-    ## 3 Selenium Firefox webdriver won't load a blank page after changing Firefox preferences
-    ## 4                                                       Android Studio styles.xml Error
-    ## 5                         Java: reference to non-finial local variables inside a thread
-    ##   ownerid
-    ## 1 5684416
-    ## 2 2457617
-    ## 3 5732525
-    ## 4 5735112
-    ## 5 4646288
+    ##   questionid        creationdate score viewcount answercount
+    ## 1   65534165 2021-01-01 22:15:54     0       112           2
+    ## 2   65535296 2021-01-02 01:33:13     2      1109           0
+    ## 3   65535910 2021-01-02 04:01:34    -1       110           1
+    ## 4   65535916 2021-01-02 04:03:20     1        35           1
+    ## 5   65536749 2021-01-02 07:03:04     0       108           1
+    ##   commentcount favoritecount                               title
+    ## 1            0            NA     Can't update a value in sqlite3
+    ## 2            0            NA Install and run ROS on Google Colab
+    ## 3            8             0       Operators on date/time fields
+    ## 4            0            NA          Plotting values normalised
+    ## 5            5            NA     Export C# to word with template
+    ##    ownerid
+    ## 1 13189393
+    ## 2 14924336
+    ## 3   651174
+    ## 4 14695007
+    ## 5 14899717
 
 Now let’s see some more interesting usage of other SQL syntax.
 
@@ -53,24 +53,30 @@ results to the first 5 rows so we don’t print too much out.
 dbGetQuery(db, "select * from questions where viewcount > 100000 limit 5")
 ```
 
-    ##   questionid        creationdate score viewcount
-    ## 1   35429801 2016-02-16 10:21:09   400    100125
-    ## 2   37280274 2016-05-17 15:21:49    23    106995
-    ## 3   37937984 2016-06-21 07:23:00   202    109422
-    ## 4   35062852 2016-01-28 13:28:39   730    112000
-    ## 5   35588699 2016-02-23 21:37:06    57    126752
-    ##                                                                       title
-    ## 1                    This action could not be completed. Try Again (-22421)
-    ## 2      "SyntaxError: Unexpected token < in JSON at position 0" in React App
-    ## 3                                 Git refusing to merge unrelated histories
-    ## 4               NPM vs. Bower vs. Browserify vs. Gulp vs. Grunt vs. Webpack
-    ## 5 Response to preflight request doesn't pass access control check AngularJs
-    ##   ownerid
-    ## 1 5881764
-    ## 2 4043633
-    ## 3 2670370
-    ## 4 2761509
-    ## 5 2896963
+    ##   questionid        creationdate score viewcount answercount
+    ## 1   65547199 2021-01-03 06:22:52   124    110832           7
+    ## 2   65549858 2021-01-03 12:30:19    52    130479          11
+    ## 3   65630743 2021-01-08 14:20:57    77    107140          19
+    ## 4   65632698 2021-01-08 16:22:59    74    101044           9
+    ## 5   65896334 2021-01-26 05:33:33   111    141899          12
+    ##   commentcount favoritecount
+    ## 1            2             0
+    ## 2            0             0
+    ## 3            4             0
+    ## 4            1             0
+    ## 5            7             0
+    ##                                                                                   title
+    ## 1                                                          Using Bootstrap 5 with Vue 3
+    ## 2 "ERESOLVE unable to resolve dependency tree" when installing npm react-facebook-login
+    ## 3                          How to solve flutter web api cors error only with dart code?
+    ## 4                                            How to open a link in a new Tab in NextJS?
+    ## 5                              Python Pip broken with sys.stderr.write(f"ERROR: {exc}")
+    ##    ownerid
+    ## 1 11232893
+    ## 2 12425004
+    ## 3 12373446
+    ## 4  9578961
+    ## 5   202576
 
 Next, let’s find the number of views for the 15 questions viewed the
 most.
@@ -81,21 +87,21 @@ dbGetQuery(db, "select distinct viewcount from questions
 ```
 
     ##    viewcount
-    ## 1     196469
-    ## 2     174790
-    ## 3     134399
-    ## 4     129874
-    ## 5     129624
-    ## 6     127764
-    ## 7     126752
-    ## 8     112000
-    ## 9     109422
-    ## 10    106995
-    ## 11    100125
-    ## 12     99433
-    ## 13     98093
-    ## 14     95866
-    ## 15     92994
+    ## 1    1236876
+    ## 2     816368
+    ## 3     610026
+    ## 4     505992
+    ## 5     458856
+    ## 6     445775
+    ## 7     426798
+    ## 8     315861
+    ## 9     307961
+    ## 10    303399
+    ## 11    296364
+    ## 12    286886
+    ## 13    286810
+    ## 14    278432
+    ## 15    276806
 
 Let’s lay out the various verbs in SQL. Here’s the form of a standard
 query (but note that the sorting done by ORDER BY is computationally
@@ -140,7 +146,7 @@ dbGetQuery(db, "select count(distinct tag) from questions_tags")
 ```
 
     ##   count(distinct tag)
-    ## 1               41006
+    ## 1               42137
 
 ## 1.3 Grouping / stratifying (GROUP BY)
 
@@ -212,27 +218,34 @@ result1 <- dbGetQuery(db, "select * from questions join questions_tags
 head(result1)           
 ```
 
-    ##   questionid        creationdate score viewcount
-    ## 1   34553559 2016-01-01 04:34:34     3        96
-    ## 2   34556493 2016-01-01 13:22:06     2        30
-    ## 3   34557898 2016-01-01 16:36:04     3       143
-    ## 4   34560088 2016-01-01 21:10:32     1       126
-    ## 5   34560213 2016-01-01 21:25:26     1       127
-    ## 6   34560740 2016-01-01 22:37:36     0       455
-    ##                                                                                           title
-    ## 1                                            Python nested loops only working on the first pass
-    ## 2                                        bool operator in for Timestamp in Series does not work
-    ## 3                                                       Pairwise haversine distance calculation
-    ## 4                                                          Stopwatch (chronometre) doesn't work
-    ## 5 How to set the type of a pyqtSignal (variable of class X) that takes a X instance as argument
-    ## 6                                                Flask: Peewee model_to_dict helper not working
-    ##   ownerid questionid    tag
-    ## 1  845642   34553559 python
-    ## 2 4458602   34556493 python
-    ## 3 2927983   34557898 python
-    ## 4 5736692   34560088 python
-    ## 5 5636400   34560213 python
-    ## 6 3262998   34560740 python
+    ##   questionid        creationdate score viewcount answercount
+    ## 1   65526804 2021-01-01 01:54:10     0      2087           3
+    ## 2   65527402 2021-01-01 05:14:22     1        56           1
+    ## 3   65529525 2021-01-01 12:06:43     1       175           1
+    ## 4   65529971 2021-01-01 13:14:40     1        39           0
+    ## 5   65532644 2021-01-01 18:46:52    -2        49           1
+    ## 6   65534179 2021-01-01 22:17:15     1       476           0
+    ##   commentcount favoritecount
+    ## 1            3            NA
+    ## 2            0            NA
+    ## 3            0            NA
+    ## 4            1            NA
+    ## 5            1            NA
+    ## 6            4            NA
+    ##                                                              title
+    ## 1            How to play an audio file starting at a specific time
+    ## 2                                 Join dataframe columns in python
+    ## 3                              Issues with pygame.time.get_ticks()
+    ## 4 How to check if Windows prompts a notification box using python?
+    ## 5                      How I divide this text file in a Dataframe?
+    ## 6                         Suppress OpenCV Output Message in Python
+    ##    ownerid questionid    tag
+    ## 1 14718094   65526804 python
+    ## 2  1492229   65527402 python
+    ## 3 13720770   65529525 python
+    ## 4 13845215   65529971 python
+    ## 5 14122166   65532644 python
+    ## 6 10355409   65534179 python
 
 It’s also possible to get the same exact result without using the JOIN
 keyword, but you’ll need the WHERE keyword to ensure that the rows get
@@ -482,17 +495,17 @@ stand in for any single character:
 dbGetQuery(db, "select * from questions_tags where tag like 'r-%' limit 10")
 ```
 
-    ##    questionid            tag
-    ## 1    35095638        r-caret
-    ## 2    35243702       r-raster
-    ## 3    35729179        r-caret
-    ## 4    36342481 r-googlesheets
-    ## 5    36374741 r-googlesheets
-    ## 6    36520591       r-raster
-    ## 7    36774095     r-corrplot
-    ## 8    36813566       r-raster
-    ## 9    36844460       r-raster
-    ## 10   36913170       r-lavaan
+    ##    questionid        tag
+    ## 1    65598394   r-factor
+    ## 2    65999758 r-markdown
+    ## 3    66007924    r-exams
+    ## 4    66036936 r-markdown
+    ## 5    65985449    r-caret
+    ## 6    66035257 r-markdown
+    ## 7    66135867 r-markdown
+    ## 8    65878099 r-markdown
+    ## 9    65973815 r-markdown
+    ## 10   66102594   r-lavaan
 
 In Postgres, in addition to the basic use of LIKE to match character
 strings, one can use regular expression syntax with SIMILAR TO.
@@ -534,7 +547,7 @@ this way.
 
 ``` r
 dbGetQuery(db, "select substring(creationdate from
-                '%-#\"[[:digit:]]{4}#\"-%' for '#') as month
+                '%-#\"[[:digit:]]{2}#\"-%' for '#') as month
                 from questions limit 3")
 ```
 
@@ -571,11 +584,11 @@ dbGetQuery(db, "select distinct creationdate from questions limit 5")
 ```
 
     ##          creationdate
-    ## 1 2016-01-01 00:00:03
-    ## 2 2016-01-01 00:00:07
-    ## 3 2016-01-01 00:00:39
-    ## 4 2016-01-01 00:00:50
-    ## 5 2016-01-01 00:00:51
+    ## 1 2021-01-01 22:15:54
+    ## 2 2021-01-02 01:33:13
+    ## 3 2021-01-02 04:01:34
+    ## 4 2021-01-02 04:03:20
+    ## 5 2021-01-02 07:03:04
 
 Then SQLite provides some powerful functions for manipulating and
 extracting information in such fields. Here are just a few examples,
@@ -590,19 +603,19 @@ output
 ```
 
     ##          creationdate julianday(creationdate)
-    ## 1 2016-01-01 00:00:03                 2457389
-    ## 2 2016-01-01 00:00:07                 2457389
-    ## 3 2016-01-01 00:00:39                 2457389
-    ## 4 2016-01-01 00:00:50                 2457389
-    ## 5 2016-01-01 00:00:51                 2457389
+    ## 1 2021-01-01 22:15:54                 2459216
+    ## 2 2021-01-02 01:33:13                 2459217
+    ## 3 2021-01-02 04:01:34                 2459217
+    ## 4 2021-01-02 04:03:20                 2459217
+    ## 5 2021-01-02 07:03:04                 2459217
 
 ``` r
 ## Julian day is decimal-valued:
 formatC(output[ , 2], 6, format = 'f')
 ```
 
-    ## [1] "2457388.500035" "2457388.500081" "2457388.500451"
-    ## [4] "2457388.500579" "2457388.500590"
+    ## [1] "2459216.427708" "2459216.564734" "2459216.667755"
+    ## [4] "2459216.668981" "2459216.793796"
 
 ``` r
 ## Convert to local time
@@ -611,11 +624,11 @@ dbGetQuery(db, "select distinct creationdate, datetime(creationdate, 'localtime'
 ```
 
     ##          creationdate datetime(creationdate, 'localtime')
-    ## 1 2016-01-01 00:00:03                 2015-12-31 16:00:03
-    ## 2 2016-01-01 00:00:07                 2015-12-31 16:00:07
-    ## 3 2016-01-01 00:00:39                 2015-12-31 16:00:39
-    ## 4 2016-01-01 00:00:50                 2015-12-31 16:00:50
-    ## 5 2016-01-01 00:00:51                 2015-12-31 16:00:51
+    ## 1 2021-01-01 22:15:54                 2021-01-01 14:15:54
+    ## 2 2021-01-02 01:33:13                 2021-01-01 17:33:13
+    ## 3 2021-01-02 04:01:34                 2021-01-01 20:01:34
+    ## 4 2021-01-02 04:03:20                 2021-01-01 20:03:20
+    ## 5 2021-01-02 07:03:04                 2021-01-01 23:03:04
 
 ``` r
 ## Eastern time, manually, ignoring daylight savings
@@ -624,24 +637,24 @@ dbGetQuery(db, "select distinct creationdate, datetime(creationdate, '-05:00')
 ```
 
     ##          creationdate datetime(creationdate, '-05:00')
-    ## 1 2016-01-01 00:00:03              2015-12-31 19:00:03
-    ## 2 2016-01-01 00:00:07              2015-12-31 19:00:07
-    ## 3 2016-01-01 00:00:39              2015-12-31 19:00:39
-    ## 4 2016-01-01 00:00:50              2015-12-31 19:00:50
-    ## 5 2016-01-01 00:00:51              2015-12-31 19:00:51
+    ## 1 2021-01-01 22:15:54              2021-01-01 17:15:54
+    ## 2 2021-01-02 01:33:13              2021-01-01 20:33:13
+    ## 3 2021-01-02 04:01:34              2021-01-01 23:01:34
+    ## 4 2021-01-02 04:03:20              2021-01-01 23:03:20
+    ## 5 2021-01-02 07:03:04              2021-01-02 02:03:04
 
 ``` r
-## day of week: Jan 1 2016 was a Friday (0=Sunday, 6=Saturday)
+## day of week: Jan 1 2021 was a Friday (0=Sunday, 6=Saturday)
 dbGetQuery(db, "select creationdate, strftime('%w', creationdate)
                 from questions limit 5")
 ```
 
     ##          creationdate strftime('%w', creationdate)
-    ## 1 2016-01-01 00:00:03                            5
-    ## 2 2016-01-01 00:00:07                            5
-    ## 3 2016-01-01 00:00:39                            5
-    ## 4 2016-01-01 00:00:50                            5
-    ## 5 2016-01-01 00:00:51                            5
+    ## 1 2021-01-01 22:15:54                            5
+    ## 2 2021-01-02 01:33:13                            6
+    ## 3 2021-01-02 04:01:34                            6
+    ## 4 2021-01-02 04:03:20                            6
+    ## 5 2021-01-02 07:03:04                            6
 
 Unfortunately I’m not sure if the actual dates in the database are
 Greenwich time or some US time zone, but we’ll ignore that complication
@@ -656,12 +669,12 @@ head(result)
 ```
 
     ##   hour     n
-    ## 1   00 56119
-    ## 2   01 53468
-    ## 3   02 55190
-    ## 4   03 57450
-    ## 5   04 61855
-    ## 6   05 75520
+    ## 1   00 35444
+    ## 2   01 33989
+    ## 3   02 35542
+    ## 4   03 37745
+    ## 5   04 39609
+    ## 6   05 45229
 
 ``` r
 plot(as.numeric(result$hour), result$n, xlab = 'hour of day (UTC/Greenwich???)',
@@ -705,7 +718,7 @@ system.time(
 ```
 
     ##    user  system elapsed 
-    ##   6.658   2.771  34.795
+    ##   4.306   1.618   6.902
 
 Alternatively we can do a self-join. Note that the syntax gets
 complicated as we are doing multiple joins.
@@ -725,7 +738,7 @@ system.time(
 ```
 
     ##    user  system elapsed 
-    ##  10.089   7.504  43.862
+    ##   6.617   3.974  11.477
 
 ``` r
 identical(result1, result2)
@@ -810,7 +823,7 @@ dbGetQuery(db, "select avg(UpVotes) from users where userid in
 ```
 
     ##   avg(UpVotes)
-    ## 1      70.7917
+    ## 1     62.72529
 
 In some cases one can do a join rather than using a subquery, but in the
 following example, it fails.
@@ -918,16 +931,16 @@ dbGetQuery(db, "select ownerid,
 ```
 
     ##    ownerid n
-    ## 1       13 1
-    ## 2       25 1
-    ## 3       33 4
-    ## 4       33 4
-    ## 5       33 4
-    ## 6       33 4
-    ## 7       56 3
-    ## 8       56 3
-    ## 9       56 3
-    ## 10      62 3
+    ## 1       33 1
+    ## 2       51 1
+    ## 3       56 3
+    ## 4       56 3
+    ## 5       56 3
+    ## 6       58 2
+    ## 7       58 2
+    ## 8       95 3
+    ## 9       95 3
+    ## 10      95 3
 
 -   Compute cumulative calculations; note the need for ORDER BY within
     the PARTITION clause (the other ORDER BY is just for display
@@ -940,39 +953,50 @@ dbGetQuery(db, "select *,
                 from questions order by ownerid desc limit 10")
 ```
 
-    ##    questionid        creationdate score viewcount
-    ## 1    40826005 2016-11-27 05:23:07     1        38
-    ## 2    40866431 2016-11-29 12:53:25     1        97
-    ## 3    39327617 2016-09-05 09:30:49     0       402
-    ## 4    39529293 2016-09-16 10:31:49     0        27
-    ## 5    39916423 2016-10-05 11:50:10     2        62
-    ## 6    36130306 2016-03-21 11:11:37     0        41
-    ## 7    41301378 2016-12-23 12:16:10     0        87
-    ## 8    41142480 2016-12-14 12:18:45    -1        78
-    ## 9    39909804 2016-10-07 05:08:09     0        34
-    ## 10   38286904 2016-07-09 22:32:49     0       107
-    ##                                                                                           title
-    ## 1                                                 How to set values in the select dropdown box?
-    ## 2                                                                      How to use LatLngBounds?
-    ## 3                                                              How To Get Cookies From WebView?
-    ## 4                                              How to copy file SDCard to System Rooted Device?
-    ## 5                                                               Memory mapping behaviour in QNX
-    ## 6                                                                 AEGetParamDesc / MacOS X 10.7
-    ## 7  I want to remove some if loops from a php routine, leaving the code more compact and dynamic
-    ## 8                                                  Add multiple choice option to quiz generator
-    ## 9                                           How to completely disable auto changes in ckeditor?
-    ## 10                                       Unable to save a model object with Spring MVC and AJAX
-    ##    ownerid rank
-    ## 1  7693696    1
-    ## 2  7693696    2
-    ## 3  7691703    1
-    ## 4  7691703    2
-    ## 5  7689389    1
-    ## 6  7674042    1
-    ## 7  7669738    1
-    ## 8  7661924    1
-    ## 9  7660866    1
-    ## 10 7660165    1
+    ##    questionid        creationdate score viewcount answercount
+    ## 1    70347322 2021-12-14 08:47:41     1       123           0
+    ## 2    65620082 2021-01-07 21:19:16     0        44           1
+    ## 3    65671366 2021-01-11 17:04:26     0        40           1
+    ## 4    66034594 2021-02-03 19:43:00     1       111           2
+    ## 5    66237702 2021-02-17 07:49:58     0       174           2
+    ## 6    66547208 2021-03-09 12:49:23     2       307           1
+    ## 7    66907039 2021-04-01 15:07:28     3      1540           1
+    ## 8    67099166 2021-04-14 21:11:18     1       289           1
+    ## 9    67355292 2021-05-02 10:28:59    -2      5001           1
+    ## 10   67374899 2021-05-03 19:42:10     1        66           0
+    ##    commentcount favoritecount
+    ## 1             5            NA
+    ## 2             9            NA
+    ## 3             0            NA
+    ## 4             0            NA
+    ## 5             0            NA
+    ## 6             0            NA
+    ## 7             0            NA
+    ## 8             0            NA
+    ## 9             5            NA
+    ## 10            7            NA
+    ##                                                                                                   title
+    ## 1                                            Adjust brightness of Arduino's built-in LED with pyFirmata
+    ## 2             How to resolve squiggly lines in HTML files after importing Bootstrap to Angular project?
+    ## 3                                               Input form fields are cannot be updated in Angular app?
+    ## 4                                                      Select first largest value using TOP 1 in MySQL?
+    ## 5                                                                Cron expression in Spring, validation?
+    ## 6  Playing with Strategy Design Pattern using lambda expression by following Venkat Subramaniam's book?
+    ## 7                                                      GraphQL and Spring Security using @PreAuthorize?
+    ## 8                                           Emitting from Flux<String> until one of conditions are met?
+    ## 9                                        Cannot open older Angular project with latest Angular version?
+    ## 10 How to make vertical scrollbar's height same as window's height and make horizontal scrollbar fixed?
+    ##     ownerid rank
+    ## 1  20674445    1
+    ## 2  20390023    1
+    ## 3  20390023    2
+    ## 4  20390023    3
+    ## 5  20390023    4
+    ## 6  20390023    5
+    ## 7  20390023    6
+    ## 8  20390023    7
+    ## 9  20390023    8
+    ## 10 20390023    9
 
 -   Do a lagged analysis
 
@@ -985,12 +1009,12 @@ dbGetQuery(db, "select ownerid, creationdate,
                 from questions order by ownerid desc limit 5")
 ```
 
-    ##   ownerid        creationdate       previous_date
-    ## 1 7693696 2016-11-27 05:23:07                <NA>
-    ## 2 7693696 2016-11-29 12:53:25 2016-11-27 05:23:07
-    ## 3 7691703 2016-09-05 09:30:49                <NA>
-    ## 4 7691703 2016-09-16 10:31:49 2016-09-05 09:30:49
-    ## 5 7689389 2016-10-05 11:50:10                <NA>
+    ##    ownerid        creationdate       previous_date
+    ## 1 20674445 2021-12-14 08:47:41                <NA>
+    ## 2 20390023 2021-01-07 21:19:16                <NA>
+    ## 3 20390023 2021-01-11 17:04:26 2021-01-07 21:19:16
+    ## 4 20390023 2021-02-03 19:43:00 2021-01-11 17:04:26
+    ## 5 20390023 2021-02-17 07:49:58 2021-02-03 19:43:00
 
 So one could now calculate the difference between the previous and
 current date to analyze the time gaps between users posting questions.
@@ -999,49 +1023,49 @@ current date to analyze the time gaps between users posting questions.
     values in one of the columns
 
 ``` r
-## Summarize questions within 5 days of current question 
+## Summarize questions within 15 days of current question 
 dbGetQuery(db, "select ownerid, creationdate,
                 count() over
                 (partition by ownerid order by julianday(creationdate)
-                range between 5 preceding and 5 following)
+                range between 15 preceding and 15 following)
                 as n_window
                 from questions where ownerid is not null limit 30")
 ```
 
     ##    ownerid        creationdate n_window
-    ## 1       13 2016-12-13 06:09:50        1
-    ## 2       25 2016-02-18 05:31:01        1
-    ## 3       33 2016-03-23 11:39:08        1
-    ## 4       33 2016-08-05 15:32:30        1
-    ## 5       33 2016-08-27 08:01:24        1
-    ## 6       33 2016-10-10 12:50:36        1
-    ## 7       56 2016-05-11 09:40:11        2
-    ## 8       56 2016-05-13 13:44:03        2
-    ## 9       56 2016-09-14 14:13:19        1
-    ## 10      62 2016-06-09 17:16:10        1
-    ## 11      62 2016-09-10 02:31:17        1
-    ## 12      62 2016-12-31 01:21:24        1
-    ## 13      67 2016-08-01 12:51:13        1
-    ## 14      70 2016-04-07 14:16:07        1
-    ## 15      71 2016-01-18 22:54:07        1
-    ## 16      76 2016-09-15 20:28:54        1
-    ## 17      91 2016-01-11 21:27:56        1
-    ## 18      91 2016-12-28 15:13:48        1
-    ## 19      95 2016-04-19 10:19:09        1
-    ## 20     105 2016-03-22 18:08:52        1
-    ## 21     112 2016-10-02 05:20:24        1
-    ## 22     112 2016-10-11 03:44:41        1
-    ## 23     113 2016-12-20 22:25:21        1
-    ## 24     115 2016-12-29 20:59:24        1
-    ## 25     116 2016-01-05 17:14:47        1
-    ## 26     116 2016-01-12 00:54:30        1
-    ## 27     116 2016-01-22 21:06:24        5
-    ## 28     116 2016-01-26 17:32:31        7
-    ## 29     116 2016-01-27 06:52:11        9
-    ## 30     116 2016-01-27 17:59:30        9
+    ## 1       33 2021-06-10 07:58:44        1
+    ## 2       51 2021-06-09 18:07:55        1
+    ## 3       56 2021-04-21 10:20:45        1
+    ## 4       56 2021-11-23 09:40:20        2
+    ## 5       56 2021-12-07 14:19:36        2
+    ## 6       58 2021-01-22 19:30:22        1
+    ## 7       58 2021-06-09 14:56:50        1
+    ## 8       95 2021-02-11 19:52:55        1
+    ## 9       95 2021-07-21 13:22:25        1
+    ## 10      95 2021-10-15 07:28:39        1
+    ## 11     101 2021-03-16 18:53:19        1
+    ## 12     114 2021-03-11 16:30:45        1
+    ## 13     116 2021-02-15 21:58:48        2
+    ## 14     116 2021-02-25 03:07:55        2
+    ## 15     116 2021-03-24 16:10:27        1
+    ## 16     116 2021-04-08 20:48:23        2
+    ## 17     116 2021-04-15 19:03:33        2
+    ## 18     116 2021-07-12 00:37:47        1
+    ## 19     159 2021-03-19 21:48:17        1
+    ## 20     159 2021-05-21 17:29:36        2
+    ## 21     159 2021-05-26 21:24:16        2
+    ## 22     188 2021-08-04 01:48:51        1
+    ## 23     199 2021-01-28 23:04:47        1
+    ## 24     199 2021-06-07 08:10:25        1
+    ## 25     199 2021-10-05 10:10:37        1
+    ## 26     199 2021-12-17 23:29:05        1
+    ## 27     214 2021-04-29 14:39:04        1
+    ## 28     230 2021-03-26 16:30:09        2
+    ## 29     230 2021-04-09 13:14:16        2
+    ## 30     234 2021-01-04 01:02:03        1
 
-There the ‘5 preceding’ and ‘5 following’ mean to include all rows
-within each ownerid that are within 5 Julian days (based on
+There the ‘15 preceding’ and ‘15 following’ mean to include all rows
+within each ownerid that are within 15 Julian days (based on
 ‘creationdate’) of each row.
 
 So one could now analyze bursts of activity.
@@ -1073,17 +1097,17 @@ dbGetQuery(db, "select ownerid, creationdate,
 ```
 
     ##   ownerid        creationdate                lag1
-    ## 1      13 2016-12-13 06:09:50                <NA>
-    ## 2      25 2016-02-18 05:31:01                <NA>
-    ## 3      33 2016-03-23 11:39:08                <NA>
-    ## 4      33 2016-08-05 15:32:30 2016-03-23 11:39:08
-    ## 5      33 2016-08-27 08:01:24 2016-08-05 15:32:30
+    ## 1      33 2021-06-10 07:58:44                <NA>
+    ## 2      51 2021-06-09 18:07:55                <NA>
+    ## 3      56 2021-04-21 10:20:45                <NA>
+    ## 4      56 2021-11-23 09:40:20 2021-04-21 10:20:45
+    ## 5      56 2021-12-07 14:19:36 2021-11-23 09:40:20
     ##                  lag2
     ## 1                <NA>
     ## 2                <NA>
     ## 3                <NA>
     ## 4                <NA>
-    ## 5 2016-03-23 11:39:08
+    ## 5 2021-04-21 10:20:45
 
 What does that query do?
 

@@ -1,12 +1,10 @@
 ---
-author: Christopher Paciorek
+title: Working with large datasets using SQL, R, and Python
 layout: default
-title: 'Working with large datasets using SQL, R, and Python'
+author: Christopher Paciorek
 ---
 
-# Working with large datasets using SQL, R, and Python
-
-## 1 This Tutorial
+# 1 This Tutorial
 
 This tutorial covers tools for manipulating large datasets, including
 those living in SQL databases or in data frames and related objects in R
@@ -20,7 +18,7 @@ Python are very similar because the core reliance is on SQL.
 
 This tutorial assumes you have a working knowledge of R or Python.
 
-### 1.1 Materials
+## 1.1 Materials
 
 Materials for this tutorial, including the Markdown files and associated
 code files that were used to create these documents are available on
@@ -33,8 +31,9 @@ git clone https://github.com/berkeley-scf/tutorial-databases
 ```
 
 The example data files are not part of the GitHub repository. You can
-get [the example data files](https://www.stat.berkeley.edu/share/paciorek/tutorial-databases-data.zip) (both Stack Overflow data and Wikipedia
-webtraffic data for the year 2016).
+get the example data files (both Stack Overflow data for 2021 and
+Wikipedia webtraffic data for the year 2008)
+[here](https://www.stat.berkeley.edu/share/paciorek/tutorial-databases-data.zip).
 
 Solutions to the SQL challenges are available on request.
 
@@ -42,9 +41,9 @@ This tutorial by Christopher Paciorek of the UC Berkeley Statistical
 Computing Facility is licensed under a Creative Commons Attribution 3.0
 Unported License.
 
-### 1.2 Prerequisite Software
+## 1.2 Prerequisite Software
 
-#### 1.2.1 Using SQLite from R or Python
+### 1.2.1 Using SQLite from R or Python
 
 The simplest way to use a database is with SQLite, a lightweight
 database engine under which the database is stored simply in a single
@@ -54,7 +53,7 @@ Both R and Python can easily interact with an SQLite database. For R
 you’ll need the “DBI” and “RSQLite” packages. For Python you’ll need the
 `sqlite3` package.
 
-#### 1.2.2 Using PostgreSQL on Mac or Windows
+### 1.2.2 Using PostgreSQL on Mac or Windows
 
 To replicate the (non-essential) PostgreSQL administration portion of
 this tutorial, you’ll need access to a machine on which you can run a
@@ -78,9 +77,9 @@ several options for accessing a Linux environment:
 This tutorial by Christopher Paciorek is licensed under a Creative
 Commons Attribution 3.0 Unported License (CC BY).
 
-## 2 Background
+# 2 Background
 
-### 2.1 Data size
+## 2.1 Data size
 
 The techniques and tools discussed here are designed for datasets in the
 range of gigabytes to tens of gigabytes, though they may scale to larger
@@ -97,7 +96,7 @@ scope of this tutorial. However, this tutorial will be useful if you’re
 doing SQL queries on professionally-administered databases or databases
 in the cloud or in a Spark context.
 
-### 2.2 Memory vs. disk
+## 2.2 Memory vs. disk
 
 On a computer there is a hierarchy of locations where data can be
 stored. The hierarchy has the trade-off that the locations that the CPU
@@ -126,9 +125,9 @@ document](db-management).
 And conversely, R and Python have mechanisms for storing large datasets
 on disk in a way that they can be accessed fairly quickly.
 
-## 3 Database systems and SQL
+# 3 Database systems and SQL
 
-### 3.1 Overview of databases
+## 3.1 Overview of databases
 
 Basically, standard SQL databases are *relational* databases that are a
 collection of rectangular format datasets (*tables*, also called
@@ -175,7 +174,7 @@ There are often multiple ways to interact with a DBMS, including
 directly using command line tools provided by the DBMS or via Python or
 R, among others.
 
-#### 3.1.1 Relational Database Management Systems (DBMS)
+### 3.1.1 Relational Database Management Systems (DBMS)
 
 There are a variety of relational database management systems (DBMS).
 Some that are commonly used by the intended audience of this tutorial
@@ -191,7 +190,7 @@ Python, etc. However, it does not have some useful functionality that
 other DBMS have. For example, you can’t use `ALTER TABLE` to modify
 column types or drop columns.
 
-#### 3.1.2 NoSQL databases
+### 3.1.2 NoSQL databases
 
 NoSQL (not only SQL) systems have to do with working with datasets that
 are not handled well in traditional DBMS, and not specifically about the
@@ -223,7 +222,7 @@ Some NoSQL systems include
     is a document), and
 -   graph storage systems (e.g., for social networks).
 
-### 3.2 SQL
+## 3.2 SQL
 
 SQL is a declarative language that tells the database system what
 results you want. The system then parses the SQL syntax and determines
@@ -240,7 +239,7 @@ a database that one has connected to:
 select * from questions limit 5
 ```
 
-## 4 Schema and normalization
+# 4 Schema and normalization
 
 To truly leverage the conceptual and computational power of a database
 you’ll want to have your data in a normalized form, which means
@@ -323,7 +322,7 @@ tables.
 -   Student
     -   ID
     -   name
-    -   grade\_level
+    -   grade_level
 -   Teacher
     -   ID
     -   name
@@ -332,11 +331,11 @@ tables.
 -   Class
     -   ID
     -   topic
-    -   class\_size
-    -   teacher\_ID
+    -   class_size
+    -   teacher_ID
 -   ClassAssignment
-    -   student\_ID
-    -   class\_ID
+    -   student_ID
+    -   class_ID
     -   grade
 
 Then we do queries to pull information from multiple tables. We do the
@@ -349,7 +348,7 @@ schema in which those tables are actually combined in the database. It
 is possible to be too pure about normalization! We can also create a
 virtual table, called a *view*, as discussed later.)
 
-### Keys
+## Keys
 
 A key is a field or collection of fields that give(s) a unique value for
 every row/observation. A table in a database should then have a primary
@@ -362,18 +361,18 @@ key in a different table.
 
 In our educational example, the primary keys would presumably be:
 Student.ID, Teacher.ID, Class.ID, and for ClassAssignment two fields:
-{ClassAssignment.studentID, ClassAssignment.class\_ID}.
+{ClassAssignment.studentID, ClassAssignment.class_ID}.
 
 Some examples of foreign keys would be:
 
--   student\_ID as the foreign key in ClassAssignment for joining with
+-   student_ID as the foreign key in ClassAssignment for joining with
     Student on Student.ID
--   teacher\_ID as the foreign key in Class for joining with Teacher
+-   teacher_ID as the foreign key in Class for joining with Teacher
     based on Teacher.ID
--   class\_ID as the foreign key in ClassAssignment for joining with
+-   class_ID as the foreign key in ClassAssignment for joining with
     Class based on Class.ID
 
-## 5 Stack Overflow example database
+# 5 Stack Overflow example database
 
 I’ve obtained data from [Stack Overflow](https://stackoverflow.com), the
 popular website for asking coding questions, and placed it into a
@@ -426,10 +425,12 @@ keys in another table. The schema in the actual databases of Stack
 Overflow data we’ll use in this tutorial is similar to but not identical
 to that.
 
-### Getting the database
+## Getting the database
 
-You can download a [copy of the SQLite version of the Stack Overflow
-database](http://www.stat.berkeley.edu/share/paciorek/tutorial-databases-data.zip) (only data for the year 2016) as part of the overall zip with all of the example datasets as discussed
+You can download a copy of the SQLite version of the Stack Overflow
+database (only data for the year 2021) from
+[here](http://www.stat.berkeley.edu/share/paciorek/tutorial-databases-data.zip)
+as part of the overall zip with all of the example datasets as discussed
 in the introduction of this tutorial.
 
 In the next section I’ll assume the .db file is placed in the
@@ -437,13 +438,14 @@ subdirectory of the repository called `data`.
 
 Note that all of the code used to download the data from the Stack
 Overflow website and to manipulate it to create a complete Postgres
-database and (for the year 2016 only) an SQLite database and CSVs for
+database and (for the year 2021 only) an SQLite database and CSVs for
 each table is in the [`data/prep_stackoverflow`
-subdirectory of this repository](https://github.com/berkeley-scf/tutorial-databases/tree/gh-pages/data/prep_stackoverflow). Note that as of February 2022, [the data are still
+subdirectory](https://github.com/berkeley-scf/tutorial-databases/tree/gh-pages/data/prep_stackoverflow)
+of this repository. Note that as of February 2022, [the data are still
 being kept up to date
 online](https://archive.org/download/stackexchange).
 
-## 6 Accessing a database and using SQL from other languages
+# 6 Accessing a database and using SQL from other languages
 
 Although DBMS have their own interfaces (we’ll see a bit of this later),
 databases are commonly accessed from other programs. For data analysts
@@ -453,7 +455,7 @@ Most of our examples of making SQL queries on a database will be done
 from R, but they could just as easily have been done from Python or
 other programs.
 
-### 6.1 Using SQL from R
+## 6.1 Using SQL from R
 
 The *DBI* package provides a front-end for manipulating databases from a
 variety of DBMS (SQLite, MySQL, PostgreSQL, among others). Basically,
@@ -472,30 +474,30 @@ You can access and navigate an SQLite database from R as follows.
 library(RSQLite)
 drv <- dbDriver("SQLite")
 dir <- 'data' # relative or absolute path to where the .db file is
-dbFilename <- 'stackoverflow-2016.db'
+dbFilename <- 'stackoverflow-2021.db'
 db <- dbConnect(drv, dbname = file.path(dir, dbFilename))
 # simple query to get 5 rows from a table
 dbGetQuery(db, "select * from questions limit 5")  
 ```
 
-    ##   questionid        creationdate score viewcount
-    ## 1   34552550 2016-01-01 00:00:03     0       108
-    ## 2   34552551 2016-01-01 00:00:07     1       151
-    ## 3   34552552 2016-01-01 00:00:39     2      1942
-    ## 4   34552554 2016-01-01 00:00:50     0       153
-    ## 5   34552555 2016-01-01 00:00:51    -1        54
-    ##                                                                                   title
-    ## 1                                                                 Scope between methods
-    ## 2      Rails - Unknown Attribute - Unable to add a new field to a form on create/update
-    ## 3 Selenium Firefox webdriver won't load a blank page after changing Firefox preferences
-    ## 4                                                       Android Studio styles.xml Error
-    ## 5                         Java: reference to non-finial local variables inside a thread
-    ##   ownerid
-    ## 1 5684416
-    ## 2 2457617
-    ## 3 5732525
-    ## 4 5735112
-    ## 5 4646288
+    ##   questionid        creationdate score viewcount answercount
+    ## 1   65534165 2021-01-01 22:15:54     0       112           2
+    ## 2   65535296 2021-01-02 01:33:13     2      1109           0
+    ## 3   65535910 2021-01-02 04:01:34    -1       110           1
+    ## 4   65535916 2021-01-02 04:03:20     1        35           1
+    ## 5   65536749 2021-01-02 07:03:04     0       108           1
+    ##   commentcount favoritecount                               title
+    ## 1            0            NA     Can't update a value in sqlite3
+    ## 2            0            NA Install and run ROS on Google Colab
+    ## 3            8             0       Operators on date/time fields
+    ## 4            0            NA          Plotting values normalised
+    ## 5            5            NA     Export C# to word with template
+    ##    ownerid
+    ## 1 13189393
+    ## 2 14924336
+    ## 3   651174
+    ## 4 14695007
+    ## 5 14899717
 
 We can easily see the tables and their fields:
 
@@ -510,8 +512,9 @@ dbListTables(db)
 dbListFields(db, "questions")
 ```
 
-    ## [1] "questionid"   "creationdate" "score"        "viewcount"   
-    ## [5] "title"        "ownerid"
+    ## [1] "questionid"    "creationdate"  "score"        
+    ## [4] "viewcount"     "answercount"   "commentcount" 
+    ## [7] "favoritecount" "title"         "ownerid"
 
 ``` r
 dbListFields(db, "answers")
@@ -575,14 +578,14 @@ Apart from the different manner of connecting, all of the queries above
 are the same regardless of whether the back-end DBMS is SQLite,
 PostgreSQL, etc.
 
-### 6.2 Using SQL from Python
+## 6.2 Using SQL from Python
 
 For SQLite:
 
 ``` python
 import sqlite3 as sq
 dir = 'data' # relative or absolute path to where the .db file is
-dbFilename = 'stackoverflow-2016.db'
+dbFilename = 'stackoverflow-2021.db'
 import os
 db = sq.connect(os.path.join('data', dbFilename))
 c = db.cursor()
@@ -604,16 +607,15 @@ db = pg.connect("dbname = 'stackoverflow' user = 'paciorek' host = 'localhost' p
 c = db.cursor()
 ```
 
-## 7 References and Other Resources
+# 7 References and Other Resources
 
 In addition to various material found online, including various software
 manuals and vignettes, much of the SQL material was based on the
 following two sources:
 
--   The Stanford online [Introduction to Databases
-    course](http://cs.stanford.edu/people/widom/DB-mooc.html) (see also
-    the [mini-courses version of the
-    course](https://lagunita.stanford.edu/courses/DB/2014/SelfPaced/about)).
+-   The Stanford online Introduction to Databases course (MOOC) released
+    in Fall 2011, a version of which is available [on
+    edX](https://www.edx.org/course/databases-5-sql).
 -   Harrison Dekker’s materials from a [Statistics short
     course](https://github.com/uc-data-services/sql-workshop-2016) he
     taught in January 2016.

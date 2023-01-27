@@ -27,7 +27,7 @@ To run this from R we provide the SQL syntax as a string as the second argument 
 library(RSQLite)
 drv <- dbDriver("SQLite")
 dir <- 'data' # relative or absolute path to where the .db file is
-dbFilename <- 'stackoverflow-2016.db'
+dbFilename <- 'stackoverflow-2021.db'
 db <- dbConnect(drv, dbname = file.path(dir, dbFilename))
 dbGetQuery(db, "select * from questions limit 5")
 ```
@@ -331,7 +331,7 @@ Postgres requires that the pattern to be extracted be surrounded by `#"` (one co
 
 ```{r}
 dbGetQuery(db, "select substring(creationdate from
-                '%-#\"[[:digit:]]{4}#\"-%' for '#') as month
+                '%-#\"[[:digit:]]{2}#\"-%' for '#') as month
                 from questions limit 3")
 ```
 
@@ -374,7 +374,7 @@ dbGetQuery(db, "select distinct creationdate, datetime(creationdate, 'localtime'
 dbGetQuery(db, "select distinct creationdate, datetime(creationdate, '-05:00')
                 from questions limit 5")
 
-## day of week: Jan 1 2016 was a Friday (0=Sunday, 6=Saturday)
+## day of week: Jan 1 2021 was a Friday (0=Sunday, 6=Saturday)
 dbGetQuery(db, "select creationdate, strftime('%w', creationdate)
                 from questions limit 5")
 ```
@@ -585,16 +585,16 @@ So one could now calculate the difference between the previous and current date 
  - Do an analysis within an arbitrary window of rows based on the values in one of the columns
  
 ```{r, eval=TRUE}
-## Summarize questions within 5 days of current question 
+## Summarize questions within 15 days of current question 
 dbGetQuery(db, "select ownerid, creationdate,
                 count() over
                 (partition by ownerid order by julianday(creationdate)
-                range between 5 preceding and 5 following)
+                range between 15 preceding and 15 following)
                 as n_window
                 from questions where ownerid is not null limit 30")
 ```
-There the '5 preceding' and '5 following' mean to include all rows within each ownerid
-that are within 5 Julian days (based on 'creationdate') of each row. 
+There the '15 preceding' and '15 following' mean to include all rows within each ownerid
+that are within 15 Julian days (based on 'creationdate') of each row. 
 
 So one could now analyze bursts of activity.
 
