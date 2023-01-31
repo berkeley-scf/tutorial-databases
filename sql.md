@@ -130,7 +130,7 @@ SQLite and SUBSTRING in PostgreSQL.
 > and tags tables so you can get a sense for what the entries in the
 > tables are like.
 
-> **Challenge**: Find the oldest users in the database.
+> **Challenge**: Find the users in the database with the most upvotes.
 
 ### 1.2 Getting unique results (DISTINCT)
 
@@ -175,7 +175,8 @@ The result of a query that uses `group by` is a table with as many rows
 as groups.
 
 > **Warning**: To filter the result of a grouping operation, we need to
-> use `having` rather than `where`.
+> use `having` rather than `where`. (`where` would filter before the
+> application of the `goup by`.
 
 ``` r
 dbGetQuery(db, "select tag, count(*) as n from questions_tags
@@ -272,7 +273,7 @@ this query ask for?
 result1 <- dbGetQuery(db, "select * from questions Q
                            join questions_tags T on Q.questionid = T.questionid
                            join users U on Q.ownerid = U.userid
-                           where tag = 'python' and age > 70")
+                           where tag = 'python' and upvotes > 100")
 ```
 
 Once again, we could do that without JOIN and using WHERE to match the
@@ -282,7 +283,7 @@ rows appropriately.
 result2 <- dbGetQuery(db, "select * from questions Q, questions_tags T, users U
                            where Q.questionid = T.questionid 
                            and Q.ownerid = U.userid
-                           and tag = 'python' and age > 70")
+                           and tag = 'python' and upvotes > 100")
 ```
 
 > **Challenge**: Write a query that would return all the answers to
@@ -436,20 +437,20 @@ in our querying. For example, if a given operation (portion of a query)
 is needed repeatedly, one could abstract that as a view and then make
 use of that view.
 
-Suppose we always want the age and displayname of question owners
+Suppose we always want the upvotes and displayname of question owners
 available. Once we have the view we can query it like a regular table.
 
 ``` r
 ## note there is a creationdate in users too, hence disambiguation
 dbExecute(db, "create view questions_plus as
                select questionid, questions.creationdate, score, viewcount, 
-                      title, ownerid, age, displayname
+                      title, ownerid, upvotes, displayname
                from questions join users on questions.ownerid = users.userid")
 
 ## don't be confused by the "0" response --
 ## it just means that nothing is returned to R; the view _has_ been created
                
-dbGetQuery(db, "select * from questions_plus where age > 70 limit 5")
+dbGetQuery(db, "select * from questions_plus where upvotes > 100 limit 5")
 ```
 
 One use of a view would be to create a mega table that stores all the
@@ -718,7 +719,7 @@ system.time(
 ```
 
     ##    user  system elapsed 
-    ##   4.479   1.494   6.906
+    ##   4.408   1.556   6.924
 
 Alternatively we can do a self-join. Note that the syntax gets
 complicated as we are doing multiple joins.
@@ -738,7 +739,7 @@ system.time(
 ```
 
     ##    user  system elapsed 
-    ##   6.151   3.677  10.822
+    ##   6.250   3.562  10.691
 
 ``` r
 identical(result1, result2)
@@ -760,8 +761,8 @@ only one type of question, respectively.
 > **Challenge**: Find the users who have asked either an R question or a
 > Python question.
 
-> **Challenge**: Find the users who have asked only an R question and
-> not a Python question.
+> **Challenge**: Find the users who have asked but not answered a
+> question.
 
 ### 3.2 Subqueries
 
@@ -795,11 +796,8 @@ will give you the right answer!
 Note we could also have done that query using a subquery in the WHERE
 statement, as discussed in the next section.
 
-> **Challenge**: Write a query that, for each question, will return the
-> question title, number of answers, and the answer to that question
-> written by the user with the highest reputation. Hint: first think
-> about a query that will find the number of answers to each question
-> and the answer by the user with the highest reputation.
+> **Challenge**: Write a query that finds the number of answers per
+> question, but only answers from users with at least 100 upvotes.
 
 Finally one can use subqueries in the SELECT clause to create new
 variables, but we won’t go into that here.
@@ -815,14 +813,14 @@ For example, suppose we want to know the average number of UpVotes for
 users who have posted a question with the tag “python”.
 
 ``` r
-dbGetQuery(db, "select avg(UpVotes) from users where userid in
+dbGetQuery(db, "select avg(upvotes) from users where userid in
                 (select distinct ownerid from
                 questions join questions_tags
                 on questions.questionid = questions_tags.questionid
                 where tag = 'python')")       
 ```
 
-    ##   avg(UpVotes)
+    ##   avg(upvotes)
     ## 1     62.72529
 
 In some cases one can do a join rather than using a subquery, but in the
@@ -833,7 +831,7 @@ following example, it fails.
 > looking at the answer below.)
 
 ``` r
-dbGetQuery(db, "select avg(UpVotes) from questions, questions_tags, users
+dbGetQuery(db, "select avg(upvotes) from questions, questions_tags, users
                 where questions.questionid = questions_tags.questionid and
                 questions.ownerid = users.userid and
                 tag = 'python'")
@@ -846,13 +844,13 @@ over the UpVotes of the individuals associated with those questions. So
 the latter includes multiple UpVotes values from individuals who have
 posted multiple Python questions.)
 
-For more details on subqueries, see the video on “subqueries in where
-statements” in this [Introduction to Databases
-MOOC](http://cs.stanford.edu/people/widom/DB-mooc.html).
+> **Challenge**: Write a query that would return the user information
+> for users who have answered a question with the Python tag. We’ve seen
+> this challenge before, but do it now based on a subquery.
 
-> **Challenge**: Write a query that would return the users who have
-> answered a question with the Python tag. We’ve seen this challenge
-> before, but do it now based on a subquery.
+> **Challenge**: Find the users who have asked but not answered a
+> question. We’ve seen this before, but now make use of subqueries
+> instead of a join.
 
 > **Challenge**: How would you find all the answers associated with the
 > user with the most upvotes?
@@ -998,6 +996,9 @@ dbGetQuery(db, "select *,
     ## 9  20390023    8
     ## 10 20390023    9
 
+(Sidenote: we rely here on the fact that ordering alphabetically by
+`creationdate` is equivalent to time ordering.)
+
 -   Do a lagged analysis
 
 ``` r
@@ -1111,8 +1112,59 @@ dbGetQuery(db, "select ownerid, creationdate,
 
 What does that query do?
 
+Finally, you can use window functions on the entire table, without
+partitioning.
+
+``` r
+## Summarize questions within 15 (decimal) days of current question 
+dbGetQuery(db, "select ownerid, creationdate,
+                count() over
+                (order by julianday(creationdate)
+                range between 15 preceding and 15 following)
+                as n_window
+                from questions where ownerid is not null limit 30")
+```
+
+    ##     ownerid        creationdate n_window
+    ## 1  13708122 2021-01-01 00:00:01    65899
+    ## 2  14920712 2021-01-01 00:00:59    65901
+    ## 3  10407800 2021-01-01 00:01:40    65901
+    ## 4  14593381 2021-01-01 00:02:06    65901
+    ## 5  14783072 2021-01-01 00:02:09    65901
+    ## 6  14853091 2021-01-01 00:02:17    65901
+    ## 7  14920717 2021-01-01 00:03:01    65902
+    ## 8  11645517 2021-01-01 00:03:20    65902
+    ## 9  10197813 2021-01-01 00:04:32    65903
+    ## 10 14694500 2021-01-01 00:05:43    65906
+    ## 11  6335637 2021-01-01 00:05:46    65906
+    ## 12  2242096 2021-01-01 00:05:47    65906
+    ## 13  9574155 2021-01-01 00:06:09    65908
+    ## 14  6281777 2021-01-01 00:06:15    65908
+    ## 15 14260231 2021-01-01 00:07:02    65908
+    ## 16 14920186 2021-01-01 00:07:03    65908
+    ## 17 13103324 2021-01-01 00:08:01    65909
+    ## 18  1127065 2021-01-01 00:09:37    65918
+    ## 19 10841085 2021-01-01 00:10:40    65919
+    ## 20  7336289 2021-01-01 00:11:05    65920
+    ## 21 14634129 2021-01-01 00:11:17    65920
+    ## 22 14920707 2021-01-01 00:12:16    65924
+    ## 23 14461250 2021-01-01 00:13:16    65927
+    ## 24 14920741 2021-01-01 00:13:23    65927
+    ## 25 11035194 2021-01-01 00:16:10    65934
+    ## 26   735332 2021-01-01 00:17:34    65940
+    ## 27 10707986 2021-01-01 00:19:19    65944
+    ## 28 12743240 2021-01-01 00:20:09    65944
+    ## 29  1098815 2021-01-01 00:21:35    65950
+    ## 30 14496928 2021-01-01 00:21:42    65951
+
 > **Challenge**: Use a window function to compute the average viewcount
 > for each ownerid for the 10 questions preceding each question.
+
+> **Challenge**: For each question, get the answer given by the user
+> with the maximum reputation amongst users answering the question.
+> Hint: you’ll need to first create a subquery that determines the
+> maximum reputation for each question and then use that to get the
+> answer of interest for each question.
 
 > **Challenge (hard)**: Find the users who have asked one question that
 > is highly-viewed (viewcount \> 1000) with their remaining questions

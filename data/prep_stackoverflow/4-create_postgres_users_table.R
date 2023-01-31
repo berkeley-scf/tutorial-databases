@@ -46,14 +46,12 @@ while (TRUE) {
                    displayname = rows %>% xml_attr("displayname"),
                    upvotes = rows %>% xml_attr("upvotes"),
                    downvotes = rows %>% xml_attr("downvotes"),
-                   age = rows %>% xml_attr("age"),
                    accountid = rows %>% xml_attr("accountid"))
 	
   df$userid <- as.numeric(df$userid)			   
   df$reputation <- as.numeric(df$reputation)	
   df$upvotes <- as.numeric(df$upvotes)
   df$downvotes <- as.numeric(df$downvotes)
-  df$age <- as.numeric(df$age)
   df$accountid <- as.numeric(df$accountid)
   
   dbWriteTable(conn = con, name = "users", as.data.frame(df),
@@ -67,7 +65,6 @@ dbGetQuery(con, "ALTER TABLE users ALTER COLUMN userid TYPE integer;")
 dbGetQuery(con, "ALTER TABLE users ALTER COLUMN reputation TYPE integer;")
 dbGetQuery(con, "ALTER TABLE users ALTER COLUMN upvotes TYPE integer;")
 dbGetQuery(con, "ALTER TABLE users ALTER COLUMN downvotes TYPE integer;")
-dbGetQuery(con, "ALTER TABLE users ALTER COLUMN age TYPE integer;")
 dbGetQuery(con, "ALTER TABLE users ALTER COLUMN accountid TYPE integer;")
 dbGetQuery(con, "ALTER TABLE users ADD PRIMARY KEY (userid)")
 

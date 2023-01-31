@@ -69,7 +69,7 @@ Some other keywords are: DISTINCT, ON, JOIN, GROUP BY, AS, USING, UNION, INTERSE
 
 > **Challenge**: Return a few rows from the users, questions, answers, and tags tables so you can get a sense for what the entries in the tables are like.
 
-> **Challenge**: Find the oldest users in the database.
+> **Challenge**: Find the users in the database with the most upvotes.
 
 ### 1.2 Getting unique results (DISTINCT)
 
@@ -102,7 +102,7 @@ In general `GROUP BY` statements will involve some aggregation operation on the 
 
 The result of a query that uses `group by` is a table with as many rows as groups. 
 
-> **Warning**: To filter the result of a grouping operation, we need to use `having` rather than `where`.
+> **Warning**: To filter the result of a grouping operation, we need to use `having` rather than `where`. (`where` would filter before the application of the `goup by`.
 
   ```{r}
   dbGetQuery(db, "select tag, count(*) as n from questions_tags
@@ -154,7 +154,7 @@ Here's a three-way join (both with and without the JOIN keyword) with some addit
 result1 <- dbGetQuery(db, "select * from questions Q
                            join questions_tags T on Q.questionid = T.questionid
                            join users U on Q.ownerid = U.userid
-                           where tag = 'python' and age > 70")
+                           where tag = 'python' and upvotes > 100")
 ```
 
 Once again, we could do that without JOIN and using WHERE to match the rows appropriately.
@@ -163,7 +163,7 @@ Once again, we could do that without JOIN and using WHERE to match the rows appr
 result2 <- dbGetQuery(db, "select * from questions Q, questions_tags T, users U
                            where Q.questionid = T.questionid 
                            and Q.ownerid = U.userid
-                           and tag = 'python' and age > 70")
+                           and tag = 'python' and upvotes > 100")
 ```
 
 > **Challenge**: Write a query that would return all the answers to questions with the Python tag.
@@ -251,20 +251,20 @@ dbGetQuery(db, "create view question_contrasts as
 
 You can think of a view as a temporary table that is the result of a query and can be used in subsequent queries. In any given query you can use both views and tables. The advantage is that they provide modularity in our querying. For example, if a given operation (portion of a query) is needed repeatedly, one could abstract that as a view and then make use of that view.
 
-Suppose we always want the age and displayname of question owners available. Once we have the view we can query it like a regular table.
+Suppose we always want the upvotes and displayname of question owners available. Once we have the view we can query it like a regular table.
 
 
 ```{r, eval=FALSE}
 ## note there is a creationdate in users too, hence disambiguation
 dbExecute(db, "create view questions_plus as
                select questionid, questions.creationdate, score, viewcount, 
-                      title, ownerid, age, displayname
+                      title, ownerid, upvotes, displayname
                from questions join users on questions.ownerid = users.userid")
 
 ## don't be confused by the "0" response --
 ## it just means that nothing is returned to R; the view _has_ been created
                
-dbGetQuery(db, "select * from questions_plus where age > 70 limit 5")
+dbGetQuery(db, "select * from questions_plus where upvotes > 100 limit 5")
 ```
                
 One use of a view would be to create a mega table that stores all the information from multiple tables in the (unnormalized) form you might have if you simply had one data frame in R or Python.
@@ -443,7 +443,7 @@ We could use UNION or EXCEPT to find people who have asked either or only one ty
 
 > **Challenge**: Find the users who have asked either an R question or a Python question.
 
-> **Challenge**: Find the users who have asked only an R question and not a Python question.
+> **Challenge**: Find the users who have asked but not answered a question.
 
 
 ### 3.2 Subqueries
@@ -470,7 +470,7 @@ It might be hard to just come up with that full query all at once. A good strate
 
 Note we could also have done that query using a subquery in the WHERE statement, as discussed in the next section. 
 
-> **Challenge**: Write a query that, for each question, will return the question title, number of answers, and the answer to that question written by the user with the highest reputation. Hint: first think about a query that will find the number of answers to each question and the answer by the user with the highest reputation.
+> **Challenge**: Write a query that finds the number of answers per question, but only answers from users with at least 100 upvotes.
 
 Finally one can use subqueries in the SELECT clause to create new variables, but we won't go into that here.
 
@@ -481,7 +481,7 @@ Instead of a join, we can use subqueries as a way to combine information across 
 For example, suppose we want to know the average number of UpVotes for users who have posted a question with the tag "python".
 
 ```{r, eval=TRUE}
-dbGetQuery(db, "select avg(UpVotes) from users where userid in
+dbGetQuery(db, "select avg(upvotes) from users where userid in
                 (select distinct ownerid from
                 questions join questions_tags
                 on questions.questionid = questions_tags.questionid
@@ -493,7 +493,7 @@ In some cases one can do a join rather than using a subquery, but in the followi
 > **Challenge**: What's wrong with the following query as an attempt to answer the question above? (See if you can figure it out before looking at the answer below.)
 
 ```{r}
-dbGetQuery(db, "select avg(UpVotes) from questions, questions_tags, users
+dbGetQuery(db, "select avg(upvotes) from questions, questions_tags, users
                 where questions.questionid = questions_tags.questionid and
                 questions.ownerid = users.userid and
                 tag = 'python'")
@@ -501,10 +501,10 @@ dbGetQuery(db, "select avg(UpVotes) from questions, questions_tags, users
 
 (Answer: In the subquery, we find the IDs of the users we are looking for and then average over the UpVotes of those individuals. In the join version we found all the questions that had a Python tag and averaged over the UpVotes of the individuals associated with those questions. So the latter includes multiple UpVotes values from individuals who have posted multiple Python questions.)
 
-For more details on subqueries, see the video on "subqueries in where statements" in this [Introduction to Databases MOOC](http://cs.stanford.edu/people/widom/DB-mooc.html).
 
-> **Challenge**: Write a query that would return the users who have answered a question with the Python tag. We've seen this challenge before, but do it now based on a subquery.
+> **Challenge**: Write a query that would return the user information for users who have answered a question with the Python tag. We've seen this challenge before, but do it now based on a subquery.
 
+> **Challenge**: Find the users who have asked but not answered a question. We've seen this before, but now make use of subqueries instead of a join.
 
 > **Challenge**: How would you find all the answers associated with the user with the most upvotes?
 
@@ -571,6 +571,8 @@ dbGetQuery(db, "select *,
                 from questions order by ownerid desc limit 10")
 ```
 
+(Sidenote: we rely here on the fact that ordering alphabetically by `creationdate` is equivalent to time ordering.)
+
  - Do a lagged analysis
 ```{r, eval=TRUE}
 ## Get previous value (based on ordering by creationdate) by owner
@@ -624,7 +626,23 @@ dbGetQuery(db, "select ownerid, creationdate,
 
 What does that query do?
 
+Finally, you can use window functions on the entire table, without partitioning.
+
+```{r, eval=TRUE}
+## Summarize questions within 15 (decimal) days of current question 
+dbGetQuery(db, "select ownerid, creationdate,
+                count() over
+                (order by julianday(creationdate)
+                range between 15 preceding and 15 following)
+                as n_window
+                from questions where ownerid is not null limit 30")
+```
+
+
 > **Challenge**: Use a window function to compute the average viewcount for each ownerid for the 10 questions preceding each question.
+
+> **Challenge**: For each question, get the answer given by the user with the maximum reputation amongst users answering the question.
+Hint: you'll need to first create a subquery that determines the maximum reputation for each question and then use that to get the answer of interest for each question.
 
 > **Challenge (hard)**: Find the users who have asked one question that is highly-viewed (viewcount > 1000) with their remaining questions not highly-viewed (viewcount < 20 for all other questions).
 

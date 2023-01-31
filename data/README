@@ -4,7 +4,7 @@ http://www.stat.berkeley.edu/share/paciorek/tutorial-databases-data.zip
 
 The Stack Overflow data are in two forms:
 
-- an SQLite database with questions, questions_tags, answers, and users tables (stackoverflow-2016.db)
-- individual CSV files for each table (questions-2016.csv, questions_tags-2016.csv, answers-2016.csv, users-2016.csv)
+- an SQLite database with questions, questions_tags, answers, and users tables (stackoverflow-2021.db)
+- individual CSV files for each table (questions-2021.csv, questions_tags-2021.csv, answers-2021.csv, users-2021.csv)
 
 The Wikipedia traffic data are 10 files (part-00000.gz through part-00009.gz) from a set of 395 files providing Wikipedia traffic data for the first 10 days of November 2008. More details on downloading the data (which cover multiple years) from Amazon Web Services can be found at https://github.com/berkeley-scf/spark-stat243-2016.
