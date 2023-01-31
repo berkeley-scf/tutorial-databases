@@ -82,7 +82,7 @@ Next, let’s find the number of views for the 15 questions viewed the
 most.
 
 ``` r
-dbGetQuery(db, "select distinct viewcount from questions 
+dbGetQuery(db, "select viewcount from questions 
                 order by viewcount desc limit 15")
 ```
 
@@ -140,7 +140,27 @@ has a single column or set of values).
 
 ``` r
 ## Find the unique tags:
-tagNames <- dbGetQuery(db, "select distinct tag from questions_tags")
+dbGetQuery(db, "select distinct tag from questions_tags limit 15")
+```
+
+    ##           tag
+    ## 1     sorting
+    ## 2  visual-c++
+    ## 3         mfc
+    ## 4   cgridctrl
+    ## 5         css
+    ## 6      anchor
+    ## 7        divi
+    ## 8      python
+    ## 9  python-3.x
+    ## 10      audio
+    ## 11        vlc
+    ## 12        ios
+    ## 13     arrays
+    ## 14  dataframe
+    ## 15 javascript
+
+``` r
 ## Count the number of unique tags:
 dbGetQuery(db, "select count(distinct tag) from questions_tags")
 ```
@@ -176,11 +196,28 @@ as groups.
 
 > **Warning**: To filter the result of a grouping operation, we need to
 > use `having` rather than `where`. (`where` would filter before the
-> application of the `goup by`.
+> application of the `group by`).
 
 ``` r
 dbGetQuery(db, "select tag, count(*) as n from questions_tags
                 group by tag having n > 100000 limit 10")
+```
+
+> **Warning**: Determining what fields can be selected when using
+> `group by` can be tricky, because it varies by DBMS. For example, with
+> Postgres, you can only select fields created by aggregation and the
+> fields that `group by` is applied to, as well as when there is
+> something called a [functional
+> dependency](https://www.postgresql.org/docs/current/sql-select.html#SQL-GROUPBY).
+> SQLite allows more flexibility. For example the following can be done
+> in SQLite to find user and answer information for the answer to each
+> question from the user with the highest reputation. However Postgres
+> gives the error ‘ERROR: column “u.userid” must appear in the GROUP BY
+> clause or be used in an aggregate function’.
+
+``` r
+dbGetQuery(db, "select *, max(reputation) from users U join answers A
+                on A.ownerid = U.userid group by A.questionid limit 5")
 ```
 
 > **Challenge**: Write a query that will count the number of answers for
@@ -682,7 +719,7 @@ plot(as.numeric(result$hour), result$n, xlab = 'hour of day (UTC/Greenwich???)',
                                         ylab = 'number of questions')
 ```
 
-![](sql_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
+![](sql_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
 
 Here’s some [documentation of the syntax for the functions, including
 `stftime`](https://www.sqlite.org/lang_datefunc.html).
@@ -719,7 +756,7 @@ system.time(
 ```
 
     ##    user  system elapsed 
-    ##   4.408   1.556   6.924
+    ##   4.468   1.486   6.882
 
 Alternatively we can do a self-join. Note that the syntax gets
 complicated as we are doing multiple joins.
@@ -739,7 +776,7 @@ system.time(
 ```
 
     ##    user  system elapsed 
-    ##   6.250   3.562  10.691
+    ##   6.438   3.585  12.097
 
 ``` r
 identical(result1, result2)

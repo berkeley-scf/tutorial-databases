@@ -42,7 +42,7 @@ dbGetQuery(db, "select * from questions where viewcount > 100000 limit 5")
 
 Next, let's find the number of views for the 15 questions viewed the most.
 ```{r, eval=TRUE}
-dbGetQuery(db, "select distinct viewcount from questions 
+dbGetQuery(db, "select viewcount from questions 
                 order by viewcount desc limit 15")
 ```
 
@@ -78,7 +78,7 @@ A useful SQL keyword is DISTINCT, which allows you to eliminate duplicate rows f
 
 ```{r, eval=TRUE}
 ## Find the unique tags:
-tagNames <- dbGetQuery(db, "select distinct tag from questions_tags")
+dbGetQuery(db, "select distinct tag from questions_tags limit 15")
 ## Count the number of unique tags:
 dbGetQuery(db, "select count(distinct tag) from questions_tags")
 ```
@@ -102,11 +102,18 @@ In general `GROUP BY` statements will involve some aggregation operation on the 
 
 The result of a query that uses `group by` is a table with as many rows as groups. 
 
-> **Warning**: To filter the result of a grouping operation, we need to use `having` rather than `where`. (`where` would filter before the application of the `goup by`.
+> **Warning**: To filter the result of a grouping operation, we need to use `having` rather than `where`. (`where` would filter before the application of the `group by`).
 
   ```{r}
   dbGetQuery(db, "select tag, count(*) as n from questions_tags
                   group by tag having n > 100000 limit 10")
+  ```
+
+> **Warning**: Determining what fields can be selected when using `group by` can be tricky, because it varies by DBMS. For example, with Postgres, you can only select fields created by aggregation and the fields that `group by` is applied to, as well as when there is something called a [functional dependency](https://www.postgresql.org/docs/current/sql-select.html#SQL-GROUPBY). SQLite allows more flexibility. For example the following can be done in SQLite to find user and answer information for the answer to each question from the user with the highest reputation. However Postgres gives the error 'ERROR:  column "u.userid" must appear in the GROUP BY clause or be used in an aggregate function'.
+
+  ```{r}
+  dbGetQuery(db, "select *, max(reputation) from users U join answers A
+                  on A.ownerid = U.userid group by A.questionid limit 5")
   ```
 
 > **Challenge**: Write a query that will count the number of answers for each question, returning the IDs of the most answered questions. Hint: consider which field in the "answers" table we do the grouping on (and you shouldn't need to use the "questions" table). 
