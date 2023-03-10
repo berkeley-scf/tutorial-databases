@@ -127,7 +127,7 @@ The various big cloud computing providers (AWS, Google Cloud Platform (GCP), Azu
 
 - *Online database hosting services* allow you to host databases (e.g., PostgreSQL databases) the infrastructure of a cloud provider. You basically manage the database in the cloud instead of on a physical machine. One example is Google Cloud SQL.
 - *Data warehouses* such as Google BigQuery and Amazon RedShift allow you to create a data repository in which the data are structured like in a database (tables, fields, etc.), stored in the cloud, and queried efficiently (and in parallel) using the cloud provider's infrastructure). Storage is by column, which allows for efficient queries when doing queries operating on large portions of tables.
-- *Data lakes* store data in a less structured way in cloud storage in files (e.g., CSV, parquet, etc.) that generally have common structure. The data can be queried without creating an actual database or data warehouse.
+- *Data lakes* store data in a less structured way in cloud storage in files (e.g., CSV, Parquet, Arrow, etc.) that generally have common structure. The data can be queried without creating an actual database or data warehouse.
 
 Google's BigQuery has the advantages of not requiring a lot of administration/configuration while allowing your queries to take advantage of a lot of computing power. BigQuery will determine how to run a query in parallel across multiple (virtual) cores. A demonstration of using BigQuery for this tutorial is under construction. 
 
@@ -353,9 +353,14 @@ library(duckdb)
 drv <- duckdb()
 dir <- 'data' # relative or absolute path to where the .db file is
 dbFilename <- 'stackoverflow-2021.duckdb'
-db <- dbConnect(drv, dbname = file.path(dir, dbFilename))
+dbd <- dbConnect(drv, file.path(dir, dbFilename))
 # simple query to get 5 rows from a table
-dbGetQuery(db, "select * from questions limit 5")  
+dbGetQuery(dbd, "select * from questions limit 5")  
+```
+
+To disconnect from the database:
+```{r, eval=TRUE}
+dbDisconnect(db, shutdown = TRUE)
 ```
 
 #### 6.1.3 PostgreSQL
@@ -365,9 +370,9 @@ To access a PostgreSQL database instead, you can do the following, assuming the 
 ```{r, eval=FALSE}
 library(RPostgreSQL)
 drv <- dbDriver("PostgreSQL")
-db <- dbConnect(drv, dbname = 'stackoverflow', user = 'paciorek', password = 'test')
+dbp <- dbConnect(drv, dbname = 'stackoverflow', user = 'paciorek', password = 'test')
 # simple query to get 5 rows from a table, same as with SQLite:
-dbGetQuery(db, "select * from questions limit 5")  
+dbGetQuery(dbp, "select * from questions limit 5")  
 ```
 
 

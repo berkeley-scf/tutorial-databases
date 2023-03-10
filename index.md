@@ -50,10 +50,25 @@ database engine under which the database is stored simply in a single
 file.
 
 Both R and Python can easily interact with an SQLite database. For R
-you’ll need the “DBI” and “RSQLite” packages. For Python you’ll need the
-`sqlite3` package.
+you’ll need the `RSQLite` package. For Python you’ll need the `sqlite3`
+package.
 
-#### 1.2.2 Using PostgreSQL on Mac or Windows
+One thing to note is that SQLite does not have some useful functionality
+that other databas management systems have. For example, you can’t use
+`ALTER TABLE` to modify column types or drop columns.
+
+#### 1.2.2 DuckDB as a faster alternative to SQLite
+
+DuckDB is another lightweight database engine under which the database
+is stored simply in a single file. It stores data column-wise, which can
+lead to big speedups when doing queries operating on large portions of
+tables (so-called “online analytical processing” (OLAP)).
+
+Both R and Python can easily interact with a DuckDB database. For R
+you’ll need the `duckdb` R package. For Python you’ll need the `duckdb`
+Python package.
+
+#### 1.2.3 Using PostgreSQL on Mac or Windows
 
 To replicate the (non-essential) PostgreSQL administration portion of
 this tutorial, you’ll need access to a machine on which you can run a
@@ -178,19 +193,23 @@ R, among others.
 
 There are a variety of relational database management systems (DBMS).
 Some that are commonly used by the intended audience of this tutorial
-are SQLite, PostgreSQL, and mySQL. We’ll concentrate on SQLite (because
-it is simple to use on a single machine) and PostgreSQL (because is is a
-popular open-source DBMS that is a good representative of a
-client-server model and has some functionality that SQLite lacks).
+are SQLite, PostgreSQL, and mySQL. We’ll concentrate on SQLite and
+DuckDB (because they are simple to use on a single machine) and
+PostgreSQL (because is is a popular open-source DBMS that is a good
+representative of a client-server model and has some functionality that
+SQLite lacks).
 
-SQLite is quite nice in terms of being self-contained - there is no
-server-client model, just a single file on your hard drive that stores
-the database and to which you can connect to using the SQLite shell, R,
-Python, etc. However, it does not have some useful functionality that
-other DBMS have. For example, you can’t use `ALTER TABLE` to modify
-column types or drop columns.
+#### 3.1.2 Serverless DBMS
 
-#### 3.1.2 NoSQL databases
+SQLite and DuckDB are quite nice in terms of being self-contained -
+there is no server-client model, just a single file on your hard drive
+that stores the database. There is no database process running on the
+computer; rather SQLite or DuckDB are embedded within the host process
+(e.g., Python or R). (There are also command line interfaces (CLI) for
+both SQLite and DuckDB that you can start from the command
+line/terminal.)
+
+#### 3.1.3 NoSQL databases
 
 NoSQL (not only SQL) systems have to do with working with datasets that
 are not handled well in traditional DBMS, and not specifically about the
@@ -221,6 +240,33 @@ Some NoSQL systems include
 -   document storage systems (like key-value systems but where the value
     is a document), and
 -   graph storage systems (e.g., for social networks).
+
+#### Databases in the cloud
+
+The various big cloud computing providers (AWS, Google Cloud Platform
+(GCP), Azure) provide a dizzying array of different database-like
+services. Here are some examples.
+
+-   *Online database hosting services* allow you to host databases
+    (e.g., PostgreSQL databases) the infrastructure of a cloud provider.
+    You basically manage the database in the cloud instead of on a
+    physical machine. One example is Google Cloud SQL.
+-   *Data warehouses* such as Google BigQuery and Amazon RedShift allow
+    you to create a data repository in which the data are structured
+    like in a database (tables, fields, etc.), stored in the cloud, and
+    queried efficiently (and in parallel) using the cloud provider’s
+    infrastructure). Storage is by column, which allows for efficient
+    queries when doing queries operating on large portions of tables.
+-   *Data lakes* store data in a less structured way in cloud storage in
+    files (e.g., CSV, Parquet, Arrow, etc.) that generally have common
+    structure. The data can be queried without creating an actual
+    database or data warehouse.
+
+Google’s BigQuery has the advantages of not requiring a lot of
+administration/configuration while allowing your queries to take
+advantage of a lot of computing power. BigQuery will determine how to
+run a query in parallel across multiple (virtual) cores. A demonstration
+of using BigQuery for this tutorial is under construction.
 
 ### 3.2 SQL
 
@@ -376,14 +422,13 @@ Some examples of foreign keys would be:
 
 I’ve obtained data from [Stack Overflow](https://stackoverflow.com), the
 popular website for asking coding questions, and placed it into a
-normalized database. The SQLite version (also in CSVs as one CSV per
-table) has metadata (i.e., it lacks the actual text of the questions and
-answers) on all of the questions and answers posted in 2021.
+normalized database. We’ll explore SQL functionality using this example
+database, which has metadata (i.e., it lacks the actual text of the
+questions and answers) on all of the questions and answers posted in
+2021.
 
-We’ll explore SQL functionality using this example database.
-
-Now let’s consider the Stack Overflow data. Each question may have
-multiple answers and each question may have multiple (topic) tags.
+Let’s consider the Stack Overflow data. Each question may have multiple
+answers and each question may have multiple (topic) tags.
 
 If we tried to put this into a single table, the fields could look like
 this if we have one row per question:
@@ -458,15 +503,22 @@ other programs.
 ### 6.1 Using SQL from R
 
 The *DBI* package provides a front-end for manipulating databases from a
-variety of DBMS (SQLite, MySQL, PostgreSQL, among others). Basically,
-you tell the package what DBMS is being used on the back-end, link to
-the actual database, and then you can use the standard functions in the
-package regardless of the back-end.
+variety of DBMS (SQLite, DuckDB, MySQL, PostgreSQL, among others).
+Basically, you tell the package what DBMS is being used on the back-end,
+link to the actual database, and then you can use the standard functions
+in the package regardless of the back-end.
 
-With SQLite, R processes make calls against the stand-alone SQLite
-database (.db) file, so there are no SQLite-specific processes. With
-PostgreSQL, R processes call out to separate Postgres processes; these
-are started from the overall Postgres background process
+With SQLite and DuckDB, R processes make calls against the stand-alone
+SQLite database (.db or .duckdb) file, so there are no SQLite-specific
+processes. With PostgreSQL, R processes call out to separate Postgres
+processes; these are started from the overall Postgres background
+process.
+
+Apart from the different manner of connecting, all of the queries below
+are the same regardless of whether the back-end DBMS is SQLite, DuckDB,
+PostgreSQL, etc.
+
+#### 6.1.1 SQLite
 
 You can access and navigate an SQLite database from R as follows.
 
@@ -562,6 +614,47 @@ To disconnect from the database:
 dbDisconnect(db)
 ```
 
+#### 6.1.2 DuckDB
+
+You can access and navigate an DuckDB database from R as follows.
+
+``` r
+library(duckdb)
+drv <- duckdb()
+dir <- 'data' # relative or absolute path to where the .db file is
+dbFilename <- 'stackoverflow-2021.duckdb'
+dbd <- dbConnect(drv, file.path(dir, dbFilename))
+# simple query to get 5 rows from a table
+dbGetQuery(dbd, "select * from questions limit 5")  
+```
+
+    ##   questionid            creationdate score viewcount answercount
+    ## 1   65534165 2021-01-01T22:15:54.657     0       112           2
+    ## 2   65535296 2021-01-02T01:33:13.543     2      1109           0
+    ## 3   65535910 2021-01-02T04:01:34.137    -1       110           1
+    ## 4   65535916 2021-01-02T04:03:20.027     1        35           1
+    ## 5   65536749 2021-01-02T07:03:04.783     0       108           1
+    ##   commentcount favoritecount                               title
+    ## 1            0            NA     Can't update a value in sqlite3
+    ## 2            0            NA Install and run ROS on Google Colab
+    ## 3            8             0       Operators on date/time fields
+    ## 4            0            NA          Plotting values normalised
+    ## 5            5            NA     Export C# to word with template
+    ##    ownerid
+    ## 1 13189393
+    ## 2 14924336
+    ## 3   651174
+    ## 4 14695007
+    ## 5 14899717
+
+To disconnect from the database:
+
+``` r
+dbDisconnect(db, shutdown = TRUE)
+```
+
+#### 6.1.3 PostgreSQL
+
 To access a PostgreSQL database instead, you can do the following,
 assuming the database has been created and you have a username and
 password that allow you to access the particular database.
@@ -569,18 +662,14 @@ password that allow you to access the particular database.
 ``` r
 library(RPostgreSQL)
 drv <- dbDriver("PostgreSQL")
-db <- dbConnect(drv, dbname = 'stackoverflow', user = 'paciorek', password = 'test')
+dbp <- dbConnect(drv, dbname = 'stackoverflow', user = 'paciorek', password = 'test')
 # simple query to get 5 rows from a table, same as with SQLite:
-dbGetQuery(db, "select * from questions limit 5")  
+dbGetQuery(dbp, "select * from questions limit 5")  
 ```
-
-Apart from the different manner of connecting, all of the queries above
-are the same regardless of whether the back-end DBMS is SQLite,
-PostgreSQL, etc.
 
 ### 6.2 Using SQL from Python
 
-For SQLite:
+#### 6.2.1 SQLite
 
 ``` python
 import sqlite3 as sq
@@ -599,7 +688,18 @@ To disconnect:
 c.close()
 ```
 
-Here’s how you would connect to PostgreSQL instead:
+#### 6.2.2 DuckDB
+
+``` python
+import duckdb
+dir = 'data' # relative or absolute path to where the .duckdb file is
+dbFilename = 'stackoverflow-2021.duckdb'
+import os
+db = duckdb.connect(os.path.join('data', dbFilename))
+db.sql("select * from questions limit 5")
+```
+
+#### 6.2.3 PostgreSQL
 
 ``` python
 import psycopg2 as pg

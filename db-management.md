@@ -80,9 +80,36 @@ done
 > *will* need to do something about the quotes; I haven’t stripped them
 > out of the files.
 
-## 2 PostgreSQL
+## 2 DuckDB
 
-### 2.1 Setting up a database and using the Postgres command line
+DuckDB also has an [interpreter (a command line
+interface)](https://duckdb.org/docs/api/cli) that you can run from the
+command line instead of using it via R or Python or other languages.
+
+I won’t demonstrate that here. Instead I’ll demonstrate creation of a
+database directly from R without having to read the data into memory in
+R. We control the schema from R as well using standard arguments of
+`read.csv()` (which is used behind the scenes in setting up the DuckDB
+database but not for reading in all the data).
+
+``` r
+library(duckdb)
+dbname <- "wikistats.duckdb"
+drv <- duckdb()
+db <- dbConnect(db, dbname)
+duckdb_read_csv(db, 'webtraffic', list.files('.', pattern = "^part-"), 
+                    delim = ' ', header = FALSE, na.strings = 'NA', 
+                    colClasses = c('character','character','character','character','integer','numeric'), 
+                    col.names = c('date','hour','site','page','count','size')))
+dbDisconnect(db, shutdown = TRUE)
+```
+
+The DuckDB Python interface has `read_csv` and `read_parquet` functions
+for creating a database from one or more data files.
+
+## 3 PostgreSQL
+
+### 3.1 Setting up a database and using the Postgres command line
 
 First make sure Postgres is installed on your machine.
 
@@ -138,7 +165,7 @@ do things like this:
     create user paciorek with password 'test';
     grant all privileges on database wikistats to paciorek;
 
-### 2.2 Populating a table
+### 3.2 Populating a table
 
 Here’s an example of importing a single file into Postgres from within
 the psql interpreter running as the special postgres user. In this case
@@ -196,7 +223,7 @@ done
 > one to operate as a regular user and to use relative paths. In turn
 > `\copy` invokes `copy` in a specific way.
 
-### 2.3 Data cleaning
+### 3.3 Data cleaning
 
 One complication is that often the input files will have anomalies in
 them. Examples include missing columns for some rows, individual
