@@ -756,7 +756,7 @@ system.time(
 ```
 
     ##    user  system elapsed 
-    ##   4.468   1.486   6.882
+    ##   4.555   1.441   6.982
 
 Alternatively we can do a self-join. Note that the syntax gets
 complicated as we are doing multiple joins.
@@ -776,7 +776,7 @@ system.time(
 ```
 
     ##    user  system elapsed 
-    ##   6.438   3.585  12.097
+    ##   6.134   4.024  11.172
 
 ``` r
 identical(result1, result2)
@@ -1494,3 +1494,123 @@ when considering data that reside on one or a small number of partitions
 and could also ease manual implementation of parallelization. Here’s
 some information:
 <https://www.postgresql.org/docs/current/static/ddl-partitioning.html>.
+
+### 4.6 DuckDB
+
+For a serverless database, DuckDB is a nice alternative to SQLite that
+may speed up queries substantially. DuckDB stores data column-wise,
+which can lead to big speedups when doing queries operating on large
+portions of tables (so-called “online analytical processing” (OLAP)).
+Also, in this case, working with a column-wise format may faster than
+using an index.
+
+Let’s compare timing using DuckDB and SQLite versions of the
+StackOverflow database.
+
+First, we’ll see that simple queries that have to process an entire
+column can be much faster in DuckDB.
+
+``` r
+library(duckdb)
+drv <- duckdb()
+dbFilename <- 'stackoverflow-2021.duckdb'
+dbDuck <- dbConnect(drv, file.path(dir, dbFilename))
+
+system.time(dbGetQuery(db, "select count(ownerid) from questions"))
+```
+
+    ##    user  system elapsed 
+    ##   0.211   0.155   1.560
+
+``` r
+system.time(dbGetQuery(dbDuck, "select count(ownerid) from questions"))
+```
+
+    ##    user  system elapsed 
+    ##   0.017   0.002   0.074
+
+``` r
+system.time(result1 <- dbGetQuery(db, "select distinct ownerid from questions"))
+```
+
+    ##    user  system elapsed 
+    ##   2.076   1.193   3.378
+
+``` r
+system.time(result2 <- dbGetQuery(dbDuck, "select distinct ownerid from questions"))
+```
+
+    ##    user  system elapsed 
+    ##   0.348   0.028   0.067
+
+Now let’s compare timings for some of the queries we ran previously.
+
+Here’s a simple join with a filter.
+
+``` r
+system.time(result1 <- dbGetQuery(db, "select * from questions join questions_tags 
+                           on questions.questionid = questions_tags.questionid 
+                           where tag = 'python'"))
+```
+
+    ##    user  system elapsed 
+    ##   3.185   0.908   4.400
+
+``` r
+system.time(result2 <- dbGetQuery(dbDuck, "select * from questions join questions_tags 
+                           on questions.questionid = questions_tags.questionid 
+                           where tag = 'python'"))
+```
+
+    ##    user  system elapsed 
+    ##   0.810   0.109   1.341
+
+And here’s a subquery in the FROM statement.
+
+``` r
+system.time(result1 <- dbGetQuery(db, "select * from questions join answers A
+                on questions.questionid = A.questionid
+                join
+                (select ownerid, count(*) as n_answered from answers
+                group by ownerid order by n_answered desc limit 1000) most_responsive
+                on A.ownerid = most_responsive.ownerid"))
+```
+
+    ##    user  system elapsed 
+    ##   8.215   2.098  10.815
+
+``` r
+system.time(result2 <- dbGetQuery(dbDuck, "select * from questions join answers A
+                on questions.questionid = A.questionid
+                join
+                (select ownerid, count(*) as n_answered from answers
+                group by ownerid order by n_answered desc limit 1000) most_responsive
+                on A.ownerid = most_responsive.ownerid"))
+```
+
+    ##    user  system elapsed 
+    ##   1.895   0.096   1.403
+
+DuckDB will run in parallel by using multiple threads, which can help
+speed up computations on top of efficiencies available through the
+column-wise storage, though with the speed of the DuckDB queries above,
+I don’t think parallelization made much difference in those cases.
+
+You can manage the number of threads like this:
+
+``` r
+dbExecute(dbDuck, "set threads to 4")
+```
+
+    ## [1] 0
+
+``` r
+dbGetQuery(dbDuck, "SELECT current_setting('threads')")
+```
+
+    ##   current_setting('threads')
+    ## 1                          4
+
+``` r
+dbDisconnect(dbDuck, shutdown = TRUE)
+```

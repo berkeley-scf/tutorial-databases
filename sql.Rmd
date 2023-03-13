@@ -704,7 +704,6 @@ Some tips for faster queries include:
  - use filtering (WHERE clauses) in inner statements when you have nested subqueries
  - use LIMIT as seen in the examples here if you only need some of the rows a query returns
 
-
 ### 4.2 Indexes
 
 
@@ -744,9 +743,6 @@ Indexes are often implemented using tree-based methods. For example in Postgres,
 Here's [some information](https://use-the-index-luke.com/sql/anatomy/the-tree) on how such trees are constructed and searched.
 
 In SQLite, indexes are implemented by creating a separate index table that maps from the value to the row index in the indexed table, allowing for fast lookup of a row. 
-
-
-
 
 
 ### 4.3 SQL query plans and EXPLAIN
@@ -863,4 +859,68 @@ As of version 9.6 of Postgres, there is some capability for doing parallel queri
 [https://www.postgresql.org/docs/current/static/parallel-query.html](https://www.postgresql.org/docs/current/static/parallel-query.html).
 
 Finally Postgres supports partitioning tables. Generally one would divide a large table into smaller tables based on unique values of a key. For example if your data had timetamps, you could partition into subtables for each month or each year. This would allow faster queries when considering data that reside on one or a small number of partitions and could also ease manual implementation of parallelization.  Here's some information:  https://www.postgresql.org/docs/current/static/ddl-partitioning.html.
+
+### 4.6 DuckDB
+
+For a serverless database, DuckDB is a nice alternative to SQLite that may speed up queries substantially. DuckDB stores data column-wise, which can lead to big speedups when doing queries operating on large portions of tables (so-called "online analytical processing" (OLAP)). Also, in this case, working with a column-wise format may faster than using an index.
+
+Let's compare timing using DuckDB and SQLite versions of the StackOverflow database.
+
+First, we'll see that simple queries that have to process an entire column can be much faster in DuckDB.
+
+```{r, eval=TRUE}
+library(duckdb)
+drv <- duckdb()
+dbFilename <- 'stackoverflow-2021.duckdb'
+dbDuck <- dbConnect(drv, file.path(dir, dbFilename))
+
+system.time(dbGetQuery(db, "select count(ownerid) from questions"))
+system.time(dbGetQuery(dbDuck, "select count(ownerid) from questions"))
+
+system.time(result1 <- dbGetQuery(db, "select distinct ownerid from questions"))
+system.time(result2 <- dbGetQuery(dbDuck, "select distinct ownerid from questions"))
+```
+
+Now let's compare timings for some of the queries we ran previously. There are substantial speed-ups in both cases.
+
+Here's a simple join with a filter.
+
+```{r, eval=TRUE}
+system.time(result1 <- dbGetQuery(db, "select * from questions join questions_tags 
+                           on questions.questionid = questions_tags.questionid 
+                           where tag = 'python'"))
+
+system.time(result2 <- dbGetQuery(dbDuck, "select * from questions join questions_tags 
+                           on questions.questionid = questions_tags.questionid 
+                           where tag = 'python'"))
+```
+
+And here's a subquery in the FROM statement.
+
+```{r, eval=TRUE}
+system.time(result1 <- dbGetQuery(db, "select * from questions join answers A
+                on questions.questionid = A.questionid
+                join
+                (select ownerid, count(*) as n_answered from answers
+                group by ownerid order by n_answered desc limit 1000) most_responsive
+                on A.ownerid = most_responsive.ownerid"))
+
+system.time(result2 <- dbGetQuery(dbDuck, "select * from questions join answers A
+                on questions.questionid = A.questionid
+                join
+                (select ownerid, count(*) as n_answered from answers
+                group by ownerid order by n_answered desc limit 1000) most_responsive
+                on A.ownerid = most_responsive.ownerid"))
+
+```
+
+DuckDB will run in parallel by using multiple threads, which can help speed up computations on top of efficiencies available through the column-wise storage, though with the speed of the DuckDB queries above, I don't think parallelization made much difference in those cases.
+
+You can manage the number of threads like this:
+
+```{r, eval=TRUE}
+dbExecute(dbDuck, "set threads to 4")
+dbGetQuery(dbDuck, "SELECT current_setting('threads')")
+dbDisconnect(dbDuck, shutdown = TRUE)
+```
 

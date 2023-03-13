@@ -3,8 +3,6 @@ layout: default
 title: Working with big data in R and Python
 ---
 
-# Working with big data in R and Python
-
 This section aims to provide an overview of working with large datasets
 in R and (to a lesser extent) Python. Given the scope of topics, this is
 not meant to be a detailed treatment of each topic.
@@ -16,14 +14,17 @@ split-apply-combine functionality in dplyr in R and in pandas in Python
 is the same concept as the use of SQL’s GROUP BY combined with
 aggregation operations such as MIN, MAX, AVG, COUNT.
 
-You can get [the CSV files for the 2016 Stack Overflow data and the space-delimited files for the Wikipedia traffic data](http://www.stat.berkeley.edu/share/paciorek/tutorial-databases-data.zip) used in the examples below.
+The CSV files for the 2016 Stack Overflow data and the space-delimited
+files for the Wikipedia traffic data used in the examples below can be
+obtained
+[here](http://www.stat.berkeley.edu/share/paciorek/tutorial-databases-data.zip).
 
-## 1 Data frames in R and Python
+# 1 Data frames in R and Python
 
-### 1.1 Data frames in R
+## 1.1 Data frames in R
 
 A data frame in R is essentially the same as a table in SQL. The notion
-of a data frame has been essential to the success of R, and its existence
+of a data frame has been essential to the success of R and its existence
 inspired Python’s Pandas package.
 
 R’s data frames are stored in memory, but there are now packages (such
@@ -53,7 +54,7 @@ joined <- merge(users, questions, by.x = 'userid', by.y = 'ownerid',
     all.x = FALSE, all.y = FALSE)  # inner join
 ```
 
-### 1.2 Using SQL syntax with R data frames: `sqldf`
+## 1.2 Using SQL syntax with R data frames: `sqldf`
 
 The *sqldf* package provides the ability to use SQL queries on R data
 frames (via `sqldf`) and on-the-fly when reading from CSV files (via
@@ -89,7 +90,7 @@ oldUsers <- read.csv.sql(file.path('data', 'users-2016.csv'),
       dbname = tempfile(), header = TRUE)
 ```
 
-### 1.3 Data frames in Python
+## 1.3 Data frames in Python
 
 The Pandas package has nice functionality for doing dataset
 manipulations akin to SQL queries including group by/aggregation
@@ -114,16 +115,16 @@ joined = pd.merge(users, questions, how= 'inner', left_on= 'userid',
         right_on = 'ownerid')
 ```
 
-### 1.4 Distributed data frames in Dask in Python
+## 1.4 Distributed data frames in Dask in Python
 
 The Dask package provides the ability to divide data frames across
 multiple workers (and across nodes), allowing one to handle very large
 datasets, as discussed in [this
-tutorial on Dask](https://berkeley-scf.github.io/tutorial-dask-future/python-dask#4-dask-distributed-datastructures-and-automatic-parallel-operations-on-them).
+tutorial](https://berkeley-scf.github.io/tutorial-dask-future/python-dask#4-dask-distributed-datastructures-and-automatic-parallel-operations-on-them).
 
-## 2 dplyr in R
+# 2 dplyr in R
 
-### 2.1 Overview
+## 2.1 Overview
 
 dplyr is part of the [tidyverse](http://tidyverse.org/), a set of R
 packages spearheaded by Hadley Wickham. You can think of dplyr as
@@ -154,7 +155,7 @@ dim(result)
 
     ## [1] 481  10
 
-### 2.2 Piping
+## 2.2 Piping
 
 dplyr is often combined with piping, which allows you to build up a
 sequence of operations (from left to right), as if you were using UNIX
@@ -191,7 +192,7 @@ identical(result, result3)
 
 We’ll use pipes in the remainder of the dplyr examples.
 
-### 2.3 Functionality
+## 2.3 Functionality
 
 Here’s how one can do stratified analysis with aggregation operations.
 In the dplyr world, this is known as split-apply-combine but in the SQL
@@ -231,18 +232,19 @@ head(questionsOfAge)
 ```
 
     ## # A tibble: 6 × 15
-    ##   userid creationdate.x      lastaccessdate      location    
-    ##    <dbl> <dttm>              <dttm>              <chr>       
-    ## 1   4668 2008-09-05 04:08:05 2017-03-13 21:19:14 Portland, OR
-    ## 2   4668 2008-09-05 04:08:05 2017-03-13 21:19:14 Portland, OR
-    ## 3   4668 2008-09-05 04:08:05 2017-03-13 21:19:14 Portland, OR
-    ## 4   4668 2008-09-05 04:08:05 2017-03-13 21:19:14 Portland, OR
-    ## 5   4668 2008-09-05 04:08:05 2017-03-13 21:19:14 Portland, OR
-    ## 6   4668 2008-09-05 04:08:05 2017-03-13 21:19:14 Portland, OR
-    ## # … with 11 more variables: reputation <dbl>, displayname <chr>,
-    ## #   upvotes <dbl>, downvotes <dbl>, age <dbl>, accountid <dbl>,
+    ##   userid creationdate.x      lastaccessdate      location reput…¹
+    ##    <dbl> <dttm>              <dttm>              <chr>      <dbl>
+    ## 1   4668 2008-09-05 04:08:05 2017-03-13 21:19:14 Portlan…  116900
+    ## 2   4668 2008-09-05 04:08:05 2017-03-13 21:19:14 Portlan…  116900
+    ## 3   4668 2008-09-05 04:08:05 2017-03-13 21:19:14 Portlan…  116900
+    ## 4   4668 2008-09-05 04:08:05 2017-03-13 21:19:14 Portlan…  116900
+    ## 5   4668 2008-09-05 04:08:05 2017-03-13 21:19:14 Portlan…  116900
+    ## 6   4668 2008-09-05 04:08:05 2017-03-13 21:19:14 Portlan…  116900
+    ## # … with 10 more variables: displayname <chr>, upvotes <dbl>,
+    ## #   downvotes <dbl>, age <dbl>, accountid <dbl>,
     ## #   questionid <dbl>, creationdate.y <dttm>, score <dbl>,
-    ## #   viewcount <dbl>, title <chr>
+    ## #   viewcount <dbl>, title <chr>, and abbreviated variable name
+    ## #   ¹​reputation
 
 > **Challenge**: Why did I first filter and then do the join, rather
 > than the reverse?
@@ -254,7 +256,7 @@ In addition to operating directly on data frames, dplyr can also operate
 on databases and data.table objects as the back-end storage, as we’ll
 see next.
 
-### 2.4 Cautionary notes
+## 2.4 Cautionary notes
 
 Note that dplyr and other packages in the tidyverse use a modified form
 of data frames. In some cases you may want to convert back to a standard
@@ -297,7 +299,7 @@ myfun <- function(df, colname)
 myfun(questions, 'age')
 ```
 
-### 2.5 dplyr with SQL and databases
+## 2.5 dplyr with SQL and databases
 
 We can connect to an SQLite or Postgres database and then query it using
 dplyr syntax:
@@ -311,27 +313,27 @@ oldFolks <- users %>% filter(age > 75)
 head(oldFolks)
 ```
 
-    ## # Source:   lazy query [?? x 10]
-    ## # Database: sqlite 3.36.0
-    ## #   [/accounts/gen/vis/paciorek/teaching/243fall21/stat243-fall-2021/data/stackoverflow-2016.db]
-    ##    userid creationdate        lastaccessdate  location reputation
-    ##     <int> <chr>               <chr>           <chr>         <int>
-    ## 1  210754 2009-11-13 21:31:17 2017-03-11 23:… Washing…       3519
-    ## 2 1461979 2012-06-17 15:14:02 2016-05-07 03:… <NA>             21
-    ## 3 1523314 2012-07-13 10:38:30 2016-05-27 14:… Deil, N…         34
-    ## 4 2063329 2013-02-12 02:41:28 2017-03-13 20:… Honolul…        136
-    ## 5 3770909 2014-06-24 11:08:34 2017-02-23 09:… Amsterd…          6
-    ## 6 6007961 2016-03-02 13:16:52 2016-03-30 11:… Netherl…          1
-    ## # … with 5 more variables: displayname <chr>, upvotes <int>,
-    ## #   downvotes <int>, age <int>, accountid <int>
+    ## # Source:   SQL [6 x 10]
+    ## # Database: sqlite 3.39.4 [/accounts/vis/paciorek/teaching/243fall21/stat243-fall-2021/data/stackoverflow-2016.db]
+    ##    userid creat…¹ lasta…² locat…³ reput…⁴ displ…⁵ upvotes downv…⁶
+    ##     <int> <chr>   <chr>   <chr>     <int> <chr>     <int>   <int>
+    ## 1  210754 2009-1… 2017-0… Washin…    3519 No Ref…     170      47
+    ## 2 1461979 2012-0… 2016-0… <NA>         21 user14…       0       0
+    ## 3 1523314 2012-0… 2016-0… Deil, …      34 Wybo D…       2       0
+    ## 4 2063329 2013-0… 2017-0… Honolu…     136 user20…       1       0
+    ## 5 3770909 2014-0… 2017-0… Amster…       6 Pieter…       0       0
+    ## 6 6007961 2016-0… 2016-0… Nether…       1 Ed Man…       0       0
+    ## # … with 2 more variables: age <int>, accountid <int>, and
+    ## #   abbreviated variable names ¹​creationdate, ²​lastaccessdate,
+    ## #   ³​location, ⁴​reputation, ⁵​displayname, ⁶​downvotes
 
 > **Note**: dplyr uses lazy evaluation when interfacing with databases –
 > it only does the query and return results when the results are needed
 > (in this case when we call `head`).
 
-## 3 Manipulating datasets quickly in memory
+# 3 Manipulating datasets quickly in memory
 
-### 3.1 `data.table` in R
+## 3.1 `data.table` in R
 
 The *data.table* package provides a lot of functionality for fast
 manipulation of datasets in memory. data.table can do the standard SQL
@@ -379,7 +381,7 @@ sophisticated queries and manipulations (including aggregation
 operations), but it has its own somewhat involved syntax and concepts.
 The above just scratches the surface of what you can do with it.
 
-### 3.2 Using dplyr syntax with data.table in R
+## 3.2 Using dplyr syntax with data.table in R
 
 Rather than learning the data.table syntax, one can also use dplyr
 syntax with data.table objects.
@@ -405,7 +407,7 @@ system.time(sub <- wikiDT2 %>% filter(count == 512)) # 0.1 sec.
 Finally the `tidytable` package also allows you to use dplyr syntax as
 well as other tidyverse syntax, such as `tidyr` functions.
 
-### 3.3 Arrow
+## 3.3 Arrow
 
 Apache Arrow provides efficient data structures for working with data in
 memory, usable in R via the `arrow` package and the `PyArrow` package in
@@ -421,7 +423,7 @@ memory. We’ll discuss this concept more in the next section.
 One can use [dplyr syntax to work with data in the Arrow data
 structures](https://cran.r-project.org/web/packages/arrow/vignettes/dataset.html).
 
-### 3.4 Polars dataframes in Python
+## 3.4 Polars dataframes in Python
 
 I haven’t investigated it, but
 [Polars](https://pola-rs.github.io/polars-book/user-guide/index.html) is
@@ -430,7 +432,19 @@ that provides a Python interface. It uses the Arrow columnar format. It
 also provides a lazy execution model like Spark or Dask that allows for
 automatic optimization of queries.
 
-## 4 Working with large datasets on disk
+## 3.5 DuckDB
+
+With DuckDB, you can run queries against existing R and Python data
+frames and Arrow objects, without having to copy the data or import it
+into an actual database.
+
+In R, use the `duckdb_register` and `duckdb_register_arrow` functions to
+‘register’ the data frame or Arrow data source.
+
+For Python, see the example syntax in the DuckDB documentation to query
+Pandas and Polars data frames and Arrow objects.
+
+# 4 Working with large datasets on disk
 
 There are a variety of packages in R that allow you to work with very
 large datasets on disk without loading them fully into memory. Some of
@@ -453,7 +467,16 @@ wikiDF <- readr::read_table(file = pipe("gzip -cd data/part-0000?.gz"),
         col_types = c('nnccnn'))
 ```
 
-### 4.1 Arrow
+## 4.1 DuckDB
+
+With DuckDB, with some file formats (e.g., CSV, Parquet), you can run
+queries on files on disk without reading the entire dataset into memory.
+
+Alternatively, you can read the data from files on disk into a DuckDB
+database without storing all the data in memory, and then run queries
+against the database you’ve created.
+
+## 4.2 Arrow
 
 The *arrow* package allows you to read and write from datasets stored as
 one or (often) more files in various formats, including:
@@ -474,17 +497,16 @@ and memory usage.
 > storing the files in text/CSV is not a good idea as it will be much
 > faster to read from the Parquet or Arrow formats.
 
-There’s a [nice Arrow vignette](https://cran.r-project.org/web/packages/arrow/vignettes/dataset.html)
+There’s a [nice
+vignette](https://cran.r-project.org/web/packages/arrow/vignettes/dataset.html)
 covering basic usage, as well as [this
-discussion of file formats](https://stackoverflow.com/questions/56472727/difference-between-apache-parquet-and-arrow).
+discussion](https://stackoverflow.com/questions/56472727/difference-between-apache-parquet-and-arrow)
+of file formats.
 
 The *PyArrow* package is available for Python, but I haven’t explored
 it.
 
-Note that *arrow* basically subsumes *feather* and you can work with
-feather-formatted files using *arrow*.
-
-### 4.2 fst
+## 4.3 fst
 
 The *fst* package for R provides the ability to quickly read and write
 data frames in parallel from data stored on disk in the efficient fst
@@ -512,9 +534,9 @@ The 8 seconds to read the data compares to 55 seconds to read the data
 from the gzipped files via a connection using `readr::read_table` and 29
 seconds via `data.table::fread`.
 
-### 4.3 Additional packages in R (ff, LaF, bigmemory)
+## 4.4 Additional packages in R (ff, LaF, bigmemory)
 
-#### 4.3.1 ff
+### 4.4.1 ff
 
 ff stores datasets in columnar format, with one file per column, on
 disk, so is not limited by memory (with the caveat below). It then
@@ -585,7 +607,7 @@ Also, I’ve encountered problems when there are more than about 1000
 columns because each column is a separate file and there can be
 limitations in R on how many files it has open at once.
 
-#### 4.3.2 LaF package
+### 4.4.2 LaF package
 
 The LaF package is designed to quickly read in data from CSV and FWF
 (fixed-width format) input files, efficiently handling cases where you
@@ -604,7 +626,7 @@ sub <- datLaf[dat$count[] == 635,]
 If you run this you’ll see that the `laf_open_csv` took no time,
 indicating LaF is using lazy evaluation.
 
-#### 4.3.3 bigmemory for matrices
+### 4.4.3 bigmemory for matrices
 
 `bigmemory` is similar to ff in providing the ability to load datasets
 into R without having them in memory, but rather stored in clever ways
@@ -618,7 +640,7 @@ can access the matrix stored on disk.
 The `biglm` package provides the ability to fit linear models and GLMs
 to big datasets, with integration with ff and bigmemory.
 
-### 4.4 Strategies in Python
+## 4.5 Strategies in Python
 
 Python provides a variety of packages and approaches you can use to
 avoid reading large datasets fully into memory. Here is a brief overview
@@ -628,14 +650,15 @@ of a few approaches:
     package](https://berkeley-scf.github.io/tutorial-dask-future/python-dask#4-dask-distributed-datastructures-and-automatic-parallel-operations-on-them)
     to break up datasets into chunks. Dask processes the data in chunks,
     so one often doesn’t need a lot of memory, even just on one machine.
--   Use [numpy.load](https://numpy.org/doc/stable/reference/generated/numpy.load.html)
-    with the `mmap_mode` argument to access a numpy
+-   Use `numpy.load` with the `mmap_mode` argument to access a numpy
     array (stored in a .npy file) on disk via memory mapping, reading
-    only the pieces of the array that you need into memory. 
+    only the pieces of the array that you need into memory, as discussed
+    [here](https://numpy.org/doc/stable/reference/generated/numpy.load.html).
 
-See also [this discussion of accessing data on disk from Python](https://pythonspeed.com/articles/mmap-vs-zarr-hdf5).
+See [here](https://pythonspeed.com/articles/mmap-vs-zarr-hdf5) for more
+discussion of accessing data on disk from Python.
 
-### 4.5 Online (batch) processing of data in R and Python
+## 4.6 Online (batch) processing of data in R and Python
 
 Another approach is to manually process the data in batches, only
 reading in chunks of data that can fit in memory before doing some
@@ -650,7 +673,7 @@ Not surprisingly there is a ton more functionality than shown below (in
 both Python and R) for reading chunks from files as well as skipping
 ahead in a file via a file connection or stream.
 
-#### 4.5.1 Online processing in R
+### 4.6.1 Online processing in R
 
 In R, various input functions can read in a subset of a file or can skip
 ahead. In general the critical step is to use a *connection* rather than
@@ -709,7 +732,7 @@ system.time(dat4r <- read_csv(fn, n_max = 100000, skip = 1000001, col_names = FA
 Note that `read_csv` can handle zipped inputs, but does not handle a
 standard text file connection.
 
-#### 4.5.2 Online processing in Python
+### 4.6.2 Online processing in Python
 
 Pandas’ `read_csv` has similar functionality in terms of reading a fixed
 number of rows and skipping rows, and it can decompress zipped files on
