@@ -924,3 +924,5 @@ dbGetQuery(dbDuck, "SELECT current_setting('threads')")
 dbDisconnect(dbDuck, shutdown = TRUE)
 ```
 
+Finally, DuckDB databases tend to take up less space on disk than SQLite databases, because the column-wise storage allows for better compression.
+

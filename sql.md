@@ -756,7 +756,7 @@ system.time(
 ```
 
     ##    user  system elapsed 
-    ##   4.555   1.441   6.982
+    ##   4.658   1.610   7.252
 
 Alternatively we can do a self-join. Note that the syntax gets
 complicated as we are doing multiple joins.
@@ -776,7 +776,7 @@ system.time(
 ```
 
     ##    user  system elapsed 
-    ##   6.134   4.024  11.172
+    ##   6.435   3.659  11.040
 
 ``` r
 identical(result1, result2)
@@ -1520,30 +1520,31 @@ system.time(dbGetQuery(db, "select count(ownerid) from questions"))
 ```
 
     ##    user  system elapsed 
-    ##   0.211   0.155   1.560
+    ##   0.215   0.166   1.539
 
 ``` r
 system.time(dbGetQuery(dbDuck, "select count(ownerid) from questions"))
 ```
 
     ##    user  system elapsed 
-    ##   0.017   0.002   0.074
+    ##   0.044   0.006   0.074
 
 ``` r
 system.time(result1 <- dbGetQuery(db, "select distinct ownerid from questions"))
 ```
 
     ##    user  system elapsed 
-    ##   2.076   1.193   3.378
+    ##   2.003   1.248   3.493
 
 ``` r
 system.time(result2 <- dbGetQuery(dbDuck, "select distinct ownerid from questions"))
 ```
 
     ##    user  system elapsed 
-    ##   0.348   0.028   0.067
+    ##   0.353   0.034   0.061
 
 Now let’s compare timings for some of the queries we ran previously.
+There are substantial speed-ups in both cases.
 
 Here’s a simple join with a filter.
 
@@ -1554,7 +1555,7 @@ system.time(result1 <- dbGetQuery(db, "select * from questions join questions_ta
 ```
 
     ##    user  system elapsed 
-    ##   3.185   0.908   4.400
+    ##   3.259   0.893   4.412
 
 ``` r
 system.time(result2 <- dbGetQuery(dbDuck, "select * from questions join questions_tags 
@@ -1563,7 +1564,7 @@ system.time(result2 <- dbGetQuery(dbDuck, "select * from questions join question
 ```
 
     ##    user  system elapsed 
-    ##   0.810   0.109   1.341
+    ##   0.732   0.105   1.150
 
 And here’s a subquery in the FROM statement.
 
@@ -1577,7 +1578,7 @@ system.time(result1 <- dbGetQuery(db, "select * from questions join answers A
 ```
 
     ##    user  system elapsed 
-    ##   8.215   2.098  10.815
+    ##   8.557   2.174  10.858
 
 ``` r
 system.time(result2 <- dbGetQuery(dbDuck, "select * from questions join answers A
@@ -1589,7 +1590,7 @@ system.time(result2 <- dbGetQuery(dbDuck, "select * from questions join answers 
 ```
 
     ##    user  system elapsed 
-    ##   1.895   0.096   1.403
+    ##   2.008   0.061   1.339
 
 DuckDB will run in parallel by using multiple threads, which can help
 speed up computations on top of efficiencies available through the
@@ -1614,3 +1615,7 @@ dbGetQuery(dbDuck, "SELECT current_setting('threads')")
 ``` r
 dbDisconnect(dbDuck, shutdown = TRUE)
 ```
+
+Finally, DuckDB databases tend to take up less space on disk than SQLite
+databases, because the column-wise storage allows for better
+compression.
