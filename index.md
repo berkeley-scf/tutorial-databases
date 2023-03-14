@@ -650,7 +650,7 @@ dbGetQuery(dbd, "select * from questions limit 5")
 To disconnect from the database:
 
 ``` r
-dbDisconnect(db, shutdown = TRUE)
+dbDisconnect(dbd, shutdown = TRUE)
 ```
 
 #### 6.1.3 PostgreSQL
@@ -695,7 +695,7 @@ import duckdb
 dir = 'data' # relative or absolute path to where the .duckdb file is
 dbFilename = 'stackoverflow-2021.duckdb'
 import os
-db = duckdb.connect(os.path.join('data', dbFilename))
+db = duckdb.connect(os.path.join(dir, dbFilename))
 db.sql("select * from questions limit 5")
 ```
 

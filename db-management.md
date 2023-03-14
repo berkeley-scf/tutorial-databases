@@ -96,7 +96,7 @@ database but not for reading in all the data).
 library(duckdb)
 dbname <- "wikistats.duckdb"
 drv <- duckdb()
-db <- dbConnect(db, dbname)
+db <- dbConnect(drv, dbname)
 duckdb_read_csv(db, 'webtraffic', list.files('.', pattern = "^part-"), 
                     delim = ' ', header = FALSE, na.strings = 'NA', 
                     colClasses = c('character','character','character','character','integer','numeric'), 

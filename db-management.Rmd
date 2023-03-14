@@ -80,7 +80,7 @@ I won't demonstrate that here. Instead I'll demonstrate creation of a database d
 library(duckdb)
 dbname <- "wikistats.duckdb"
 drv <- duckdb()
-db <- dbConnect(db, dbname)
+db <- dbConnect(drv, dbname)
 duckdb_read_csv(db, 'webtraffic', list.files('.', pattern = "^part-"), 
                     delim = ' ', header = FALSE, na.strings = 'NA', 
                     colClasses = c('character','character','character','character','integer','numeric'), 
