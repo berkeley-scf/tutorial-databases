@@ -121,7 +121,7 @@ Some NoSQL systems include
  - document storage systems (like key-value systems but where the value is a document), and
  - graph storage systems (e.g., for social networks). 
 
-#### Databases in the cloud
+### 3.2 Databases in the cloud
 
 The various big cloud computing providers (AWS, Google Cloud Platform (GCP), Azure) provide a dizzying array of different database-like services. Here are some examples.
 
@@ -129,9 +129,9 @@ The various big cloud computing providers (AWS, Google Cloud Platform (GCP), Azu
 - *Data warehouses* such as Google BigQuery and Amazon RedShift allow you to create a data repository in which the data are structured like in a database (tables, fields, etc.), stored in the cloud, and queried efficiently (and in parallel) using the cloud provider's infrastructure). Storage is by column, which allows for efficient queries when doing queries operating on large portions of tables.
 - *Data lakes* store data in a less structured way in cloud storage in files (e.g., CSV, Parquet, Arrow, etc.) that generally have common structure. The data can be queried without creating an actual database or data warehouse.
 
-Google's BigQuery has the advantages of not requiring a lot of administration/configuration while allowing your queries to take advantage of a lot of computing power. BigQuery will determine how to run a query in parallel across multiple (virtual) cores. A demonstration of using BigQuery for this tutorial is under construction. 
+Google's BigQuery has the advantages of not requiring a lot of administration/configuration while allowing your queries to take advantage of a lot of computing power. BigQuery will determine how to run a query in parallel across multiple (virtual) cores. You can see a [demonstration of BigQuery](bigquery).
 
-### 3.2 SQL 
+### 3.3 SQL 
 
 SQL is a declarative language that tells the database system what results you want. The system then parses the SQL syntax and determines how to implement the query.
 

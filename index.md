@@ -241,7 +241,7 @@ Some NoSQL systems include
     is a document), and
 -   graph storage systems (e.g., for social networks).
 
-#### Databases in the cloud
+### 3.2 Databases in the cloud
 
 The various big cloud computing providers (AWS, Google Cloud Platform
 (GCP), Azure) provide a dizzying array of different database-like
@@ -265,10 +265,10 @@ services. Here are some examples.
 Google’s BigQuery has the advantages of not requiring a lot of
 administration/configuration while allowing your queries to take
 advantage of a lot of computing power. BigQuery will determine how to
-run a query in parallel across multiple (virtual) cores. A demonstration
-of using BigQuery for this tutorial is under construction.
+run a query in parallel across multiple (virtual) cores. You can see a
+[demonstration of BigQuery](bigquery).
 
-### 3.2 SQL
+### 3.3 SQL
 
 SQL is a declarative language that tells the database system what
 results you want. The system then parses the SQL syntax and determines

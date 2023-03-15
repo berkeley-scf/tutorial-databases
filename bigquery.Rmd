@@ -1,0 +1,192 @@
+---
+layout: default
+title: Data Warehouses
+---
+
+
+```{r setup, include=FALSE}
+options(replace.assign=TRUE, width=65)
+knitr::opts_chunk$set(eval = FALSE, message = FALSE) ## turned off message() output
+```
+
+## 1 Overview
+
+ *Data warehouses* such as Google BigQuery and Amazon RedShift allow you to create a data repository in which the data are structured like in a database (tables, fields, etc.), stored in the cloud, and queried efficiently (and in parallel) using the cloud provider's infrastructure. Storage is by column, which allows for efficient queries when doing queries operating on large portions of tables.
+
+BigQuery has some nice advantages over RedShift for one-off analyses (as opposed to regular, repeated operations). In particular, it requires less configuration/administration. BigQuery is 'serverless'. Instead of you having to set up  virtual machines to do the queries, BigQuery automatically sets up the computational resources for your query, scaled as appropriate for the size of the query.
+
+Some features of BigQuery include:
+
+ - You can manage access to your datasets for different GCP users.
+ - You can query [publicly available datasets](https://cloud.google.com/datasets).
+ - You can query "external tables" to access data not in a BigQuery dataset.
+
+## 2 Running queries
+
+Let's first demonstrate running an SQL query in BigQuery. We'll use a publicly available dataset. You can process your first one terabyte of data per month for free (that sounds like a lot, but queries can add up quickly when datasets are gigatyes in size or larger).
+
+### 2.1 Using the BigQuery browser-based interface
+
+These next instructions assume you have a Google Cloud Platform account with billing set up (e.g., using a credit card). To use the BigQuery Sandbox, see below.
+
+Navigate to cloud.google.com and login (or create if needed) your Google Cloud Platform account (which will be associated with your Google account and its email address). Then go to the BiqQuery website](https://console.cloud.google.com/bigquery) and click `Enable` (if you haven't enabled it previously for your account).
+
+Now we can start working with BigQuery. The demo here follows [these instructions](https://cloud.google.com/bigquery/docs/quickstarts/query-public-dataset-console).
+
+To use a public dataset, we'll choose `Add Data` and scroll down to `Public Datasets`. Search for "Stack Overflow". You'll be able to see that the name of the dataset is `bigquery-public-data.stackoverflow`. This has similar data to the Stack Overflow data used elsewhere in this tutorial, but the database schema differs somewhat.
+
+By clicking on `View Dataset`, you should be able to view the tables of the Dataset in the `Explorer` tab and select tables to see the fields.
+
+Now we can select `Compose a New Query' and enter an SQL query. 
+
+Note that BigQuery will preview how much data will be processed (see the upper right). Remember that you can process 1 TB for free each month.
+
+This example query would process 37 GB. Maybe more of our free quota than we want to use at the moment.
+
+```{sql}
+select * from `bigquery-public-data.stackoverflow.posts_questions` limit 5;
+```
+
+This will only process 2.5 MB, so let's run this:
+
+```{sql}
+select * from `bigquery-public-data.stackoverflow.tags` order by count desc limit 20;
+```
+
+The result (which you can see in the next section run from R) indicates that `javascript`, `python`, `java`, and `c#` are the most popular tags.
+
+You can save the results in various ways (to a local file, to Google Drive, as a BigQuery table, etc.
+
+#### 2.1.1 Using the free BigQuery Sandbox
+
+You can use the [Sandbox](https://cloud.google.com/bigquery/docs/sandbox) to avoid having to set up billing for your GCP account.
+The Sandbox has the same limits as BigQuery's free tier, in particular 1 TB of processed query data each month.
+
+Go to [BigQuery](https://console.cloud.google.com/bigquery), and login with your Google account. Set up a new project and then go to BigQuery and try it out (e.g., running the query above on the StackOverflow data).
+
+### 2.2 Running queries from R or Python
+
+We can use the `bigrquery` R package to interact with BigQuery from R (e.g., running on a laptop).
+
+```{r, eval=TRUE}
+myproject <- "some_project"
+user <- "user@berkeley.edu"
+
+library(bigrquery)
+library(DBI)
+```
+
+The following will prompt for authentication to your Google account in a browser and save the authentication information as a 'token' associated with the email address.
+
+If you've already done the authentication previously, it will reload the saved token, not requiring any interactivity, as done in generating this document.
+
+```{r, eval=TRUE}
+bq_auth(email = user)
+```
+
+Now let's connect to the public dataset and check the schema. To be able to run queries, we need to be able to provide a GCP project that has billing set up via the `billing` argument. It's possible that the SQL below would run if `billing` is set to be the name of a project without billing set up (i.e., using the BigQuery Sandbox), but I haven't checked that.
+
+```{r, eval=TRUE}
+drv <- bigquery()
+
+db<- dbConnect(drv,
+  project = "bigquery-public-data",
+  dataset = "stackoverflow",
+  billing = myproject
+)
+
+dbListTables(db)
+dbListFields(db, 'posts_questions')
+```
+
+Now let's run the simple query we tried before.
+
+```{r, eval=TRUE}
+sql <- "select * from tags order by count desc limit 20"
+dbGetQuery(db, sql)
+```
+
+## 2.3 Getting data into BigQuery
+
+Next, let's demonstrate setting up a BigQuery data warehouse, using the Wikipedia data (used in the [database management demos](db-managment)) as an example. Recall that we have data to populate a single table from multiple space-delimited flat text files, all of them in exactly the same format in terms of columns.
+
+### 2.3.1 Loading from a local file via the BigQuery web interface
+
+We can load from a local file on our computer using `Add Data`, or we can load from files already present in Google Cloud Storage.
+
+First we'll need to set IAM permissions on our account to allow the account to create and update tables.
+
+To upload from a local file, select the `Add Data` button and choose the file. There is no 'space-separated' file format, so we'll choose CSV and then in the advanced options, I need to specify that the delimiter is a space using a "custom" field delimiter. You can choose to create a new dataset. Since the files don't have column names, I'll choose to specify the schema (the field names and types) in the Schema section of the BigQuery form by clicking on the '+' symbol to add each field, specifically by entering this information: {date: string, maxlength = 8, hour: string: maxlength = 6, site: string, page: string, count: integer, size: numeric}. 
+
+I'll name the new BigQuery dataset `wiki_test` (this is equivalent to the name of a database in a standard DBMS).
+
+As was the case in the [data management demos](db-management), we need to strip out double quote (") symbols as BigQuery tries to interpret these as beginning and ending fields.
+
+In the `Add Data` form, it looks like we can only add a single file at a time, so for this test, I'll just add one file.
+
+Let's see if we can now query the new table in the new dataset from R as done previously with the public Stack Overflow dataset.
+
+```{r, eval=TRUE}
+db<- dbConnect(drv,
+  project = myproject,
+  dataset = "wiki_test",
+  billing = myproject
+)
+
+dbListTables(db)
+dbListFields(db, 'webtraffic')
+```
+
+Now let's run a simple query:
+
+```{r, eval=TRUE}
+sql <- "select * from webtraffic limit 5"
+dbGetQuery(db, sql)
+```
+
+It worked!
+
+### 2.3.2 Loading from multiple files in Google Cloud Storage
+
+Now let's load multiple files all at once from Google Cloud Storage (GCS).
+
+First we'll take 10 of the files of the cleaned (no double quotes) Wikipedia data and put them in GCS. Through the [GCS web interface](https://console.cloud.google.com/storage), I'll create a bucket named `wikipedia-cleaned-data` and upload the files.
+
+Now select `Add Data` in the BigQuery interface. We'll select the source as `Google Cloud Storage`, the file format as CSV (with the custom separator of a space character) and use a "URI pattern" to select all 10 of the files: `wikipedia-cleaned-data/part-*`. We'll name this dataset `wikipedia`.
+
+We can now run the same query as above on the new (larger) dataset:
+
+```{r, eval=TRUE}
+db<- dbConnect(drv,
+  project = myproject,
+  dataset = "wikipedia",
+  billing = myproject
+)
+
+dbListTables(db)
+dbListFields(db, 'webtraffic')
+```
+
+Now let's run a simple query:
+
+```{r, eval=TRUE}
+sql <- "select * from webtraffic limit 5"
+dbGetQuery(db, sql)
+```
+
+
+### 2.3.3 Permissions
+
+I did this using my Google Cloud account, which is an owner of the GCP account and so has various BigQuery permissions already set to allow various actions, including creating or modifying BigQuery datasets.
+
+If you (as recommended) are using an IAM account, you are likely to need to set [some permissions for the account](https://cloud.google.com/bigquery/docs/access-control) to create or modify BigQuery datasets. In particular, as discussed [here](https://cloud.google.com/bigquery/docs/batch-loading-data) you need the following IAM permissions set:
+
+ - bigquery.tables.create
+ - bigquery.tables.updateData
+ - bigquery.tables.update
+ - bigquery.jobs.create
+
+You can set these permissions by adding one of various IAM roles (e.g., `roles/bigquery.dataEditor`, 
+    `roles/bigquery.dataOwner`, `roles/bigquery.admin`, `bigquery.user`, or `bigquery.jobUser`).
+
+
