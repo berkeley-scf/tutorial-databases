@@ -194,9 +194,9 @@ dbGetQuery(db, sql)
     ## 19    96 asp.net     370124         3625232      3607037
     ## 20  1508 json        346406         4889848      4889847
 
-Instructions for running a query from Python are under development.
+Instructions for Python are in preparation.
 
-## 2.3 Getting data into BigQuery
+## 3 Getting data into BigQuery
 
 Next, let’s demonstrate setting up a BigQuery data warehouse, using the
 Wikipedia data (used in the [database management demos](db-managment))
@@ -204,7 +204,7 @@ as an example. Recall that we have data to populate a single table from
 multiple space-delimited flat text files, all of them in exactly the
 same format in terms of columns.
 
-### 2.3.1 Loading from a local file via the BigQuery web interface
+### 3.1 Loading from a local file via the BigQuery web interface
 
 We can load from a local file on our computer using `Add Data`, or we
 can load from files already present in Google Cloud Storage.
@@ -272,7 +272,7 @@ dbGetQuery(db, sql)
 
 It worked!
 
-### 2.3.2 Loading from multiple files in Google Cloud Storage
+### 3.2 Loading from multiple files in Google Cloud Storage
 
 Now let’s load multiple files all at once from Google Cloud Storage
 (GCS).
@@ -324,7 +324,7 @@ dbGetQuery(db, sql)
     ## 4 20081101 000001 fr    Ulc%C3%A8re     10   60423
     ## 5 20081101 000001 fr    X_Japan         11  258634
 
-### 2.3.3 Permissions
+### 3.3 Permissions
 
 I did this using my Google Cloud account, which is an owner of the GCP
 account and so has various BigQuery permissions already set to allow
