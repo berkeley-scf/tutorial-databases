@@ -33,11 +33,18 @@ Navigate to cloud.google.com and login (or create if needed) your Google Cloud P
 
 Now we can start working with BigQuery. The demo here follows [these instructions](https://cloud.google.com/bigquery/docs/quickstarts/query-public-dataset-console).
 
-To use a public dataset, we'll choose `Add Data` and scroll down to `Public Datasets`. Search for "Stack Overflow". You'll be able to see that the name of the dataset is `bigquery-public-data.stackoverflow`. This has similar data to the Stack Overflow data used elsewhere in this tutorial, but the database schema differs somewhat.
+![BigQuery interface, showing the welcome page.](bq-welcome.png){width=750px}
 
-By clicking on `View Dataset`, you should be able to view the tables of the Dataset in the `Explorer` tab and select tables to see the fields.
 
-Now we can select `Compose a New Query' and enter an SQL query. 
+To use a public dataset, we'll choose `Add Data` and scroll down to `Public Datasets`. Search for "Stack Overflow". Click on `View Dataset`. You'll be able to see that the name of the dataset is `bigquery-public-data.stackoverflow`. This dataset has similar data to the Stack Overflow database used elsewhere in this tutorial, but the schema differs somewhat.
+
+In the `Explorer` pane you can search for "Stack Overflow" and be able to view the tables, and then select tables to see the fields.
+
+![BigQuery interface, showing the SQL `Explorer` pane highlight the public `stackoverflow` dataset.](bq-data.png){width=750px}
+
+Now we can go to the `Editor` pane or select `Compose a New Query' and enter an SQL query. 
+
+![BigQuery interface, showing the SQL `Editor` pane.](bq-querywindow.png){width=750px}
 
 Note that BigQuery will preview how much data will be processed (see the upper right). Remember that you can process 1 TB for free each month.
 
@@ -119,6 +126,9 @@ We can load from a local file on our computer using `Add Data`, or we can load f
 First we'll need to set IAM permissions on our account to allow the account to create and update tables.
 
 To upload from a local file, select the `Add Data` button and choose the file. There is no 'space-separated' file format, so we'll choose CSV and then in the advanced options, I need to specify that the delimiter is a space using a "custom" field delimiter. You can choose to create a new dataset. Since the files don't have column names, I'll choose to specify the schema (the field names and types) in the Schema section of the BigQuery form by clicking on the '+' symbol to add each field, specifically by entering this information: {date: string, maxlength = 8, hour: string: maxlength = 6, site: string, page: string, count: integer, size: numeric}. 
+
+![BigQuery interface, showing the SQL `Editor` pane.](bq-load.png){width=750px}
+
 
 I'll name the new BigQuery dataset `wiki_test` (this is equivalent to the name of a database in a standard DBMS).
 

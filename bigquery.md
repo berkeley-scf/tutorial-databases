@@ -49,16 +49,40 @@ website\](<https://console.cloud.google.com/bigquery>) and click
 Now we can start working with BigQuery. The demo here follows [these
 instructions](https://cloud.google.com/bigquery/docs/quickstarts/query-public-dataset-console).
 
+<figure>
+<img src="bq-welcome.png" width="750"
+alt="BigQuery interface, showing the welcome page." />
+<figcaption aria-hidden="true">BigQuery interface, showing the welcome
+page.</figcaption>
+</figure>
+
 To use a public dataset, we’ll choose `Add Data` and scroll down to
-`Public Datasets`. Search for “Stack Overflow”. You’ll be able to see
-that the name of the dataset is `bigquery-public-data.stackoverflow`.
-This has similar data to the Stack Overflow data used elsewhere in this
-tutorial, but the database schema differs somewhat.
+`Public Datasets`. Search for “Stack Overflow”. Click on `View Dataset`.
+You’ll be able to see that the name of the dataset is
+`bigquery-public-data.stackoverflow`. This dataset has similar data to
+the Stack Overflow database used elsewhere in this tutorial, but the
+schema differs somewhat.
 
-By clicking on `View Dataset`, you should be able to view the tables of
-the Dataset in the `Explorer` tab and select tables to see the fields.
+In the `Explorer` pane you can search for “Stack Overflow” and be able
+to view the tables, and then select tables to see the fields.
 
-Now we can select \`Compose a New Query’ and enter an SQL query.
+<figure>
+<img src="bq-data.png" width="750"
+alt="BigQuery interface, showing the SQL Explorer pane highlight the public stackoverflow dataset." />
+<figcaption aria-hidden="true">BigQuery interface, showing the SQL
+<code>Explorer</code> pane highlight the public
+<code>stackoverflow</code> dataset.</figcaption>
+</figure>
+
+Now we can go to the `Editor` pane or select \`Compose a New Query’ and
+enter an SQL query.
+
+<figure>
+<img src="bq-querywindow.png" width="750"
+alt="BigQuery interface, showing the SQL Editor pane." />
+<figcaption aria-hidden="true">BigQuery interface, showing the SQL
+<code>Editor</code> pane.</figcaption>
+</figure>
 
 Note that BigQuery will preview how much data will be processed (see the
 upper right). Remember that you can process 1 TB for free each month.
@@ -204,7 +228,7 @@ as an example. Recall that we have data to populate a single table from
 multiple space-delimited flat text files, all of them in exactly the
 same format in terms of columns.
 
-### 3.1 Loading from a local file via the BigQuery web interface
+### 3.1 Loading a local file
 
 We can load from a local file on our computer using `Add Data`, or we
 can load from files already present in Google Cloud Storage.
@@ -222,6 +246,13 @@ BigQuery form by clicking on the ‘+’ symbol to add each field,
 specifically by entering this information: {date: string, maxlength = 8,
 hour: string: maxlength = 6, site: string, page: string, count: integer,
 size: numeric}.
+
+<figure>
+<img src="bq-load.png" width="750"
+alt="BigQuery interface, showing the SQL Editor pane." />
+<figcaption aria-hidden="true">BigQuery interface, showing the SQL
+<code>Editor</code> pane.</figcaption>
+</figure>
 
 I’ll name the new BigQuery dataset `wiki_test` (this is equivalent to
 the name of a database in a standard DBMS).
@@ -272,7 +303,7 @@ dbGetQuery(db, sql)
 
 It worked!
 
-### 3.2 Loading from multiple files in Google Cloud Storage
+### 3.2 Loading from Google Cloud Storage
 
 Now let’s load multiple files all at once from Google Cloud Storage
 (GCS).
