@@ -1,6 +1,6 @@
 bigquery.md: bigquery.Rmd
 	Rscript -e "rmarkdown::render(\"$(basename $(@)).Rmd\", rmarkdown::md_document(preserve_yaml = TRUE, variant = 'gfm', pandoc_args = '--markdown-headings=atx'))"
-	sed -i "s/^myproject <- \".*\"/myproject <- \"some_project\"/" bigquery.*md
+	sed -i "s/^myproject \(<-\|=\) \".*\"/myproject <- \"some_project\"/" bigquery.*md
 	sed -i "s/^user <- \".*\"/user <- \"user@berkeley.edu\"/" bigquery.*md
 
 %.md: %.Rmd

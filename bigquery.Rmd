@@ -73,6 +73,8 @@ Go to [BigQuery](https://console.cloud.google.com/bigquery), and login with your
 
 ### 2.2 Running queries from R or Python
 
+#### 2.2.1 Using R
+
 We can use the `bigrquery` R package to interact with BigQuery from R (e.g., running on a laptop).
 
 ```{r, eval=TRUE}
@@ -96,7 +98,7 @@ Now let's connect to the public dataset and check the schema. To be able to run 
 ```{r, eval=TRUE}
 drv <- bigquery()
 
-db<- dbConnect(drv,
+db <- dbConnect(drv,
   project = "bigquery-public-data",
   dataset = "stackoverflow",
   billing = myproject
@@ -113,7 +115,40 @@ sql <- "select * from tags order by count desc limit 20"
 dbGetQuery(db, sql)
 ```
 
-Instructions for Python are in preparation.
+#### 2.2.2 Using Python
+
+We can use the [Google BigQuery Python client (package)](https://cloud.google.com/python/docs/reference/bigquery/latest) provided by Google. (We'll also install the `db-dtypes` package so that we convert the result of our query into a Pandas data frame.)
+
+```{bash, eval=FALSE}
+pip install google-cloud-bigquery db-dtypes
+```
+
+To authenticate, you'll need to use the [`gcloud` command line interface](https://cloud.google.com/sdk/gcloud). After installing that, we run the authentication command.
+
+```{bash, eval=FALSE}
+gcloud auth application-default login
+```
+
+This will bring up a browser window and you can authenticate with your Google account.
+It will save your credentials to a file in your home directory, e.g., to `~/.config/gcloud/application_default_credentials.json`. These credentials will then be used by Google Cloud clients such as the BigQuery client.
+
+
+```{python, eval=FALSE}
+from google.cloud import bigquery
+import db_dtypes  # needed for `to_dataframe()`
+
+myproject <- "some_project"
+db = bigquery.Client(project = myproject)
+
+sql = "select * from bigquery-public-data.stackoverflow.tags order by count desc limit 20"
+query_job = db.query(sql)  # API request
+rows = query_job.result()  # Waits for query to finish
+
+mydf = rows.to_dataframe()
+mydf
+```
+
+The results (not shown) are the same as when done from R.
 
 ## 3 Getting data into BigQuery
 
