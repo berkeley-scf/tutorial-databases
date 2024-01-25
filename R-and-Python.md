@@ -90,6 +90,9 @@ oldUsers <- read.csv.sql(file.path('data', 'users-2016.csv'),
       dbname = tempfile(), header = TRUE)
 ```
 
+And note that one can use `sqldf::read.csv.sql` to avoid reading all the
+data in from disk.
+
 ### 1.3 Data frames in Python
 
 The Pandas package has nice functionality for doing dataset
@@ -112,6 +115,32 @@ users[users.upvotes > 10000]   # filter by row (i.e., sql WHERE)
 # group by (i.e., aggregation)
 users.groupby('age')['upvotes'].agg({'med': 'median', 'avg': 'mean'}) 
 joined = pd.merge(users, questions, how= 'inner', left_on= 'userid',
+        right_on = 'ownerid')
+```
+
+[Polars](https://docs.pola.rs/user-guide) is a newer dataframe package
+that provides a Python interface and is designed to be fast.
+
+Here are some examples:
+
+``` python
+import polars as pl
+import os
+users = pl.read_csv(os.path.join('data', 'users-2016.csv'))
+tags = pl.read_csv(os.path.join('data', 'questions_tags-2016.csv'))
+questions = pl.read_csv(os.path.join('data', 'questions-2016.csv'))
+type(users)
+users.select(pl.col('userid','upvotes'))   # select columns         
+users.filter(pl.col('upvotes') > 10000)    # filter by row (i.e., sql WHERE)
+# group by (i.e., aggregation)
+tags.groupby('tag').agg(
+        pl.col('*').count().alias('n'))
+tags.groupby('tag').agg(
+        pl.col('*').count().alias('n')).sort('n', descending=True).head(8)
+## Users userid got read in as an integer but Questions ownerid as string.
+users.schema
+users = pl.read_csv(os.path.join('data', 'users-2016.csv'), dtypes = {'userid': str})
+joined = users.join(questions, how= 'inner', left_on= 'userid',
         right_on = 'ownerid')
 ```
 
@@ -232,19 +261,18 @@ head(questionsOfAge)
 ```
 
     ## # A tibble: 6 × 15
-    ##   userid creationdate.x      lastaccessdate      location reput…¹
-    ##    <dbl> <dttm>              <dttm>              <chr>      <dbl>
-    ## 1   4668 2008-09-05 04:08:05 2017-03-13 21:19:14 Portlan…  116900
-    ## 2   4668 2008-09-05 04:08:05 2017-03-13 21:19:14 Portlan…  116900
-    ## 3   4668 2008-09-05 04:08:05 2017-03-13 21:19:14 Portlan…  116900
-    ## 4   4668 2008-09-05 04:08:05 2017-03-13 21:19:14 Portlan…  116900
-    ## 5   4668 2008-09-05 04:08:05 2017-03-13 21:19:14 Portlan…  116900
-    ## 6   4668 2008-09-05 04:08:05 2017-03-13 21:19:14 Portlan…  116900
-    ## # … with 10 more variables: displayname <chr>, upvotes <dbl>,
-    ## #   downvotes <dbl>, age <dbl>, accountid <dbl>,
+    ##   userid creationdate.x      lastaccessdate      location    
+    ##    <dbl> <dttm>              <dttm>              <chr>       
+    ## 1   4668 2008-09-05 04:08:05 2017-03-13 21:19:14 Portland, OR
+    ## 2   4668 2008-09-05 04:08:05 2017-03-13 21:19:14 Portland, OR
+    ## 3   4668 2008-09-05 04:08:05 2017-03-13 21:19:14 Portland, OR
+    ## 4   4668 2008-09-05 04:08:05 2017-03-13 21:19:14 Portland, OR
+    ## 5   4668 2008-09-05 04:08:05 2017-03-13 21:19:14 Portland, OR
+    ## 6   4668 2008-09-05 04:08:05 2017-03-13 21:19:14 Portland, OR
+    ## # ℹ 11 more variables: reputation <dbl>, displayname <chr>,
+    ## #   upvotes <dbl>, downvotes <dbl>, age <dbl>, accountid <dbl>,
     ## #   questionid <dbl>, creationdate.y <dttm>, score <dbl>,
-    ## #   viewcount <dbl>, title <chr>, and abbreviated variable name
-    ## #   ¹​reputation
+    ## #   viewcount <dbl>, title <chr>
 
 > **Challenge**: Why did I first filter and then do the join, rather
 > than the reverse?
@@ -309,23 +337,22 @@ library(RSQLite)
 drv <- dbDriver("SQLite")
 db <- dbConnect(drv, dbname = file.path('data', 'stackoverflow-2016.db'))
 users <- tbl(db, 'users')
-oldFolks <- users %>% filter(age > 75)
-head(oldFolks)
+highVotes <- users %>% filter(upvotes > 10000)
+head(highVotes)
 ```
 
     ## # Source:   SQL [6 x 10]
-    ## # Database: sqlite 3.39.4 [/accounts/vis/paciorek/teaching/243fall21/stat243-fall-2021/data/stackoverflow-2016.db]
-    ##    userid creat…¹ lasta…² locat…³ reput…⁴ displ…⁵ upvotes downv…⁶
-    ##     <int> <chr>   <chr>   <chr>     <int> <chr>     <int>   <int>
-    ## 1  210754 2009-1… 2017-0… Washin…    3519 No Ref…     170      47
-    ## 2 1461979 2012-0… 2016-0… <NA>         21 user14…       0       0
-    ## 3 1523314 2012-0… 2016-0… Deil, …      34 Wybo D…       2       0
-    ## 4 2063329 2013-0… 2017-0… Honolu…     136 user20…       1       0
-    ## 5 3770909 2014-0… 2017-0… Amster…       6 Pieter…       0       0
-    ## 6 6007961 2016-0… 2016-0… Nether…       1 Ed Man…       0       0
-    ## # … with 2 more variables: age <int>, accountid <int>, and
-    ## #   abbreviated variable names ¹​creationdate, ²​lastaccessdate,
-    ## #   ³​location, ⁴​reputation, ⁵​displayname, ⁶​downvotes
+    ## # Database: sqlite 3.43.2 [/accounts/vis/paciorek/teaching/243fall21/stat243-fall-2021/data/stackoverflow-2016.db]
+    ##   userid creationdate        lastaccessdate   location reputation
+    ##    <int> <chr>               <chr>            <chr>         <int>
+    ## 1   3043 2008-08-26 13:24:14 2017-03-13 17:0… York, NE     258471
+    ## 2   5987 2008-09-11 21:06:49 2017-03-13 21:2… Minneap…     188661
+    ## 3   6309 2008-09-13 22:22:33 2017-03-13 21:5… France       664389
+    ## 4   7552 2008-09-15 13:57:22 2017-03-13 01:1… Ottawa,…     129258
+    ## 5   8745 2008-09-15 16:47:12 2017-02-25 07:5… Calgary…      11418
+    ## 6  12711 2008-09-16 15:22:32 2017-03-13 21:5… Seattle…     248780
+    ## # ℹ 5 more variables: displayname <chr>, upvotes <int>,
+    ## #   downvotes <int>, age <int>, accountid <int>
 
 > **Note**: dplyr uses lazy evaluation when interfacing with databases –
 > it only does the query and return results when the results are needed
@@ -407,7 +434,51 @@ system.time(sub <- wikiDT2 %>% filter(count == 512)) # 0.1 sec.
 Finally the `tidytable` package also allows you to use dplyr syntax as
 well as other tidyverse syntax, such as `tidyr` functions.
 
-### 3.3 Arrow
+### 3.3 Polars dataframes in Python
+
+As mentioned earlier, [Polars](https://docs.pola.rs/user-guide) is a
+newer dataframe package that provides a Python interface, operates in
+memory, and is designed to be fast. It uses the Arrow columnar format.
+It also provides a lazy execution model like Spark or Dask that allows
+for automatic optimization of queries.
+
+### 3.4 DuckDB
+
+With DuckDB, you can run queries against existing R and Python data
+frames, collections of files in the Parquet file format and other file
+formats, and Arrow objects, without having to copy the data or import it
+into an actual database.
+
+In R, use the `duckdb_register` and `duckdb_register_arrow` functions to
+‘register’ the data frame or Arrow data source.
+
+For Python, see the [example syntax in the DuckDB
+documentation](https://duckdb.org/docs/api/python/data_ingestion#dataframes-arrow-tables)
+to query Pandas and Polars data frames and Arrow objects.
+
+Alternatively, you can read the data from files on disk into a DuckDB
+database table and then run queries against the database you’ve created.
+
+``` python
+import duckdb
+data = duckdb.read_parquet("data/*.parquet")
+data.to_table("wikistats")
+duckdb.sql("select * from wikistats limit 5")
+duckdb.sql("select count(*) from wikistats")
+```
+
+## 4 Working with large datasets on disk
+
+There are a variety of packages in R and Python that allow you to work
+with very large datasets on disk without loading them fully into memory.
+Some of these are also very good at compressing files to reduce disk
+storage.
+
+I recommend first considering Arrow as it works well with the usual
+dataframe manipulations, but the other packages mentioned here may also
+be useful.
+
+### 4.1 Arrow
 
 Apache Arrow provides efficient data structures for working with data in
 memory, usable in R via the `arrow` package and the `PyArrow` package in
@@ -415,97 +486,64 @@ Python. Data are stored by column, with values in a column stored
 sequentially and in such a way that one can access a specific value
 without reading the other values in the column (O(1) lookup).
 
-Arrow is designed to read data from various file formats, including
-Parquet, native Arrow format, and text files. In general Arrow will only
-read data from disk as needed, avoiding keeping the entire dataset in
-memory. We’ll discuss this concept more in the next section.
+In general Arrow will only read data from disk as needed, avoiding
+keeping the entire dataset in memory (how much has to be read depends on
+the file format, with the native arrow format best in this regard),
+which can reduce I/O and memory usage.
 
-One can use [dplyr syntax to work with data in the Arrow data
-structures](https://cran.r-project.org/web/packages/arrow/vignettes/dataset.html).
+You can use Apache Arrow to read and write from datasets stored as one
+or (often) more files in various formats, including:
 
-### 3.4 Polars dataframes in Python
+- parquet: a space-efficient, standard format;
+- arrow format: data are stored in the same format on disk (called the
+  ‘feather’ format) as in memory, improving I/O speed; and
+- text/csv files.
 
-I haven’t investigated it, but
-[Polars](https://pola-rs.github.io/polars-book/user-guide/index.html) is
-advertized as a very fast in-memory package for working with dataframes
-that provides a Python interface. It uses the Arrow columnar format. It
-also provides a lazy execution model like Spark or Dask that allows for
-automatic optimization of queries.
+See this [very useful
+discussion](https://stackoverflow.com/questions/56472727/difference-between-apache-parquet-and-arrow)
+of file formats, comparing the parquet and arrow formats. And note that
+if you’re going to be reading the data frequently off disk, storing the
+files in text/CSV is not a good idea as it will be much faster to read
+from the Parquet or Arrow formats.
 
-### 3.5 DuckDB
+Here’s a bit of what you can do with the *PyArrow* package for Python,
+illustrating working with data from a collection of Parquet files.
 
-With DuckDB, you can run queries against existing R and Python data
-frames and Arrow objects, without having to copy the data or import it
-into an actual database.
+``` python
+import pyarrow as pa
+import pyarrow.parquet as pq
+import pyarrow.dataset as ds
+tbl = pq.read_table("data/parquet")
+## alternatively
 
-In R, use the `duckdb_register` and `duckdb_register_arrow` functions to
-‘register’ the data frame or Arrow data source.
-
-For Python, see the [example syntax in the DuckDB
-documentation](https://duckdb.org/docs/api/python/data_ingestion#dataframes--arrow-tables)
-to query Pandas and Polars data frames and Arrow objects.
-
-## 4 Working with large datasets on disk
-
-There are a variety of packages in R that allow you to work with very
-large datasets on disk without loading them fully into memory. Some of
-these are also very good at compressing files to reduce disk storage.
-
-I recommend first considering Arrow or fst as they work well with the
-usual data frame manipulations, but the other packages mentioned here
-may also be useful.
-
-And note that one can use `sqldf::read.csv.sql` to avoid reading all the
-data in from disk.
-
-To illustrate use of these packages, we’ll first create a data frame of
-some of the Wikipedia traffic data, 2.3 GB of data:
-
-``` r
-## read in Wikistats data
-wikiDF <- readr::read_table(file = pipe("gzip -cd data/part-0000?.gz"),
-        col_names = c('day','hour','language','site','hits','size'),
-        col_types = c('nnccnn'))
+tbl = tbl.rename_columns(["date","hour","lang","site","hits","size"])
+df = tbl.filter(ds.field('hits') > 10000).to_pandas()
 ```
 
-### 4.1 DuckDB
+For R, there’s a [nice
+vignette](https://cran.r-project.org/web/packages/arrow/vignettes/dataset.html)
+covering basic usage, which involves dplyr syntax. Here’s an example of
+reading from a single file (at the moment, I’m not seeing how to read
+from multiple files):
+
+``` r
+tbl <- read_parquet("data/parquet/part-00000.parquet")
+tbl <- read_feather("data/arrow/part-00000.arrow")
+```
+
+### 4.2 DuckDB
 
 With DuckDB, with some file formats (e.g., CSV, Parquet), you can run
 queries on files on disk without reading the entire dataset into memory.
 
-Alternatively, you can read the data from files on disk into a DuckDB
-database without storing all the data in memory, and then run queries
-against the database you’ve created.
+Here’s an example in Python.
 
-### 4.2 Arrow
-
-The *arrow* package allows you to read and write from datasets stored as
-one or (often) more files in various formats, including:
-
--   parquet: a space-efficient, standard format;
--   arrow format: data are stored in the same format on disk as in
-    memory, improving I/O speed; and
--   text/csv files.
-
-After loading the data in (which doesn’t initially involve actually
-reading the data from disk), you can then operate on the resulting
-object using dplyr syntax. Arrow will only read the data it needs for
-your computations (how much has to be read depends on the file format,
-with the native arrow format best in this regard), which can reduce I/O
-and memory usage.
-
-> **Note**: If you’re going to be reading the data frequently off disk,
-> storing the files in text/CSV is not a good idea as it will be much
-> faster to read from the Parquet or Arrow formats.
-
-There’s a [nice
-vignette](https://cran.r-project.org/web/packages/arrow/vignettes/dataset.html)
-covering basic usage, as well as [this
-discussion](https://stackoverflow.com/questions/56472727/difference-between-apache-parquet-and-arrow)
-of file formats.
-
-The *PyArrow* package is available for Python, but I haven’t explored
-it.
+``` python
+import duckdb
+duckdb.sql("select * from 'data/*.parquet' limit 5")
+duckdb.sql("select count(*) from 'data/*.parquet'")
+df = duckdb.sql("select * from 'data/*.parquet' limit 5").to_df()
+```
 
 ### 4.3 fst
 
@@ -516,11 +554,16 @@ be quickly accessed by column or by row (O(1) lookup), allowing one to
 easily subset the data when reading, rather than reading the entire
 dataset into memory, which is what would otherwise happen.
 
-Here’s an example, starting with an original data frame in R (which
+Here’s an example, starting by reading data (some of the Wikipedia
+traffic data, 2.3 GB of data) into an initial data frame in R (which
 might defeat the purpose if the dataset size is too big to fit in
 memory).
 
 ``` r
+## read in Wikistats data
+wikiDF <- readr::read_table(file = pipe("gzip -cd data/part-0000?.gz"),
+        col_names = c('day','hour','language','site','hits','size'),
+        col_types = c('nnccnn'))
 system.time(write_fst(wikiDF, file.path('/tmp', 'data.fst')))  ## 8.9 seconds
 ```
 
@@ -647,14 +690,14 @@ Python provides a variety of packages and approaches you can use to
 avoid reading large datasets fully into memory. Here is a brief overview
 of a few approaches:
 
--   Use the [Dask
-    package](https://berkeley-scf.github.io/tutorial-dask-future/python-dask#4-dask-distributed-datastructures-and-automatic-parallel-operations-on-them)
-    to break up datasets into chunks. Dask processes the data in chunks,
-    so one often doesn’t need a lot of memory, even just on one machine.
--   Use `numpy.load` with the `mmap_mode` argument to access a numpy
-    array (stored in a .npy file) on disk via memory mapping, reading
-    only the pieces of the array that you need into memory, as discussed
-    [here](https://numpy.org/doc/stable/reference/generated/numpy.load.html).
+- Use the [Dask
+  package](https://berkeley-scf.github.io/tutorial-dask-future/python-dask#4-dask-distributed-datastructures-and-automatic-parallel-operations-on-them)
+  to break up datasets into chunks. Dask processes the data in chunks,
+  so one often doesn’t need a lot of memory, even just on one machine.
+- Use `numpy.load` with the `mmap_mode` argument to access a numpy array
+  (stored in a .npy file) on disk via memory mapping, reading only the
+  pieces of the array that you need into memory, as discussed
+  [here](https://numpy.org/doc/stable/reference/generated/numpy.load.html).
 
 See [here](https://pythonspeed.com/articles/mmap-vs-zarr-hdf5) for more
 discussion of accessing data on disk from Python.

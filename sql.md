@@ -363,7 +363,9 @@ questions and answers tables would, in addition to the matched questions
 and their answers, include a row for each question without any answers,
 as would a full outer join. In this case there should be no answers that
 do not correspond to question, so a right outer join should be the same
-as an inner join.
+as an inner join. Note that one cannot do a right outer join (or a full
+outer join) in SQLit; you’ll need to switch the order of the tables and
+do a left outer join.
 
 *Cross joins*: A cross join gives the Cartesian product of the two
 tables, namely the pairwise combination of every row from each table,
@@ -424,7 +426,34 @@ last of these queries is the same as the others.
 > unanswered? (You should need two different kinds of joins to answer
 > this.)
 
-#### 1.4.3 Joining a table with itself (self join)
+#### 1.4.3 Counting NULLs
+
+We’ve seen that one can user outer joins as a way to find rows in one
+table that do not appear in another table. If you want to be able to
+count the number of entries by group and have a count of 0 when a group
+doesn’t appear in a table, you can do that by making sure to apply the
+count only to a field produced by an outer join that contains NULL
+values and not to all fields.
+
+For example if we wanted to count the number of answers provided by each
+user and make sure to include people who have answered no questions,
+assigning them a value of 0, we could do it like this by counting the
+`answerid` field, which will have NULL for users with no answers and
+will be counted as a 0:
+
+``` r
+dbGetQuery(db, "select userid, count(answerid) as n_answers from users left outer join answers on userid=ownerid group by userid order by userid limit 10")
+```
+
+If we had done `count(*)`, then each row for a user with no answers
+would be incorrectly assigned a 1 (since they have a row associated with
+them) instead of a 0 (note user \#56 below).
+
+``` r
+dbGetQuery(db, "select userid, count(*) as n_answers from users left outer join answers on userid=ownerid group by userid order by userid limit 10")
+```
+
+#### 1.4.4 Joining a table with itself (self join)
 
 Sometimes we want to query information across rows of the same table.
 For example supposed we want to analyze the time lags between when the
@@ -719,7 +748,7 @@ plot(as.numeric(result$hour), result$n, xlab = 'hour of day (UTC/Greenwich???)',
                                         ylab = 'number of questions')
 ```
 
-![](sql_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
+![](sql_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
 
 Here’s some [documentation of the syntax for the functions, including
 `stftime`](https://www.sqlite.org/lang_datefunc.html).
@@ -756,7 +785,7 @@ system.time(
 ```
 
     ##    user  system elapsed 
-    ##   4.658   1.610   7.252
+    ##   4.252   1.393   7.340
 
 Alternatively we can do a self-join. Note that the syntax gets
 complicated as we are doing multiple joins.
@@ -776,7 +805,7 @@ system.time(
 ```
 
     ##    user  system elapsed 
-    ##   6.435   3.659  11.040
+    ##   5.765   3.300  11.269
 
 ``` r
 identical(result1, result2)
@@ -942,21 +971,20 @@ related to the current query row.
 
 Comments:
 
--   The result of applying a window function is the same number of rows
-    as the input, even though the functionality is similar to
-    `group by`. Hint: think about the result of `group by` + `mutate` in
-    dplyr in R.
--   One can apply a window function within groups or across the whole
-    table.
--   The functions one can apply include standard aggregation functions
-    such as `avg` and `count` as well as non-standard functions
-    (specific to using window functions) such as `rank` and `cume_dist`.
--   Unless you’re simply grouping into categories, you’ll generally need
-    to order the rows for the window function to make sense.
+- The result of applying a window function is the same number of rows as
+  the input, even though the functionality is similar to `group by`.
+  Hint: think about the result of `group by` + `mutate` in dplyr in R.
+- One can apply a window function within groups or across the whole
+  table.
+- The functions one can apply include standard aggregation functions
+  such as `avg` and `count` as well as non-standard functions (specific
+  to using window functions) such as `rank` and `cume_dist`.
+- Unless you’re simply grouping into categories, you’ll generally need
+  to order the rows for the window function to make sense.
 
 The syntax is a bit involved, so let’s see with a range of examples:
 
--   Aggregate within groups but with one output value per input row
+- Aggregate within groups but with one output value per input row
 
 ``` r
 ## Total number of questions for each owner
@@ -977,9 +1005,9 @@ dbGetQuery(db, "select ownerid,
     ## 9       95 3
     ## 10      95 3
 
--   Compute cumulative calculations; note the need for ORDER BY within
-    the PARTITION clause (the other ORDER BY is just for display
-    purposes here):
+- Compute cumulative calculations; note the need for ORDER BY within the
+  PARTITION clause (the other ORDER BY is just for display purposes
+  here):
 
 ``` r
 ## Rank (based on ordering by creationdate) of questions by owner
@@ -1036,7 +1064,7 @@ dbGetQuery(db, "select *,
 (Sidenote: we rely here on the fact that ordering alphabetically by
 `creationdate` is equivalent to time ordering.)
 
--   Do a lagged analysis
+- Do a lagged analysis
 
 ``` r
 ## Get previous value (based on ordering by creationdate) by owner
@@ -1057,8 +1085,8 @@ dbGetQuery(db, "select ownerid, creationdate,
 So one could now calculate the difference between the previous and
 current date to analyze the time gaps between users posting questions.
 
--   Do an analysis within an arbitrary window of rows based on the
-    values in one of the columns
+- Do an analysis within an arbitrary window of rows based on the values
+  in one of the columns
 
 ``` r
 ## Summarize questions within 15 days of current question 
@@ -1115,12 +1143,12 @@ variable.
 
 So the syntax of a window function will generally have these elements:
 
--   a call to some function
--   OVER
--   PARTITION BY (optional)
--   ORDER BY (optional)
--   RANGE or ROW (optional)
--   AS (optional)
+- a call to some function
+- OVER
+- PARTITION BY (optional)
+- ORDER BY (optional)
+- RANGE or ROW (optional)
+- AS (optional)
 
 You can also name window functions, which comes in handy if you want
 multiple functions applied to the same window:
@@ -1200,8 +1228,8 @@ dbGetQuery(db, "select ownerid, creationdate,
 > **Challenge**: For each question, get the answer given by the user
 > with the maximum reputation amongst users answering the question.
 > Hint: you’ll need to first create a subquery that determines the
-> maximum reputation for each question and then use that to get the
-> answer of interest for each question.
+> maximum reputation amongst the answers for each question and then use
+> that to get the answer of interest for each question.
 
 > **Challenge (hard)**: Find the users who have asked one question that
 > is highly-viewed (viewcount \> 1000) with their remaining questions
@@ -1259,21 +1287,21 @@ in the fastest way possible.
 
 Some tips for faster queries include:
 
--   use indexes on fields used in WHERE and JOIN clauses (see next
-    section)
-    -   try to avoid wildcards at the start of LIKE string comparison
-        when you have an index on the field (as this requires looking at
-        all of the rows)
-    -   similarly try to avoid using functions on indexed columns in a
-        WHERE clause as this requires doing the calculation on all the
-        rows in order to check the condition
--   only select the columns you really need
--   create (temporary) tables to store intermediate results that you
-    need to query repeatedly
--   use filtering (WHERE clauses) in inner statements when you have
-    nested subqueries
--   use LIMIT as seen in the examples here if you only need some of the
-    rows a query returns
+- use indexes on fields used in WHERE and JOIN clauses (see next
+  section)
+  - try to avoid wildcards at the start of LIKE string comparison when
+    you have an index on the field (as this requires looking at all of
+    the rows)
+  - similarly try to avoid using functions on indexed columns in a WHERE
+    clause as this requires doing the calculation on all the rows in
+    order to check the condition
+- only select the columns you really need
+- create (temporary) tables to store intermediate results that you need
+  to query repeatedly
+- use filtering (WHERE clauses) in inner statements when you have nested
+  subqueries
+- use LIMIT as seen in the examples here if you only need some of the
+  rows a query returns
 
 ### 4.2 Indexes
 
@@ -1285,7 +1313,7 @@ have indexes.
 
 DBMS use indexing to provide sub-linear time lookup. Without indexes, a
 database needs to scan through every row sequentially, which is called
-linear time lookup – if there are n rows, the lookup is *O*(*n*) in
+linear time lookup – if there are n rows, the lookup is $O(n)$ in
 computational cost. With indexes, lookup may be logarithmic – O(log(n))
 – (if using tree-based indexes) or constant time – O(1) – (if using
 hash-based indexes). A binary tree-based search is logarithmic; at each
@@ -1520,28 +1548,28 @@ system.time(dbGetQuery(db, "select count(ownerid) from questions"))
 ```
 
     ##    user  system elapsed 
-    ##   0.215   0.166   1.539
+    ##   0.150   0.101   1.667
 
 ``` r
 system.time(dbGetQuery(dbDuck, "select count(ownerid) from questions"))
 ```
 
     ##    user  system elapsed 
-    ##   0.044   0.006   0.074
+    ##   0.010   0.013   0.144
 
 ``` r
 system.time(result1 <- dbGetQuery(db, "select distinct ownerid from questions"))
 ```
 
     ##    user  system elapsed 
-    ##   2.003   1.248   3.493
+    ##   1.865   1.268   3.698
 
 ``` r
 system.time(result2 <- dbGetQuery(dbDuck, "select distinct ownerid from questions"))
 ```
 
     ##    user  system elapsed 
-    ##   0.353   0.034   0.061
+    ##   0.328   0.008   0.104
 
 Now let’s compare timings for some of the queries we ran previously.
 There are substantial speed-ups in both cases.
@@ -1555,7 +1583,7 @@ system.time(result1 <- dbGetQuery(db, "select * from questions join questions_ta
 ```
 
     ##    user  system elapsed 
-    ##   3.259   0.893   4.412
+    ##   3.194   0.832   4.852
 
 ``` r
 system.time(result2 <- dbGetQuery(dbDuck, "select * from questions join questions_tags 
@@ -1564,7 +1592,7 @@ system.time(result2 <- dbGetQuery(dbDuck, "select * from questions join question
 ```
 
     ##    user  system elapsed 
-    ##   0.732   0.105   1.150
+    ##   0.940   0.102   1.388
 
 And here’s a subquery in the FROM statement.
 
@@ -1578,7 +1606,7 @@ system.time(result1 <- dbGetQuery(db, "select * from questions join answers A
 ```
 
     ##    user  system elapsed 
-    ##   8.557   2.174  10.858
+    ## 601.521  50.964 831.689
 
 ``` r
 system.time(result2 <- dbGetQuery(dbDuck, "select * from questions join answers A
@@ -1590,7 +1618,7 @@ system.time(result2 <- dbGetQuery(dbDuck, "select * from questions join answers 
 ```
 
     ##    user  system elapsed 
-    ##   2.008   0.061   1.339
+    ##   2.695   0.195   2.059
 
 DuckDB will run in parallel by using multiple threads, which can help
 speed up computations on top of efficiencies available through the
