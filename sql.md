@@ -785,7 +785,7 @@ system.time(
 ```
 
     ##    user  system elapsed 
-    ##   4.252   1.393   7.340
+    ##   3.912   1.338   6.470
 
 Alternatively we can do a self-join. Note that the syntax gets
 complicated as we are doing multiple joins.
@@ -805,7 +805,7 @@ system.time(
 ```
 
     ##    user  system elapsed 
-    ##   5.765   3.300  11.269
+    ##   5.331   3.048   9.693
 
 ``` r
 identical(result1, result2)
@@ -1278,6 +1278,199 @@ What is the average (over users) in the average number of messages sent
 per day for each test group if you look at the users who have sent
 messages only on mobile in the last month.
 
+#### Challenge questions with the Stack Overflow data
+
+If we take the three challenges above and translate into problems for
+the Stack Overflow data, one could consider the following three
+problems.
+
+1)  For each user who has asked at least one question find the average
+    number of questions per month. Then determine the distribution of
+    that average across the users. (I.e., determine the values that
+    would go into a histogram of the average number of questions per
+    month across users.) The output should be something like:
+
+<!-- -->
+
+    number of questions per month (rounded) | number of users
+
+Next try to figure out how to include the users who have asked no
+questions. Hint: think about how to get NULL values included and then
+count a column containing such values.
+
+2)  For each user, find the three most common tags they apply to their
+    questions.
+
+The output should be something like:
+
+    userid | tag | count
+
+Hints: You’ll need to use subqueries and the final selection of just the
+top 3 tags will need to be done in its own query and not as part of
+defining a field using a window function.
+
+3)  Consider trying to determine whether users who answer a lot of
+    questions also ask a lot of questions. Grouping the users based on
+    the number of questions they’ve answered (0, 1, 2, etc.), determine
+    the aerage number of questions per month for each group.
+
+The output should be something like:
+
+    number of answers | average number of questions per month
+
+You’ll want to work through this in pieces. Try to think about the
+initial tables you would need and then build up your query in a nested
+fashion.
+
+### 3.5 A summary of SQL syntax by example
+
+This section shows the syntax for various queries so as to demonstrate
+syntax by example. It may be useful to test your understanding by
+figuring out (either with or without running the query) what the query
+does.
+
+#### Selecting columns
+
+    select ownerid, title from questions
+    select ownerid, title from questions limit 5
+    select * from questions
+    select * from questions order by answercount desc
+    select count(*) as n from questions
+    select count(ownerid) as n from questions
+    select sum(answercount) from questions
+
+#### Using `distinct`
+
+    select distinct tag from questions_tags limit 15
+    select distinct ownerid, answercount from questions limit 15
+    select count(distinct tag) from questions_tags limit 15
+
+#### Filtering rows with `where`
+
+    select * from questions where answercount > 40
+    select * from questions where answercount > 40 order by answercount desc
+    select * from questions where answercount = 10 limit 5
+    select * from questions_tags where tag like 'r-%' limit 10
+    select * from questions_tags where tag similar to 'r-%|%-r|r|%-r-%' limit 10
+    select * from questions_tags where tag in ('java','r','python') limit 10
+
+#### Grouping and reduction/aggregation
+
+    select tag, count(*) as n from questions_tags \
+        group by tag
+
+    select tag, count(*) as n from questions_tags \
+        group by tag having n > 1000
+        
+    select ownerid, count(*) as n from questions \
+        group by ownerid order by n desc limit 15
+        
+    select ownerid, sum(viewcount) as viewed from questions \
+        group by ownerid
+
+    select *, sum(viewcount) as viewed from questions \
+        group by ownerid
+
+    select answercount, commentcount, count(*) as n from questions \
+        group by answercount, commentcount
+
+    select tag, count(*) as n from questions_tags \
+        where tag like 'python%' group by tag having n > 1000
+
+The query above starting with `select *, sum(viewcount)` behaves
+differently in SQLite and DuckDB.
+
+#### Joins
+
+Inner joins
+
+    select * from questions join questions_tags \
+        on questions.questionid = questions_tags.questionid
+        
+    select * from questions Q join questions_tags T \
+        on Q.questionid = T.questionid
+        
+    select * from questions Q join questions_tags T \
+        using(questionid)
+        
+    select * from questions Q, questions_tags T \
+        where Q.questionid = T.questionid
+
+Outer joins
+
+    select * from questions Q left outer join answers A \
+        on Q.questionid = A.questionid 
+        
+    select * from questions Q left outer join answers A \
+        on Q.questionid = A.questionid \
+        where A.creationdate is NULL
+        
+    # Note no right outer join in SQLite so here we reverse order of answers and questions \
+    select * from questions Q right outer join answers A \
+        on Q.questionid = A.questionid \
+        where Q.creationdate is NULL
+
+    select Q.questionid, count(*) as n_tags from questions Q join questions_tags T \
+        on Q.questionid = T.questionid \
+        group by Q.questionid
+
+Self joins
+
+First we’ll set up a view (a temporary) table that combines questions
+and tags for ease of illustrating ideas around self joins.
+
+    create view QT as select * from questions join questions_tags using(questionid)
+
+In small groups, discuss what these queries do.
+
+    select * from QT as QT1 join QT as QT2 \
+        using(questionid)
+
+    select * from QT as QT1 join QT as QT2 \
+        using(questionid) where QT1.tag < QT2.tag
+        
+    select QT1.tag, QT2.tag, count(*) as n from QT as QT1 join QT as QT2 \
+        using(questionid) where QT1.tag < QT2.tag \
+        group by QT1.tag, QT2.tag order by n desc limit 10
+
+
+    select * from QT as QT1 join QT as QT2 using(ownerid)
+
+#### Set operations
+
+    select ownerid from QT where tag='python' \
+        intersect \
+        select ownerid from QT where tag='r'
+        
+    select ownerid from QT where tag='python' \
+        except \
+        select ownerid from QT where tag='r'
+        
+    select ownerid from QT where tag='python' \
+        union \
+        select ownerid from QT where tag='r'
+
+    select userid, displayname, location from users \
+        where location like '%United States%' \
+        intersect \
+        select userid, displayname, location from users \
+        where reputation > 10
+
+#### Subqueries
+
+    select * from \
+        answers A \
+        join \
+        ( select ownerid, count(*) as n_answered from answers \
+            group by ownerid order by n_answered desc limit 1000 ) most_responsive \
+        on A.ownerid = most_responsive.ownerid
+
+    select avg(upvotes) from users \
+        where userid in \
+        ( select distinct ownerid from \
+        questions join questions_tags using(questionid) \
+        where tag = 'python' )
+
 ## 4 Efficient SQL queries
 
 ### 4.1 Overview
@@ -1548,28 +1741,28 @@ system.time(dbGetQuery(db, "select count(ownerid) from questions"))
 ```
 
     ##    user  system elapsed 
-    ##   0.150   0.101   1.667
+    ##   0.132   0.097   1.527
 
 ``` r
 system.time(dbGetQuery(dbDuck, "select count(ownerid) from questions"))
 ```
 
     ##    user  system elapsed 
-    ##   0.010   0.013   0.144
+    ##   0.089   0.009   0.134
 
 ``` r
 system.time(result1 <- dbGetQuery(db, "select distinct ownerid from questions"))
 ```
 
     ##    user  system elapsed 
-    ##   1.865   1.268   3.698
+    ##   1.739   0.981   2.869
 
 ``` r
 system.time(result2 <- dbGetQuery(dbDuck, "select distinct ownerid from questions"))
 ```
 
     ##    user  system elapsed 
-    ##   0.328   0.008   0.104
+    ##   0.244   0.030   0.067
 
 Now let’s compare timings for some of the queries we ran previously.
 There are substantial speed-ups in both cases.
@@ -1583,7 +1776,7 @@ system.time(result1 <- dbGetQuery(db, "select * from questions join questions_ta
 ```
 
     ##    user  system elapsed 
-    ##   3.194   0.832   4.852
+    ##   2.931   0.737   4.248
 
 ``` r
 system.time(result2 <- dbGetQuery(dbDuck, "select * from questions join questions_tags 
@@ -1592,7 +1785,7 @@ system.time(result2 <- dbGetQuery(dbDuck, "select * from questions join question
 ```
 
     ##    user  system elapsed 
-    ##   0.940   0.102   1.388
+    ##   0.998   0.127   1.165
 
 And here’s a subquery in the FROM statement.
 
@@ -1606,7 +1799,7 @@ system.time(result1 <- dbGetQuery(db, "select * from questions join answers A
 ```
 
     ##    user  system elapsed 
-    ## 601.521  50.964 831.689
+    ## 618.105  48.290 676.191
 
 ``` r
 system.time(result2 <- dbGetQuery(dbDuck, "select * from questions join answers A
@@ -1618,7 +1811,7 @@ system.time(result2 <- dbGetQuery(dbDuck, "select * from questions join answers 
 ```
 
     ##    user  system elapsed 
-    ##   2.695   0.195   2.059
+    ##   2.761   0.162   1.462
 
 DuckDB will run in parallel by using multiple threads, which can help
 speed up computations on top of efficiencies available through the
