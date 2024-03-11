@@ -112,6 +112,7 @@ joined = users.join(questions, how= 'inner', left_on= 'userid',
         right_on = 'ownerid')
 ```
 
+Here's a [further example](./polars-vs-pandas.py) that compares Pandas and Polars, building off of [this blog post](https://www.r-bloggers.com/2024/02/why-pandas-feels-clunky-when-coming-from-r/?utm_source=phpList&utm_medium=email&utm_campaign=R-bloggers-daily&utm_content=HTML#google_vignette) comparing R's dplyr to Pandas. As illustrated in the example and above, I think the Polars interface (API) is easier to read and use than that of Pandas.
 
 ### 1.4 Distributed data frames in Dask in Python
 
