@@ -118,6 +118,7 @@ The result of a query that uses `group by` is a table with as many rows as group
 
 > **Challenge**: Write a query that will count the number of answers for each question, returning the IDs of the most answered questions. Hint: consider which field in the "answers" table we do the grouping on (and you shouldn't need to use the "questions" table). 
 
+> **Tip**: When applied to a specific field, `COUNT` will not count elements that are `NULL`. That can be useful in cases such as determining the number of non-matches in an outer join. In contrast, `COUNT(*)` will count the number of rows, regardless of the contents.
 
 ### 1.4 Joins
 
@@ -564,7 +565,7 @@ dbGetQuery(db, "with tmp as (select distinct ownerid from
                 tmp")       
 ```
 
-Finally, you can create multiple temporary tables in the WITH clause. This can help make your query more modular without the complication of creating views that will only be used once.
+Finally, you can create multiple temporary tables in the WITH clause, separated by commas. This can help make your query more modular without the complication of creating views that will only be used once.
 
 ### 3.3 Window functions
 
@@ -574,7 +575,7 @@ Comments:
 
  - The result of applying a window function is the same number of rows as the input, even though the functionality is similar to `group by`. Hint: think about the result of `group by` + `mutate` in dplyr in R.
  - One can apply a window function within groups or across the whole table.
- - The functions one can apply include standard aggregation functions such as `avg` and `count` as well as non-standard functions (specific to using window functions) such as `rank` and `cume_dist`.
+ - The functions one can apply include standard aggregation functions such as `avg` and `count` as well as non-standard functions (specific to using window functions) such as `rank`, `row_number`, and `cume_dist`.
  - Unless you're simply grouping into categories, you'll generally need to order the rows for the window function to make sense.
 
 The syntax is a bit involved, so let's see with a range of examples:
@@ -628,9 +629,11 @@ So one could now analyze bursts of activity.
 
 One can also choose a fixed number of rows by replacing 'range' with 'rows'. The ROWS and RANGE syntax allow one to specify the *window frame* in more flexible ways than simply the categories of a categorical variable.
 
+Ranking becomes more complicated when there are ties. `RANK` will assign the same value to any ties, and then increment based on the number of ties, e.g., you can get `1, 1, 1, 4`, if the three lowest value are tied. `DENSE RANK` will avoid skipping values, giving `1, 1, 1, 2` in the same situation. `ROW_NUMBER` just numbers, ignoring ties and resulting in ambiguity when there are ties, giving `1, 2, 3, 4` in the same situation.
+
 So the syntax of a window function will generally have these elements:
 
- - a call to some function
+ - a call to some function that calculates within the window and assigns value(s) to the rows in the window
  - OVER
  - PARTITION BY (optional)
  - ORDER BY (optional)

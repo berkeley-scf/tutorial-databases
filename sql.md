@@ -225,6 +225,11 @@ dbGetQuery(db, "select *, max(reputation) from users U join answers A
 > consider which field in the “answers” table we do the grouping on (and
 > you shouldn’t need to use the “questions” table).
 
+> **Tip**: When applied to a specific field, `COUNT` will not count
+> elements that are `NULL`. That can be useful in cases such as
+> determining the number of non-matches in an outer join. In contrast,
+> `COUNT(*)` will count the number of rows, regardless of the contents.
+
 ### 1.4 Joins
 
 #### 1.4.1 Introduction to joins
@@ -785,7 +790,7 @@ system.time(
 ```
 
     ##    user  system elapsed 
-    ##   3.912   1.338   6.470
+    ##   4.246   1.450   8.461
 
 Alternatively we can do a self-join. Note that the syntax gets
 complicated as we are doing multiple joins.
@@ -805,7 +810,7 @@ system.time(
 ```
 
     ##    user  system elapsed 
-    ##   5.331   3.048   9.693
+    ##   5.514   3.031  11.187
 
 ``` r
 identical(result1, result2)
@@ -958,9 +963,9 @@ dbGetQuery(db, "with tmp as (select distinct ownerid from
                 tmp")       
 ```
 
-Finally, you can create multiple temporary tables in the WITH clause.
-This can help make your query more modular without the complication of
-creating views that will only be used once.
+Finally, you can create multiple temporary tables in the WITH clause,
+separated by commas. This can help make your query more modular without
+the complication of creating views that will only be used once.
 
 ### 3.3 Window functions
 
@@ -978,7 +983,8 @@ Comments:
   table.
 - The functions one can apply include standard aggregation functions
   such as `avg` and `count` as well as non-standard functions (specific
-  to using window functions) such as `rank` and `cume_dist`.
+  to using window functions) such as `rank`, `row_number`, and
+  `cume_dist`.
 - Unless you’re simply grouping into categories, you’ll generally need
   to order the rows for the window function to make sense.
 
@@ -1141,9 +1147,18 @@ One can also choose a fixed number of rows by replacing ‘range’ with
 frame* in more flexible ways than simply the categories of a categorical
 variable.
 
+Ranking becomes more complicated when there are ties. `RANK` will assign
+the same value to any ties, and then increment based on the number of
+ties, e.g., you can get `1, 1, 1, 4`, if the three lowest value are
+tied. `DENSE RANK` will avoid skipping values, giving `1, 1, 1, 2` in
+the same situation. `ROW_NUMBER` just numbers, ignoring ties and
+resulting in ambiguity when there are ties, giving `1, 2, 3, 4` in the
+same situation.
+
 So the syntax of a window function will generally have these elements:
 
-- a call to some function
+- a call to some function that calculates within the window and assigns
+  value(s) to the rows in the window
 - OVER
 - PARTITION BY (optional)
 - ORDER BY (optional)
@@ -1741,28 +1756,28 @@ system.time(dbGetQuery(db, "select count(ownerid) from questions"))
 ```
 
     ##    user  system elapsed 
-    ##   0.132   0.097   1.527
+    ##   0.178   0.107   2.117
 
 ``` r
 system.time(dbGetQuery(dbDuck, "select count(ownerid) from questions"))
 ```
 
     ##    user  system elapsed 
-    ##   0.089   0.009   0.134
+    ##   0.020   0.007   0.242
 
 ``` r
 system.time(result1 <- dbGetQuery(db, "select distinct ownerid from questions"))
 ```
 
     ##    user  system elapsed 
-    ##   1.739   0.981   2.869
+    ##   1.672   0.965   3.315
 
 ``` r
 system.time(result2 <- dbGetQuery(dbDuck, "select distinct ownerid from questions"))
 ```
 
     ##    user  system elapsed 
-    ##   0.244   0.030   0.067
+    ##   0.228   0.028   0.060
 
 Now let’s compare timings for some of the queries we ran previously.
 There are substantial speed-ups in both cases.
@@ -1776,7 +1791,7 @@ system.time(result1 <- dbGetQuery(db, "select * from questions join questions_ta
 ```
 
     ##    user  system elapsed 
-    ##   2.931   0.737   4.248
+    ##   3.201   0.720   5.717
 
 ``` r
 system.time(result2 <- dbGetQuery(dbDuck, "select * from questions join questions_tags 
@@ -1785,7 +1800,7 @@ system.time(result2 <- dbGetQuery(dbDuck, "select * from questions join question
 ```
 
     ##    user  system elapsed 
-    ##   0.998   0.127   1.165
+    ##   1.326   0.157   1.580
 
 And here’s a subquery in the FROM statement.
 
@@ -1799,7 +1814,7 @@ system.time(result1 <- dbGetQuery(db, "select * from questions join answers A
 ```
 
     ##    user  system elapsed 
-    ## 618.105  48.290 676.191
+    ##   7.683   1.498   9.860
 
 ``` r
 system.time(result2 <- dbGetQuery(dbDuck, "select * from questions join answers A
@@ -1811,7 +1826,7 @@ system.time(result2 <- dbGetQuery(dbDuck, "select * from questions join answers 
 ```
 
     ##    user  system elapsed 
-    ##   2.761   0.162   1.462
+    ##   2.289   0.159   1.498
 
 DuckDB will run in parallel by using multiple threads, which can help
 speed up computations on top of efficiencies available through the
