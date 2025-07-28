@@ -1,0 +1,34 @@
+project:
+  type: website
+
+website:
+  site-url: https://computing.stat.berkeley.edu/tutorial-databases
+  sidebar:
+    style: docked
+    title: "SCF Databases/SQL Tutorial"
+    logo: assets/img/logo.svg
+    logo-href: https://statistics.berkeley.edu
+    logo-alt: "UC Berkeley Statistics logo"
+    tools:
+      - icon: github
+        href: https://github.com/berkeley-scf/tutorial-databases
+        aria-label: GitHub
+    contents:
+      - href: index.qmd
+        text: Getting Started
+      - href: sql.qmd
+        text: SQL
+      - href: db-management.qmd
+        text: Database Management
+      - href: bigquery.qmd
+        text: Databases in the Cloud
+      - href: Big Data in R and Python
+        text: R-and-Python.qmd
+      - href: license.qmd
+        text: License
+
+format:
+  html:
+    theme: cosmo
+    css: assets/styles.css
+    toc: true
