@@ -1,7 +1,19 @@
 ---
-layout: default
 title: Database management
+format:
+  html:
+    theme: cosmo
+    css: assets/styles.css
+    toc: true
+    code-copy: true
+    code-block-bg: true
+    code-block-border-left: "#31BAE9" 
+ipynb-shell-interactivity: all
+code-overflow: wrap
+execute:
+  freeze: auto
 ---
+
 
 ```{r setup, include=FALSE}
 options(replace.assign=TRUE, width=65)
@@ -68,7 +80,9 @@ for file in $(ls *gz); do
 done
 ```
 
-> **Warning**: If you want to read the data into SQLite yourself, you *will* need to do something about the quotes; I haven't stripped them out of the files.
+::: {.callout-warning}
+If you want to read the data into SQLite yourself, you *will* need to do something about the quotes; I haven't stripped them out of the files.
+:::
 
 ## 2 DuckDB
 
@@ -132,7 +146,9 @@ grant all privileges on table webtraffic to paciorek;
 \quit
 ```
 
-> **Note**: Notice the use of `\` to do administrative tasks (as opposed to executing SQL syntax), and the use of `;` to end each statement. Without the semicolon, Postgres will return without doing anything.
+::: {.callout-note}
+Notice the use of `\` to do administrative tasks (as opposed to executing SQL syntax), and the use of `;` to end each statement. Without the semicolon, Postgres will return without doing anything.
+:::
 
 If you want control over where the database is stored (you probably only need to worry about this if you are creating a large database), you can do things like this:
 
@@ -177,8 +193,9 @@ for file in $(ls part*gz); do  # loop thru files whose names start with 'part' a
 done
 ```
 
-> **Note**: Using `\copy` as above invokes the psql `copy` command (`copy` would invoke the standard SQL `copy` command), which allows one to operate as a regular user and to use relative paths. In turn `\copy` invokes `copy` in a specific way. 
-
+::: {.callout-note}
+Using `\copy` as above invokes the psql `copy` command (`copy` would invoke the standard SQL `copy` command), which allows one to operate as a regular user and to use relative paths. In turn `\copy` invokes `copy` in a specific way. 
+:::
 
 ### 3.3 Data cleaning
 

@@ -1,10 +1,21 @@
 ---
-layout: default
 title: Data Warehouses
+format:
+  html:
+    theme: cosmo
+    css: assets/styles.css
+    toc: true
+    code-copy: true
+    code-block-bg: true
+    code-block-border-left: "#31BAE9" 
+ipynb-shell-interactivity: all
+code-overflow: wrap
+execute:
+  freeze: auto
 ---
 
-
-```{r setup, include=FALSE}
+```{r setup}
+#| include: false
 options(replace.assign=TRUE, width=65)
 knitr::opts_chunk$set(eval = FALSE, message = FALSE) ## turned off message() output
 ```
@@ -20,6 +31,10 @@ Some features of BigQuery include:
  - You can manage access to your datasets for different GCP users.
  - You can query [publicly available datasets](https://cloud.google.com/datasets).
  - You can query "external tables" to access data not in a BigQuery dataset.
+
+::: {.callout-danger title="BigQuery interface may have changed"}
+The instructions here were prepared in 2023 and the interface may have changed since then.
+:::
 
 ## 2 Running queries
 

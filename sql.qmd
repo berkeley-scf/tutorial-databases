@@ -1,7 +1,19 @@
 ---
-layout: default
 title: SQL
+format:
+  html:
+    theme: cosmo
+    css: assets/styles.css
+    toc: true
+    code-copy: true
+    code-block-bg: true
+    code-block-border-left: "#31BAE9" 
+ipynb-shell-interactivity: all
+code-overflow: wrap
+execute:
+  freeze: auto
 ---
+
 
 
 ```{r setup, include=FALSE}
@@ -67,9 +79,13 @@ And here is a table of some important keywords:
 
 Some other keywords are: DISTINCT, ON, JOIN, GROUP BY, AS, USING, UNION, INTERSECT, HAVING, SIMILAR TO (not available in SQLite), SUBSTR in SQLite and SUBSTRING in PostgreSQL. 
 
-> **Challenge**: Return a few rows from the users, questions, answers, and tags tables so you can get a sense for what the entries in the tables are like.
+::: {.callout-tip title="Challenge"}
+Return a few rows from the users, questions, answers, and tags tables so you can get a sense for what the entries in the tables are like.
+:::
 
-> **Challenge**: Find the users in the database with the most upvotes.
+::: {.callout-tip title="Challenge"}
+Find the users in the database with the most upvotes.
+:::
 
 ### 1.2 Getting unique results (DISTINCT)
 
@@ -96,29 +112,39 @@ dbGetQuery(db, "select tag, count(*) as n from questions_tags
 
 Also note the use of `as` to define a name for the new column.
 
-> **Challenge**: What specifically does that query do? Describe the table that would be returned.
+::: {.callout-tip title="Challenge"}
+What specifically does that query do? Describe the table that would be returned.
+:::
 
 In general `GROUP BY` statements will involve some aggregation operation on the subsets. Options include: COUNT, MIN, MAX, AVG, SUM.
 
 The result of a query that uses `group by` is a table with as many rows as groups. 
 
-> **Warning**: To filter the result of a grouping operation, we need to use `having` rather than `where`. (`where` would filter before the application of the `group by`).
+::: {.callout-warning title="`where` vs. `having`"}
+To filter the result of a grouping operation, we need to use `having` rather than `where`. (`where` would filter before the application of the `group by`).
 
   ```{r}
   dbGetQuery(db, "select tag, count(*) as n from questions_tags
                   group by tag having n > 100000 limit 10")
   ```
+:::
 
-> **Warning**: Determining what fields can be selected when using `group by` can be tricky, because it varies by DBMS. For example, with Postgres, you can only select fields created by aggregation and the fields that `group by` is applied to, as well as when there is something called a [functional dependency](https://www.postgresql.org/docs/current/sql-select.html#SQL-GROUPBY). SQLite allows more flexibility. For example the following can be done in SQLite to find user and answer information for the answer to each question from the user with the highest reputation. However Postgres gives the error 'ERROR:  column "u.userid" must appear in the GROUP BY clause or be used in an aggregate function'.
+::: {.callout-warning title="Fields and `group by`"}
+Determining what fields can be selected when using `group by` can be tricky, because it varies by DBMS. For example, with Postgres, you can only select fields created by aggregation and the fields that `group by` is applied to, as well as when there is something called a [functional dependency](https://www.postgresql.org/docs/current/sql-select.html#SQL-GROUPBY). SQLite allows more flexibility. For example the following can be done in SQLite to find user and answer information for the answer to each question from the user with the highest reputation. However Postgres gives the error 'ERROR:  column "u.userid" must appear in the GROUP BY clause or be used in an aggregate function'.
 
   ```{r}
   dbGetQuery(db, "select *, max(reputation) from users U join answers A
                   on A.ownerid = U.userid group by A.questionid limit 5")
   ```
+:::
 
-> **Challenge**: Write a query that will count the number of answers for each question, returning the IDs of the most answered questions. Hint: consider which field in the "answers" table we do the grouping on (and you shouldn't need to use the "questions" table). 
+::: {.callout-tip title="Challenge"}
+Write a query that will count the number of answers for each question, returning the IDs of the most answered questions. Hint: consider which field in the "answers" table we do the grouping on (and you shouldn't need to use the "questions" table).
+:::
 
-> **Tip**: When applied to a specific field, `COUNT` will not count elements that are `NULL`. That can be useful in cases such as determining the number of non-matches in an outer join. In contrast, `COUNT(*)` will count the number of rows, regardless of the contents.
+::: {.callout-tip title="`count` and NULL values"}
+When applied to a specific field, `COUNT` will not count elements that are `NULL`. That can be useful in cases such as determining the number of non-matches in an outer join. In contrast, `COUNT(*)` will count the number of rows, regardless of the contents.
+:::
 
 ### 1.4 Joins
 
@@ -174,11 +200,17 @@ result2 <- dbGetQuery(db, "select * from questions Q, questions_tags T, users U
                            and tag = 'python' and upvotes > 100")
 ```
 
-> **Challenge**: Write a query that would return all the answers to questions with the Python tag.
+::: {.callout-tip title="Challenge"}
+Write a query that would return all the answers to questions with the Python tag.
+:::
 
-> **Challenge**: Write a query that will count the number of answers for each question, returning the most answered questions and their information. Note that this extends the question in the previous section.
+::: {.callout-tip title="Challenge"}
+Write a query that will count the number of answers for each question, returning the most answered questions and their information. Note that this extends the question in the previous section.
+:::
 
-> **Challenge**: Write a query that would return the users who have answered a question with the Python tag.
+::: {.callout-tip title="Challenge"}
+Write a query that would return the users who have answered a question with the Python tag.
+:::
 
 
 #### 1.4.2 Types of joins
@@ -218,11 +250,17 @@ select * from table1 natural join table2
 
 Note that in the last query the join would be based on all common columns, which could be a bit dangerous if you don't look carefully at the schema of both tables. Assuming `id` is the common column, then the last of these queries is the same as the others.
 
-> **Challenge**: Create a view with one row for every question-tag pair, including questions without any tags.
+::: {.callout-tip title="Challenge"}
+Create a view with one row for every question-tag pair, including questions without any tags.
+:::
 
-> **Challenge**: Write a query that would return the displaynames of all of the users who have *never* posted a question. The NULL keyword will come in handy -- it's like `NA` in R. Hint: NULLs should be produced if you do an outer join.
+::: {.callout-tip title="Challenge"}
+Write a query that would return the displaynames of all of the users who have *never* posted a question. The NULL keyword will come in handy -- it's like `NA` in R. Hint: NULLs should be produced if you do an outer join.
+:::
 
-> **Challenge**: How many questions tagged with 'random-forest' were unanswered? (You should need two different kinds of joins to answer this.)
+::: {.callout-tip title="Challenge"}
+How many questions tagged with 'random-forest' were unanswered? (You should need two different kinds of joins to answer this.)
+:::
 
 
 #### 1.4.3 Counting NULLs
@@ -260,7 +298,10 @@ That should create a new table with all pairs of questions asked by a single per
 
 Actually, there's a problem here.
 
-> **Challenge**: What kinds of rows will we get that we don't want?
+::: {.callout-tip title="Challenge"}
+What kinds of rows will we get that we don't want?
+:::
+
 
 A solution to that problem of having the same question paired with itself is:
 
@@ -271,7 +312,9 @@ dbGetQuery(db, "create view question_contrasts as
                 where Q1.creationdate != Q2.creationdate")
 ```
 
-> **Challenge**: There's actually a further similar problem. What is the problem and how can we fix it by changing two characters in the query above? Hint, even as character strings, the creationdate column has an ordering.
+::: {.callout-tip title="Challenge"}
+There's actually a further similar problem. What is the problem and how can we fix it by changing two characters in the query above? Hint, even as character strings, the creationdate column has an ordering.
+:::
 
 
 ### 1.5 Temporary tables and views
@@ -344,7 +387,9 @@ result <- dbGetQuery(db, "select * from questions_tags
                              where tag SIMILAR TO 'r-.*|.*-r|r|.*-r-.*' limit 10")
 ```
 
-> **Note**: The matching does not match on substrins, unless one uses wildcards at beginning and end of the pattern, so "r" will only find "r" and not, for example, "dplyr".
+::: {.callout-warning}
+The matching does not match on substrings, unless one uses wildcards at beginning and end of the pattern, so "r" will only find "r" and not, for example, "dplyr".
+:::
 
 To extract substrings we can SUBSTRING in Postgres. Here's a basic example:
 
@@ -362,15 +407,25 @@ dbGetQuery(db, "select substring(creationdate from
                 from questions limit 3")
 ```
 
-> **Warning**: SQLite provides SUBSTR for substrings, but the flexibility of SUBSTR seems to be much less than use of SUBSTRING in PostgreSQL.
+::: {.callout-warning title="Substrings"}
+SQLite provides SUBSTR for substrings, but the flexibility of SUBSTR seems to be much less than use of SUBSTRING in PostgreSQL.
+:::
 
 Here is some [documentation on string functions in PostgreSQL](https://www.postgresql.org/docs/current/functions-string.html).
 
-> **Challenge**: Select the questions that have "java" but not "javascript" in their titles using regular expression syntax.
+::: {.callout-tip title="Challenge"}
+Select the questions that have "java" but not "javascript" in their titles using regular expression syntax.
+:::
 
-> **Challenge**: Figure out how to calculate the length (in characters) of the title of each question. 
 
-> **Challenge**:Process the creationdate field to create year, day, and month fields in a new view. Note that this would be good practice for string manipulation but you would want to handle dates and times using the material in the next section and not use string processing.
+::: {.callout-tip title="Challenge"}
+Figure out how to calculate the length (in characters) of the title of each question. 
+:::
+
+::: {.callout-tip title="Challenge"}
+Process the creationdate field to create year, day, and month fields in a new view. Note that this would be good practice for string manipulation but you would want to handle dates and times using the material in the next section and not use string processing.
+:::
+
 
 ### 2.3 Dates and times
 
@@ -427,7 +482,9 @@ Here's some [documentation of the syntax for the functions, including `stftime`]
 
 You can do set operations like union, intersection, and set difference using the UNION, INTERSECT, and EXCEPT keywords on tables that have the same schema (same column names and types), though most often these would be used on single columns (i.e., single-column tables).
 
-> **Note**: While one can often set up an equivalent query without using INTERSECT or UNION, set operations can be very handy.
+::: {.callout-note}
+While one can often set up an equivalent query without using INTERSECT or UNION, set operations can be very handy.
+:::
 
 Here's an example of a query that can be done with or without an intersection. Suppose we want to know the names of all individuals who have asked both an R question and a Python question. We can do this with INTERSECT:
 
@@ -462,15 +519,21 @@ system.time(
                )
 identical(result1, result2)
 ```
-> **Challenge**: Those two queries return equivalent information, but the results are not exactly the same. What causes the difference? How can we modify the second query to get the exact same results as the first?
+::: {.callout-tip title="Challenge"}
+Those two queries return equivalent information, but the results are not exactly the same. What causes the difference? How can we modify the second query to get the exact same results as the first?
+:::
 
 Which is faster? The second one looks more involved in terms of the joins, so the timing results seen above make sense.
 
 We could use UNION or EXCEPT to find people who have asked either or only one type of question, respectively.
 
-> **Challenge**: Find the users who have asked either an R question or a Python question.
+::: {.callout-tip title="Challenge"}
+Find the users who have asked either an R question or a Python question.
+:::
 
-> **Challenge**: Find the users who have asked but not answered a question.
+::: {.callout-tip title="Challenge"}
+Find the users who have asked but not answered a question.
+:::
 
 
 ### 3.2 Subqueries
@@ -481,7 +544,9 @@ A subquery is a full query that is embedded in a larger query.
 
 We can use subqueries in the FROM statement to create a temporary table to use in a query. Here we'll do it in the context of a join.
 
-> **Challenge**: What does the following do?
+::: {.callout-tip title="Challenge"}
+What does the following do?
+:::
 
 
 ```{r, eval=FALSE}
@@ -497,7 +562,10 @@ It might be hard to just come up with that full query all at once. A good strate
 
 Note we could also have done that query using a subquery in the WHERE statement, as discussed in the next section. 
 
-> **Challenge**: Write a query that finds the number of answers per question, but only answers from users with at least 100 upvotes.
+::: {.callout-tip title="Challenge"}
+Write a query that finds the number of answers per question, but only answers from users with at least 100 upvotes.
+:::
+
 
 Finally one can use subqueries in the SELECT clause to create new variables, but we won't go into that here.
 
@@ -517,7 +585,9 @@ dbGetQuery(db, "select avg(upvotes) from users where userid in
 
 In some cases one can do a join rather than using a subquery, but in the following example, it fails.
 
-> **Challenge**: What's wrong with the following query as an attempt to answer the question above? (See if you can figure it out before looking at the answer below.)
+::: {.callout-tip title="Challenge"}
+What's wrong with the following query as an attempt to answer the question above? (See if you can figure it out before looking at the answer below.)
+:::
 
 ```{r}
 dbGetQuery(db, "select avg(upvotes) from questions, questions_tags, users
@@ -529,13 +599,21 @@ dbGetQuery(db, "select avg(upvotes) from questions, questions_tags, users
 (Answer: In the subquery, we find the IDs of the users we are looking for and then average over the UpVotes of those individuals. In the join version we found all the questions that had a Python tag and averaged over the UpVotes of the individuals associated with those questions. So the latter includes multiple UpVotes values from individuals who have posted multiple Python questions.)
 
 
-> **Challenge**: Write a query that would return the user information for users who have answered a question with the Python tag. We've seen this challenge before, but do it now based on a subquery.
+::: {.callout-tip title="Challenge"}
+Write a query that would return the user information for users who have answered a question with the Python tag. We've seen this challenge before, but do it now based on a subquery.
+:::
 
-> **Challenge**: Find the users who have asked but not answered a question. We've seen this before, but now make use of subqueries instead of a join.
+::: {.callout-tip title="Challenge"}
+Find the users who have asked but not answered a question. We've seen this before, but now make use of subqueries instead of a join.
+:::
 
-> **Challenge**: How would you find all the answers associated with the user with the most upvotes?
+::: {.callout-tip title="Challenge"}
+How would you find all the answers associated with the user with the most upvotes?
+:::
 
-> **Challenge**: Create a frequency list of the tags used in the top 100 most answered questions. Note there is a way to do this with a JOIN and a way without a JOIN.
+::: {.callout-tip title="Challenge"}
+Create a frequency list of the tags used in the top 100 most answered questions. Note there is a way to do this with a JOIN and a way without a JOIN.
+:::
 
 #### 3.2.3 Using WITH
 
@@ -668,12 +746,19 @@ dbGetQuery(db, "select ownerid, creationdate,
 ```
 
 
-> **Challenge**: Use a window function to compute the average viewcount for each ownerid for the 10 questions preceding each question.
+::: {.callout-tip title="Challenge"}
+Use a window function to compute the average viewcount for each ownerid for the 10 questions preceding each question.
+:::
 
-> **Challenge**: For each question, get the answer given by the user with the maximum reputation amongst users answering the question.
+::: {.callout-tip title="Challenge"}
+For each question, get the answer given by the user with the maximum reputation amongst users answering the question.
+
 Hint: you'll need to first create a subquery that determines the maximum reputation amongst the answers for each question and then use that to get the answer of interest for each question.
+:::
 
-> **Challenge (hard)**: Find the users who have asked one question that is highly-viewed (viewcount > 1000) with their remaining questions not highly-viewed (viewcount < 20 for all other questions).
+::: {.callout-tip title="Challenge (hard)"}
+Find the users who have asked one question that is highly-viewed (viewcount > 1000) with their remaining questions not highly-viewed (viewcount < 20 for all other questions).
+:::
 
 ### 3.4 Putting it all together to do complicated queries
 

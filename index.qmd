@@ -1,10 +1,21 @@
 ---
 title: Working with large datasets using SQL, R, and Python
-layout: default
-author: Christopher Paciorek
+format:
+  html:
+    theme: cosmo
+    css: assets/styles.css
+    toc: true
+    code-copy: true
+    code-block-bg: true
+    code-block-border-left: "#31BAE9" 
+ipynb-shell-interactivity: all
+code-overflow: wrap
+execute:
+  freeze: auto
 ---
 
-```{r setup, include=FALSE}
+```{r setup}
+#| include: false
 options(replace.assign=TRUE, width=65)
 knitr::opts_chunk$set(eval = FALSE, message = FALSE) ## turned off message() output
 library(DBI)
@@ -19,17 +30,11 @@ This tutorial assumes you have a working knowledge of R or Python.
 
 ### 1.1 Materials
 
-Materials for this tutorial, including the Markdown files and associated code files that were used to create these documents are available on [GitHub](https://github.com/berkeley-scf/tutorial-databases) in the `gh-pages` branch.  You can download the files by doing a git clone from a terminal window on a UNIX-like machine, as follows:
-
-```bash
-git clone https://github.com/berkeley-scf/tutorial-databases
-```
+Materials for this tutorial, including the Markdown files and associated code files that were used to create these documents are [available on GitHub](https://github.com/berkeley-scf/tutorial-databases).```
 
 The example data files are not part of the GitHub repository. You can get the example data files (both Stack Overflow data for 2021 and Wikipedia webtraffic data for the year 2008) [here](https://www.stat.berkeley.edu/share/paciorek/tutorial-databases-data.zip).
 
 Solutions to the SQL challenges are available on request. 
-
-This tutorial by Christopher Paciorek of the UC Berkeley Statistical Computing Facility is licensed under a Creative Commons Attribution 3.0 Unported License.
 
 ### 1.2 Prerequisite Software
 
@@ -54,8 +59,6 @@ To replicate the (non-essential) PostgreSQL administration portion of this tutor
 - You could run Ubuntu in a Docker container; Docker can be installed on Windows or Mac. Once you've installed Docker and have access to a terminal command line, please see the commands in [docker.sh](docker.sh) in this repository. 
 - You could run an Amazon EC2/Google Cloud/Azure virtual machine instance, using a image that supports R and/or Python and then installing PostgreSQL as discussed in this tutorial.
 - The big cloud computing providers have created a wide array of specific database services, so if you are using a cloud provider, you'd probably want to take advantage of those rather than 'manually' running a database via a virtual machine. 
-
-This tutorial by Christopher Paciorek is licensed under a Creative Commons Attribution 3.0 Unported License (CC BY).
 
 
 ## 2 Background
@@ -273,9 +276,13 @@ or like this if we have one row per question-answer pair:
 
 As we've discussed neither of those schema is particularly desirable. 
 
-***Question***: How would you devise a schema to normalize the data. I.e., what set of tables do you think we should create?
+::: {.callout-tip title="Question"}
+How would you devise a schema to normalize the data. I.e., what set of tables do you think we should create?
+:::
 
-Don't peek until after you've thought about it, but you can view one [reasonable schema here](normalized_example.png). The lines between tables indicate the relationship of foreign keys in one table to primary keys in another table. The schema in the actual databases of Stack Overflow data we'll use in this tutorial is similar to but not identical to that. 
+::: {.callout-tip title="Answer" collapse="true"}
+Don't peek until after you've thought about it, but you can view one [reasonable schema here](normalized_example.png). The lines between tables indicate the relationship of foreign keys in one table to primary keys in another table. The schema in the actual databases of Stack Overflow data we'll use in this tutorial is similar to but not identical to that.
+:::
 
 
 ### 5.1 Getting the database
