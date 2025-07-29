@@ -202,8 +202,8 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./Big Data in R and Python" class="sidebar-item-text sidebar-link">
- <span class="menu-text">R-and-Python.qmd</span></a>
+  <a href="./R-and-Python.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Big Data in R and Python</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -499,11 +499,11 @@ Challenge
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>To filter the result of a grouping operation, we need to use <code>having</code> rather than <code>where</code>. (<code>where</code> would filter before the application of the <code>group by</code>).</p>
-<p>::: {.cell}</p>
+<p>To filter the result of a grouping operation, we need to use <code>having</code> rather than <code>where</code>. (Note that <code>where</code> would filter before the application of the <code>group by</code>).</p>
+<div class="cell">
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(db, <span class="st">"select tag, count(*) as n from questions_tags</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="st">                group by tag having n &gt; 100000 limit 10"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>:::</p>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="st">               group by tag having n &gt; 100000 limit 10"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 </div>
 </div>
 <div class="callout callout-style-default callout-warning callout-titled" title="Fields and `group by`">
@@ -517,10 +517,10 @@ Fields and <code>group by</code>
 </div>
 <div class="callout-body-container callout-body">
 <p>Determining what fields can be selected when using <code>group by</code> can be tricky, because it varies by DBMS. For example, with Postgres, you can only select fields created by aggregation and the fields that <code>group by</code> is applied to, as well as when there is something called a <a href="https://www.postgresql.org/docs/current/sql-select.html#SQL-GROUPBY">functional dependency</a>. SQLite allows more flexibility. For example the following can be done in SQLite to find user and answer information for the answer to each question from the user with the highest reputation. However Postgres gives the error ‘ERROR: column “u.userid” must appear in the GROUP BY clause or be used in an aggregate function’.</p>
-<p>::: {.cell}</p>
+<div class="cell">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(db, <span class="st">"select *, max(reputation) from users U join answers A</span></span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="st">                on A.ownerid = U.userid group by A.questionid limit 5"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>:::</p>
+</div>
 </div>
 </div>
 <div class="callout callout-style-default callout-tip callout-titled" title="Challenge">
@@ -1096,7 +1096,7 @@ Note
 <span id="cb51-11"><a href="#cb51-11" aria-hidden="true" tabindex="-1"></a>               )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  4.256   1.334   6.783 </code></pre>
+  4.507   1.391   8.480 </code></pre>
 </div>
 </div>
 <p>Alternatively we can do a self-join. Note that the syntax gets complicated as we are doing multiple joins.</p>
@@ -1114,7 +1114,7 @@ Note
 <span id="cb53-11"><a href="#cb53-11" aria-hidden="true" tabindex="-1"></a>               )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  5.955   3.538  12.829 </code></pre>
+  5.622   3.053   9.923 </code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="fu">identical</span>(result1, result2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -1169,19 +1169,7 @@ Challenge
 <section id="subqueries-in-the-from-statement" class="level4">
 <h4 class="anchored" data-anchor-id="subqueries-in-the-from-statement">3.2.1 Subqueries in the FROM statement</h4>
 <p>We can use subqueries in the FROM statement to create a temporary table to use in a query. Here we’ll do it in the context of a join.</p>
-<div class="callout callout-style-default callout-tip callout-titled" title="Challenge">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Challenge
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>What does the following do?</p>
-</div>
-</div>
+<p>Try to figure out what the following query does.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(db, <span class="st">"select * from questions join answers A</span></span>
 <span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a><span class="st">                on questions.questionid = A.questionid</span></span>
@@ -1190,6 +1178,8 @@ Challenge
 <span id="cb57-5"><a href="#cb57-5" aria-hidden="true" tabindex="-1"></a><span class="st">                group by ownerid order by n_answered desc limit 1000) most_responsive</span></span>
 <span id="cb57-6"><a href="#cb57-6" aria-hidden="true" tabindex="-1"></a><span class="st">                on A.ownerid = most_responsive.ownerid"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<p>Here the subquery is <code>select ownerid, count(*) as n_answered from answers group by ownerid order by n_answered desc limit 1000</code>, which creates a temporary table, named <code>most_responsive</code>, having the ownerid (and the number of their answers) for the 1000 users who have answered the most questions.</p>
+<p>In the ‘outer’ main query, that temporary table is joined to the questions and answers tables.</p>
 <p>It might be hard to just come up with that full query all at once. A good strategy is probably to think about creating a view that is the result of the inner query and then have the outer query use that. You can then piece together the complicated query in a modular way. For big databases, you are likely to want to submit this as a single query and not two queries so that the SQL optimizer can determine the best way to do the operations. But you want to start with code that you’re confident will give you the right answer!</p>
 <p>Note we could also have done that query using a subquery in the WHERE statement, as discussed in the next section.</p>
 <div class="callout callout-style-default callout-tip callout-titled" title="Challenge">
@@ -1234,15 +1224,30 @@ Challenge
 </div>
 <div class="callout-body-container callout-body">
 <p>What’s wrong with the following query as an attempt to answer the question above? (See if you can figure it out before looking at the answer below.)</p>
-</div>
-</div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(db, <span class="st">"select avg(upvotes) from questions, questions_tags, users</span></span>
 <span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a><span class="st">                where questions.questionid = questions_tags.questionid and</span></span>
 <span id="cb60-3"><a href="#cb60-3" aria-hidden="true" tabindex="-1"></a><span class="st">                questions.ownerid = users.userid and</span></span>
 <span id="cb60-4"><a href="#cb60-4" aria-hidden="true" tabindex="-1"></a><span class="st">                tag = 'python'"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>(Answer: In the subquery, we find the IDs of the users we are looking for and then average over the UpVotes of those individuals. In the join version we found all the questions that had a Python tag and averaged over the UpVotes of the individuals associated with those questions. So the latter includes multiple UpVotes values from individuals who have posted multiple Python questions.)</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled" title="Answer">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-27-contents" aria-controls="callout-27" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Answer
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-27" class="callout-27-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>In the subquery, we find the IDs of the users we are looking for and then average over the UpVotes of those individuals. In the join version we found all the questions that had a Python tag and averaged over the UpVotes of the individuals associated with those questions. So the latter includes multiple UpVotes values from individuals who have posted multiple Python questions.</p>
+</div>
+</div>
+</div>
 <div class="callout callout-style-default callout-tip callout-titled" title="Challenge">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1600,43 +1605,35 @@ Challenge (hard)
 <h3 class="anchored" data-anchor-id="putting-it-all-together-to-do-complicated-queries">3.4 Putting it all together to do complicated queries</h3>
 <p>Here are some real-world style questions one might try to create queries to answer. The context for these questions is a situation in which you have data on user sessions on a website or data on messages between users.</p>
 <ol type="1">
-<li>Given a table of user sessions with the format</li>
-</ol>
+<li><p>Given a table of user sessions with the format</p>
 <pre><code>date | session_id | user_id | session_time</code></pre>
 <p>calculate the distribution of the average daily total session time in the last month. I.e., you want to get each user’s daily average and then find the distribution over users. The output should be something like:</p>
-<pre><code>minutes_per_day | number_of_users</code></pre>
-<ol start="2" type="1">
-<li>Consider a table of messages of the form</li>
-</ol>
+<pre><code>minutes_per_day | number_of_users</code></pre></li>
+<li><p>Consider a table of messages of the form</p>
 <pre><code>sender_id | receiver_id | message_id</code></pre>
-<p>For each user, find the three users they message the most.</p>
-<ol start="3" type="1">
-<li>Suppose you have are running an online experiment and have a table on the experimental design:</li>
-</ol>
+<p>For each user, find the three users they message the most.</p></li>
+<li><p>Suppose you have are running an online experiment and have a table on the experimental design:</p>
 <pre><code>user_id | test_group | date_first_exposed</code></pre>
 <p>Suppose you also have a messages table that indicates if each message was sent on web or mobile:</p>
 <pre><code>date | sender_id | receiver_id | message_id | interface (web or mobile)</code></pre>
-<p>What is the average (over users) in the average number of messages sent per day for each test group if you look at the users who have sent messages only on mobile in the last month.</p>
+<p>What is the average (over users) in the average number of messages sent per day for each test group if you look at the users who have sent messages only on mobile in the last month.</p></li>
+</ol>
 <section id="challenge-questions-with-the-stack-overflow-data" class="level4">
 <h4 class="anchored" data-anchor-id="challenge-questions-with-the-stack-overflow-data">Challenge questions with the Stack Overflow data</h4>
 <p>If we take the three challenges above and translate into problems for the Stack Overflow data, one could consider the following three problems.</p>
 <ol type="1">
-<li>For each user who has asked at least one question find the average number of questions per month. Then determine the distribution of that average across the users. (I.e., determine the values that would go into a histogram of the average number of questions per month across users.) The output should be something like:</li>
-</ol>
+<li><p>For each user who has asked at least one question find the average number of questions per month. Then determine the distribution of that average across the users. (I.e., determine the values that would go into a histogram of the average number of questions per month across users.) The output should be something like:</p>
 <pre><code>number of questions per month (rounded) | number of users</code></pre>
-<p>Next try to figure out how to include the users who have asked no questions. Hint: think about how to get NULL values included and then count a column containing such values.</p>
-<ol start="2" type="1">
-<li>For each user, find the three most common tags they apply to their questions.</li>
-</ol>
+<p>Next try to figure out how to include the users who have asked no questions. Hint: think about how to get NULL values included and then count a column containing such values.</p></li>
+<li><p>For each user, find the three most common tags they apply to their questions.</p>
 <p>The output should be something like:</p>
 <pre><code>userid | tag | count</code></pre>
-<p>Hints: You’ll need to use subqueries and the final selection of just the top 3 tags will need to be done in its own query and not as part of defining a field using a window function.</p>
-<ol start="3" type="1">
-<li>Consider trying to determine whether users who answer a lot of questions also ask a lot of questions. Grouping the users based on the number of questions they’ve answered (0, 1, 2, etc.), determine the aerage number of questions per month for each group.</li>
-</ol>
+<p>Hints: You’ll need to use subqueries and the final selection of just the top 3 tags will need to be done in its own query and not as part of defining a field using a window function.</p></li>
+<li><p>Consider trying to determine whether users who answer a lot of questions also ask a lot of questions. Grouping the users based on the number of questions they’ve answered (0, 1, 2, etc.), determine the aerage number of questions per month for each group.</p>
 <p>The output should be something like:</p>
 <pre><code>number of answers | average number of questions per month</code></pre>
-<p>You’ll want to work through this in pieces. Try to think about the initial tables you would need and then build up your query in a nested fashion.</p>
+<p>You’ll want to work through this in pieces. Try to think about the initial tables you would need and then build up your query in a nested fashion.</p></li>
+</ol>
 </section>
 </section>
 <section id="a-summary-of-sql-syntax-by-example" class="level3">
@@ -1644,133 +1641,133 @@ Challenge (hard)
 <p>This section shows the syntax for various queries so as to demonstrate syntax by example. It may be useful to test your understanding by figuring out (either with or without running the query) what the query does.</p>
 <section id="selecting-columns" class="level4">
 <h4 class="anchored" data-anchor-id="selecting-columns">Selecting columns</h4>
-<pre><code>select ownerid, title from questions
-select ownerid, title from questions limit 5
-select * from questions
-select * from questions order by answercount desc
-select count(*) as n from questions
-select count(ownerid) as n from questions
-select sum(answercount) from questions</code></pre>
+<div class="sourceCode" id="cb83"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb83-1"><a href="#cb83-1" aria-hidden="true" tabindex="-1"></a><span class="kw">select</span> ownerid, title <span class="kw">from</span> questions</span>
+<span id="cb83-2"><a href="#cb83-2" aria-hidden="true" tabindex="-1"></a><span class="kw">select</span> ownerid, title <span class="kw">from</span> questions <span class="kw">limit</span> <span class="dv">5</span></span>
+<span id="cb83-3"><a href="#cb83-3" aria-hidden="true" tabindex="-1"></a><span class="kw">select</span> <span class="op">*</span> <span class="kw">from</span> questions</span>
+<span id="cb83-4"><a href="#cb83-4" aria-hidden="true" tabindex="-1"></a><span class="kw">select</span> <span class="op">*</span> <span class="kw">from</span> questions <span class="kw">order</span> <span class="kw">by</span> answercount <span class="kw">desc</span></span>
+<span id="cb83-5"><a href="#cb83-5" aria-hidden="true" tabindex="-1"></a><span class="kw">select</span> <span class="fu">count</span>(<span class="op">*</span>) <span class="kw">as</span> n <span class="kw">from</span> questions</span>
+<span id="cb83-6"><a href="#cb83-6" aria-hidden="true" tabindex="-1"></a><span class="kw">select</span> <span class="fu">count</span>(ownerid) <span class="kw">as</span> n <span class="kw">from</span> questions</span>
+<span id="cb83-7"><a href="#cb83-7" aria-hidden="true" tabindex="-1"></a><span class="kw">select</span> <span class="fu">sum</span>(answercount) <span class="kw">from</span> questions</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
 <section id="using-distinct" class="level4">
 <h4 class="anchored" data-anchor-id="using-distinct">Using <code>distinct</code></h4>
-<pre><code>select distinct tag from questions_tags limit 15
-select distinct ownerid, answercount from questions limit 15
-select count(distinct tag) from questions_tags limit 15</code></pre>
+<div class="sourceCode" id="cb84"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a><span class="kw">select</span> <span class="kw">distinct</span> tag <span class="kw">from</span> questions_tags <span class="kw">limit</span> <span class="dv">15</span></span>
+<span id="cb84-2"><a href="#cb84-2" aria-hidden="true" tabindex="-1"></a><span class="kw">select</span> <span class="kw">distinct</span> ownerid, answercount <span class="kw">from</span> questions <span class="kw">limit</span> <span class="dv">15</span></span>
+<span id="cb84-3"><a href="#cb84-3" aria-hidden="true" tabindex="-1"></a><span class="kw">select</span> <span class="fu">count</span>(<span class="kw">distinct</span> tag) <span class="kw">from</span> questions_tags <span class="kw">limit</span> <span class="dv">15</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
 <section id="filtering-rows-with-where" class="level4">
 <h4 class="anchored" data-anchor-id="filtering-rows-with-where">Filtering rows with <code>where</code></h4>
-<pre><code>select * from questions where answercount &gt; 40
-select * from questions where answercount &gt; 40 order by answercount desc
-select * from questions where answercount = 10 limit 5
-select * from questions_tags where tag like 'r-%' limit 10
-select * from questions_tags where tag similar to 'r-%|%-r|r|%-r-%' limit 10
-select * from questions_tags where tag in ('java','r','python') limit 10</code></pre>
+<div class="sourceCode" id="cb85"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb85-1"><a href="#cb85-1" aria-hidden="true" tabindex="-1"></a><span class="kw">select</span> <span class="op">*</span> <span class="kw">from</span> questions <span class="kw">where</span> answercount <span class="op">&gt;</span> <span class="dv">40</span></span>
+<span id="cb85-2"><a href="#cb85-2" aria-hidden="true" tabindex="-1"></a><span class="kw">select</span> <span class="op">*</span> <span class="kw">from</span> questions <span class="kw">where</span> answercount <span class="op">&gt;</span> <span class="dv">40</span> <span class="kw">order</span> <span class="kw">by</span> answercount <span class="kw">desc</span></span>
+<span id="cb85-3"><a href="#cb85-3" aria-hidden="true" tabindex="-1"></a><span class="kw">select</span> <span class="op">*</span> <span class="kw">from</span> questions <span class="kw">where</span> answercount <span class="op">=</span> <span class="dv">10</span> <span class="kw">limit</span> <span class="dv">5</span></span>
+<span id="cb85-4"><a href="#cb85-4" aria-hidden="true" tabindex="-1"></a><span class="kw">select</span> <span class="op">*</span> <span class="kw">from</span> questions_tags <span class="kw">where</span> tag <span class="kw">like</span> <span class="st">'r-%'</span> <span class="kw">limit</span> <span class="dv">10</span></span>
+<span id="cb85-5"><a href="#cb85-5" aria-hidden="true" tabindex="-1"></a><span class="kw">select</span> <span class="op">*</span> <span class="kw">from</span> questions_tags <span class="kw">where</span> tag similar <span class="kw">to</span> <span class="st">'r-%|%-r|r|%-r-%'</span> <span class="kw">limit</span> <span class="dv">10</span></span>
+<span id="cb85-6"><a href="#cb85-6" aria-hidden="true" tabindex="-1"></a><span class="kw">select</span> <span class="op">*</span> <span class="kw">from</span> questions_tags <span class="kw">where</span> tag <span class="kw">in</span> (<span class="st">'java'</span>,<span class="st">'r'</span>,<span class="st">'python'</span>) <span class="kw">limit</span> <span class="dv">10</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
 <section id="grouping-and-reductionaggregation" class="level4">
 <h4 class="anchored" data-anchor-id="grouping-and-reductionaggregation">Grouping and reduction/aggregation</h4>
-<pre><code>select tag, count(*) as n from questions_tags \
-    group by tag
-
-select tag, count(*) as n from questions_tags \
-    group by tag having n &gt; 1000
-    
-select ownerid, count(*) as n from questions \
-    group by ownerid order by n desc limit 15
-    
-select ownerid, sum(viewcount) as viewed from questions \
-    group by ownerid
-
-select *, sum(viewcount) as viewed from questions \
-    group by ownerid
-
-select answercount, commentcount, count(*) as n from questions \
-    group by answercount, commentcount
-
-select tag, count(*) as n from questions_tags \
-    where tag like 'python%' group by tag having n &gt; 1000</code></pre>
+<div class="sourceCode" id="cb86"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb86-1"><a href="#cb86-1" aria-hidden="true" tabindex="-1"></a><span class="kw">select</span> tag, <span class="fu">count</span>(<span class="op">*</span>) <span class="kw">as</span> n <span class="kw">from</span> questions_tags \</span>
+<span id="cb86-2"><a href="#cb86-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">group</span> <span class="kw">by</span> tag</span>
+<span id="cb86-3"><a href="#cb86-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb86-4"><a href="#cb86-4" aria-hidden="true" tabindex="-1"></a><span class="kw">select</span> tag, <span class="fu">count</span>(<span class="op">*</span>) <span class="kw">as</span> n <span class="kw">from</span> questions_tags \</span>
+<span id="cb86-5"><a href="#cb86-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">group</span> <span class="kw">by</span> tag <span class="kw">having</span> n <span class="op">&gt;</span> <span class="dv">1000</span></span>
+<span id="cb86-6"><a href="#cb86-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb86-7"><a href="#cb86-7" aria-hidden="true" tabindex="-1"></a><span class="kw">select</span> ownerid, <span class="fu">count</span>(<span class="op">*</span>) <span class="kw">as</span> n <span class="kw">from</span> questions \</span>
+<span id="cb86-8"><a href="#cb86-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">group</span> <span class="kw">by</span> ownerid <span class="kw">order</span> <span class="kw">by</span> n <span class="kw">desc</span> <span class="kw">limit</span> <span class="dv">15</span></span>
+<span id="cb86-9"><a href="#cb86-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb86-10"><a href="#cb86-10" aria-hidden="true" tabindex="-1"></a><span class="kw">select</span> ownerid, <span class="fu">sum</span>(viewcount) <span class="kw">as</span> viewed <span class="kw">from</span> questions \</span>
+<span id="cb86-11"><a href="#cb86-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">group</span> <span class="kw">by</span> ownerid</span>
+<span id="cb86-12"><a href="#cb86-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb86-13"><a href="#cb86-13" aria-hidden="true" tabindex="-1"></a><span class="kw">select</span> <span class="op">*</span>, <span class="fu">sum</span>(viewcount) <span class="kw">as</span> viewed <span class="kw">from</span> questions \</span>
+<span id="cb86-14"><a href="#cb86-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">group</span> <span class="kw">by</span> ownerid</span>
+<span id="cb86-15"><a href="#cb86-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb86-16"><a href="#cb86-16" aria-hidden="true" tabindex="-1"></a><span class="kw">select</span> answercount, commentcount, <span class="fu">count</span>(<span class="op">*</span>) <span class="kw">as</span> n <span class="kw">from</span> questions \</span>
+<span id="cb86-17"><a href="#cb86-17" aria-hidden="true" tabindex="-1"></a>    <span class="kw">group</span> <span class="kw">by</span> answercount, commentcount</span>
+<span id="cb86-18"><a href="#cb86-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb86-19"><a href="#cb86-19" aria-hidden="true" tabindex="-1"></a><span class="kw">select</span> tag, <span class="fu">count</span>(<span class="op">*</span>) <span class="kw">as</span> n <span class="kw">from</span> questions_tags \</span>
+<span id="cb86-20"><a href="#cb86-20" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> tag <span class="kw">like</span> <span class="st">'python%'</span> <span class="kw">group</span> <span class="kw">by</span> tag <span class="kw">having</span> n <span class="op">&gt;</span> <span class="dv">1000</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>The query above starting with <code>select *, sum(viewcount)</code> behaves differently in SQLite and DuckDB.</p>
 </section>
 <section id="joins-1" class="level4">
 <h4 class="anchored" data-anchor-id="joins-1">Joins</h4>
 <p>Inner joins</p>
-<pre><code>select * from questions join questions_tags \
-    on questions.questionid = questions_tags.questionid
-    
-select * from questions Q join questions_tags T \
-    on Q.questionid = T.questionid
-    
-select * from questions Q join questions_tags T \
-    using(questionid)
-    
-select * from questions Q, questions_tags T \
-    where Q.questionid = T.questionid</code></pre>
+<div class="sourceCode" id="cb87"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb87-1"><a href="#cb87-1" aria-hidden="true" tabindex="-1"></a><span class="kw">select</span> <span class="op">*</span> <span class="kw">from</span> questions <span class="kw">join</span> questions_tags \</span>
+<span id="cb87-2"><a href="#cb87-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">on</span> questions.questionid <span class="op">=</span> questions_tags.questionid</span>
+<span id="cb87-3"><a href="#cb87-3" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb87-4"><a href="#cb87-4" aria-hidden="true" tabindex="-1"></a><span class="kw">select</span> <span class="op">*</span> <span class="kw">from</span> questions Q <span class="kw">join</span> questions_tags T \</span>
+<span id="cb87-5"><a href="#cb87-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">on</span> Q.questionid <span class="op">=</span> T.questionid</span>
+<span id="cb87-6"><a href="#cb87-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb87-7"><a href="#cb87-7" aria-hidden="true" tabindex="-1"></a><span class="kw">select</span> <span class="op">*</span> <span class="kw">from</span> questions Q <span class="kw">join</span> questions_tags T \</span>
+<span id="cb87-8"><a href="#cb87-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">using</span>(questionid)</span>
+<span id="cb87-9"><a href="#cb87-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb87-10"><a href="#cb87-10" aria-hidden="true" tabindex="-1"></a><span class="kw">select</span> <span class="op">*</span> <span class="kw">from</span> questions Q, questions_tags T \</span>
+<span id="cb87-11"><a href="#cb87-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> Q.questionid <span class="op">=</span> T.questionid</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Outer joins</p>
-<pre><code>select * from questions Q left outer join answers A \
-    on Q.questionid = A.questionid 
-    
-select * from questions Q left outer join answers A \
-    on Q.questionid = A.questionid \
-    where A.creationdate is NULL
-    
-# Note no right outer join in SQLite so here we reverse order of answers and questions \
-select * from questions Q right outer join answers A \
-    on Q.questionid = A.questionid \
-    where Q.creationdate is NULL
-
-select Q.questionid, count(*) as n_tags from questions Q join questions_tags T \
-    on Q.questionid = T.questionid \
-    group by Q.questionid</code></pre>
+<div class="sourceCode" id="cb88"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb88-1"><a href="#cb88-1" aria-hidden="true" tabindex="-1"></a><span class="kw">select</span> <span class="op">*</span> <span class="kw">from</span> questions Q <span class="kw">left</span> <span class="kw">outer</span> <span class="kw">join</span> answers A \</span>
+<span id="cb88-2"><a href="#cb88-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">on</span> Q.questionid <span class="op">=</span> A.questionid </span>
+<span id="cb88-3"><a href="#cb88-3" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb88-4"><a href="#cb88-4" aria-hidden="true" tabindex="-1"></a><span class="kw">select</span> <span class="op">*</span> <span class="kw">from</span> questions Q <span class="kw">left</span> <span class="kw">outer</span> <span class="kw">join</span> answers A \</span>
+<span id="cb88-5"><a href="#cb88-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">on</span> Q.questionid <span class="op">=</span> A.questionid \</span>
+<span id="cb88-6"><a href="#cb88-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> A.creationdate <span class="kw">is</span> <span class="kw">NULL</span></span>
+<span id="cb88-7"><a href="#cb88-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb88-8"><a href="#cb88-8" aria-hidden="true" tabindex="-1"></a># Note <span class="kw">no</span> <span class="kw">right</span> <span class="kw">outer</span> <span class="kw">join</span> <span class="kw">in</span> SQLite so here we <span class="kw">reverse</span> <span class="kw">order</span> <span class="kw">of</span> answers <span class="kw">and</span> questions \</span>
+<span id="cb88-9"><a href="#cb88-9" aria-hidden="true" tabindex="-1"></a><span class="kw">select</span> <span class="op">*</span> <span class="kw">from</span> questions Q <span class="kw">right</span> <span class="kw">outer</span> <span class="kw">join</span> answers A \</span>
+<span id="cb88-10"><a href="#cb88-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">on</span> Q.questionid <span class="op">=</span> A.questionid \</span>
+<span id="cb88-11"><a href="#cb88-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> Q.creationdate <span class="kw">is</span> <span class="kw">NULL</span></span>
+<span id="cb88-12"><a href="#cb88-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb88-13"><a href="#cb88-13" aria-hidden="true" tabindex="-1"></a><span class="kw">select</span> Q.questionid, <span class="fu">count</span>(<span class="op">*</span>) <span class="kw">as</span> n_tags <span class="kw">from</span> questions Q <span class="kw">join</span> questions_tags T \</span>
+<span id="cb88-14"><a href="#cb88-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">on</span> Q.questionid <span class="op">=</span> T.questionid \</span>
+<span id="cb88-15"><a href="#cb88-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">group</span> <span class="kw">by</span> Q.questionid</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Self joins</p>
 <p>First we’ll set up a view (a temporary) table that combines questions and tags for ease of illustrating ideas around self joins.</p>
-<pre><code>create view QT as select * from questions join questions_tags using(questionid)</code></pre>
+<div class="sourceCode" id="cb89"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb89-1"><a href="#cb89-1" aria-hidden="true" tabindex="-1"></a><span class="kw">create</span> <span class="kw">view</span> QT <span class="kw">as</span> <span class="kw">select</span> <span class="op">*</span> <span class="kw">from</span> questions <span class="kw">join</span> questions_tags <span class="kw">using</span>(questionid)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>In small groups, discuss what these queries do.</p>
-<pre><code>select * from QT as QT1 join QT as QT2 \
-    using(questionid)
-
-select * from QT as QT1 join QT as QT2 \
-    using(questionid) where QT1.tag &lt; QT2.tag
-    
-select QT1.tag, QT2.tag, count(*) as n from QT as QT1 join QT as QT2 \
-    using(questionid) where QT1.tag &lt; QT2.tag \
-    group by QT1.tag, QT2.tag order by n desc limit 10
-
-
-select * from QT as QT1 join QT as QT2 using(ownerid)</code></pre>
+<div class="sourceCode" id="cb90"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb90-1"><a href="#cb90-1" aria-hidden="true" tabindex="-1"></a><span class="kw">select</span> <span class="op">*</span> <span class="kw">from</span> QT <span class="kw">as</span> QT1 <span class="kw">join</span> QT <span class="kw">as</span> QT2 \</span>
+<span id="cb90-2"><a href="#cb90-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">using</span>(questionid)</span>
+<span id="cb90-3"><a href="#cb90-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb90-4"><a href="#cb90-4" aria-hidden="true" tabindex="-1"></a><span class="kw">select</span> <span class="op">*</span> <span class="kw">from</span> QT <span class="kw">as</span> QT1 <span class="kw">join</span> QT <span class="kw">as</span> QT2 \</span>
+<span id="cb90-5"><a href="#cb90-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">using</span>(questionid) <span class="kw">where</span> QT1.tag <span class="op">&lt;</span> QT2.tag</span>
+<span id="cb90-6"><a href="#cb90-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb90-7"><a href="#cb90-7" aria-hidden="true" tabindex="-1"></a><span class="kw">select</span> QT1.tag, QT2.tag, <span class="fu">count</span>(<span class="op">*</span>) <span class="kw">as</span> n <span class="kw">from</span> QT <span class="kw">as</span> QT1 <span class="kw">join</span> QT <span class="kw">as</span> QT2 \</span>
+<span id="cb90-8"><a href="#cb90-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">using</span>(questionid) <span class="kw">where</span> QT1.tag <span class="op">&lt;</span> QT2.tag \</span>
+<span id="cb90-9"><a href="#cb90-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">group</span> <span class="kw">by</span> QT1.tag, QT2.tag <span class="kw">order</span> <span class="kw">by</span> n <span class="kw">desc</span> <span class="kw">limit</span> <span class="dv">10</span></span>
+<span id="cb90-10"><a href="#cb90-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb90-11"><a href="#cb90-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb90-12"><a href="#cb90-12" aria-hidden="true" tabindex="-1"></a><span class="kw">select</span> <span class="op">*</span> <span class="kw">from</span> QT <span class="kw">as</span> QT1 <span class="kw">join</span> QT <span class="kw">as</span> QT2 <span class="kw">using</span>(ownerid)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
 <section id="set-operations" class="level4">
 <h4 class="anchored" data-anchor-id="set-operations">Set operations</h4>
-<pre><code>select ownerid from QT where tag='python' \
-    intersect \
-    select ownerid from QT where tag='r'
-    
-select ownerid from QT where tag='python' \
-    except \
-    select ownerid from QT where tag='r'
-    
-select ownerid from QT where tag='python' \
-    union \
-    select ownerid from QT where tag='r'
-
-select userid, displayname, location from users \
-    where location like '%United States%' \
-    intersect \
-    select userid, displayname, location from users \
-    where reputation &gt; 10</code></pre>
+<div class="sourceCode" id="cb91"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb91-1"><a href="#cb91-1" aria-hidden="true" tabindex="-1"></a><span class="kw">select</span> ownerid <span class="kw">from</span> QT <span class="kw">where</span> tag<span class="op">=</span><span class="st">'python'</span> \</span>
+<span id="cb91-2"><a href="#cb91-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">intersect</span> \</span>
+<span id="cb91-3"><a href="#cb91-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">select</span> ownerid <span class="kw">from</span> QT <span class="kw">where</span> tag<span class="op">=</span><span class="st">'r'</span></span>
+<span id="cb91-4"><a href="#cb91-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb91-5"><a href="#cb91-5" aria-hidden="true" tabindex="-1"></a><span class="kw">select</span> ownerid <span class="kw">from</span> QT <span class="kw">where</span> tag<span class="op">=</span><span class="st">'python'</span> \</span>
+<span id="cb91-6"><a href="#cb91-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">except</span> \</span>
+<span id="cb91-7"><a href="#cb91-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">select</span> ownerid <span class="kw">from</span> QT <span class="kw">where</span> tag<span class="op">=</span><span class="st">'r'</span></span>
+<span id="cb91-8"><a href="#cb91-8" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb91-9"><a href="#cb91-9" aria-hidden="true" tabindex="-1"></a><span class="kw">select</span> ownerid <span class="kw">from</span> QT <span class="kw">where</span> tag<span class="op">=</span><span class="st">'python'</span> \</span>
+<span id="cb91-10"><a href="#cb91-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">union</span> \</span>
+<span id="cb91-11"><a href="#cb91-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">select</span> ownerid <span class="kw">from</span> QT <span class="kw">where</span> tag<span class="op">=</span><span class="st">'r'</span></span>
+<span id="cb91-12"><a href="#cb91-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb91-13"><a href="#cb91-13" aria-hidden="true" tabindex="-1"></a><span class="kw">select</span> userid, displayname, location <span class="kw">from</span> users \</span>
+<span id="cb91-14"><a href="#cb91-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> location <span class="kw">like</span> <span class="st">'%United States%'</span> \</span>
+<span id="cb91-15"><a href="#cb91-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">intersect</span> \</span>
+<span id="cb91-16"><a href="#cb91-16" aria-hidden="true" tabindex="-1"></a>    <span class="kw">select</span> userid, displayname, location <span class="kw">from</span> users \</span>
+<span id="cb91-17"><a href="#cb91-17" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> reputation <span class="op">&gt;</span> <span class="dv">10</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
 <section id="subqueries-1" class="level4">
 <h4 class="anchored" data-anchor-id="subqueries-1">Subqueries</h4>
-<pre><code>select * from \
-    answers A \
-    join \
-    ( select ownerid, count(*) as n_answered from answers \
-        group by ownerid order by n_answered desc limit 1000 ) most_responsive \
-    on A.ownerid = most_responsive.ownerid</code></pre>
-<pre><code>select avg(upvotes) from users \
-    where userid in \
-    ( select distinct ownerid from \
-    questions join questions_tags using(questionid) \
-    where tag = 'python' )</code></pre>
+<div class="sourceCode" id="cb92"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb92-1"><a href="#cb92-1" aria-hidden="true" tabindex="-1"></a><span class="kw">select</span> <span class="op">*</span> <span class="kw">from</span> \</span>
+<span id="cb92-2"><a href="#cb92-2" aria-hidden="true" tabindex="-1"></a>    answers A \</span>
+<span id="cb92-3"><a href="#cb92-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">join</span> \</span>
+<span id="cb92-4"><a href="#cb92-4" aria-hidden="true" tabindex="-1"></a>    ( <span class="kw">select</span> ownerid, <span class="fu">count</span>(<span class="op">*</span>) <span class="kw">as</span> n_answered <span class="kw">from</span> answers \</span>
+<span id="cb92-5"><a href="#cb92-5" aria-hidden="true" tabindex="-1"></a>        <span class="kw">group</span> <span class="kw">by</span> ownerid <span class="kw">order</span> <span class="kw">by</span> n_answered <span class="kw">desc</span> <span class="kw">limit</span> <span class="dv">1000</span> ) most_responsive \</span>
+<span id="cb92-6"><a href="#cb92-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">on</span> A.ownerid <span class="op">=</span> most_responsive.ownerid</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb93"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb93-1"><a href="#cb93-1" aria-hidden="true" tabindex="-1"></a><span class="kw">select</span> <span class="fu">avg</span>(upvotes) <span class="kw">from</span> users \</span>
+<span id="cb93-2"><a href="#cb93-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> userid <span class="kw">in</span> \</span>
+<span id="cb93-3"><a href="#cb93-3" aria-hidden="true" tabindex="-1"></a>    ( <span class="kw">select</span> <span class="kw">distinct</span> ownerid <span class="kw">from</span> \</span>
+<span id="cb93-4"><a href="#cb93-4" aria-hidden="true" tabindex="-1"></a>    questions <span class="kw">join</span> questions_tags <span class="kw">using</span>(questionid) \</span>
+<span id="cb93-5"><a href="#cb93-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> tag <span class="op">=</span> <span class="st">'python'</span> )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
 </section>
 </section>
@@ -1915,22 +1912,22 @@ select userid, displayname, location from users \
 <span id="cb105-6"><a href="#cb105-6" aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>(<span class="fu">dbGetQuery</span>(db, <span class="st">"select count(ownerid) from questions"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  0.218   0.175   1.786 </code></pre>
+  0.179   0.155   1.634 </code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb107"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb107-1"><a href="#cb107-1" aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>(<span class="fu">dbGetQuery</span>(dbDuck, <span class="st">"select count(ownerid) from questions"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  0.063   0.008   0.133 </code></pre>
+  0.033   0.004   0.080 </code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb109"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb109-1"><a href="#cb109-1" aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>(result1 <span class="ot">&lt;-</span> <span class="fu">dbGetQuery</span>(db, <span class="st">"select distinct ownerid from questions"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  1.779   1.061   2.986 </code></pre>
+  1.722   0.999   2.938 </code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb111"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb111-1"><a href="#cb111-1" aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>(result2 <span class="ot">&lt;-</span> <span class="fu">dbGetQuery</span>(dbDuck, <span class="st">"select distinct ownerid from questions"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  0.204   0.026   0.075 </code></pre>
+  0.214   0.030   0.039 </code></pre>
 </div>
 </div>
 <p>Now let’s compare timings for some of the queries we ran previously. There are substantial speed-ups in both cases.</p>
@@ -1941,14 +1938,14 @@ select userid, displayname, location from users \
 <span id="cb113-3"><a href="#cb113-3" aria-hidden="true" tabindex="-1"></a><span class="st">                           where tag = 'python'"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  3.202   0.738   4.490 </code></pre>
+  2.950   0.768   4.083 </code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb115"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb115-1"><a href="#cb115-1" aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>(result2 <span class="ot">&lt;-</span> <span class="fu">dbGetQuery</span>(dbDuck, <span class="st">"select * from questions join questions_tags </span></span>
 <span id="cb115-2"><a href="#cb115-2" aria-hidden="true" tabindex="-1"></a><span class="st">                           on questions.questionid = questions_tags.questionid </span></span>
 <span id="cb115-3"><a href="#cb115-3" aria-hidden="true" tabindex="-1"></a><span class="st">                           where tag = 'python'"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  0.955   0.146   1.228 </code></pre>
+  1.267   0.169   1.220 </code></pre>
 </div>
 </div>
 <p>And here’s a subquery in the FROM statement.</p>
@@ -1961,7 +1958,7 @@ select userid, displayname, location from users \
 <span id="cb117-6"><a href="#cb117-6" aria-hidden="true" tabindex="-1"></a><span class="st">                on A.ownerid = most_responsive.ownerid"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  8.564   1.973  11.381 </code></pre>
+  7.923   1.701   9.841 </code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb119"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb119-1"><a href="#cb119-1" aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>(result2 <span class="ot">&lt;-</span> <span class="fu">dbGetQuery</span>(dbDuck, <span class="st">"select * from questions join answers A</span></span>
 <span id="cb119-2"><a href="#cb119-2" aria-hidden="true" tabindex="-1"></a><span class="st">                on questions.questionid = A.questionid</span></span>
@@ -1971,7 +1968,7 @@ select userid, displayname, location from users \
 <span id="cb119-6"><a href="#cb119-6" aria-hidden="true" tabindex="-1"></a><span class="st">                on A.ownerid = most_responsive.ownerid"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  2.324   0.142   1.670 </code></pre>
+  2.089   0.110   1.366 </code></pre>
 </div>
 </div>
 <p>DuckDB will run in parallel by using multiple threads, which can help speed up computations on top of efficiencies available through the column-wise storage, though with the speed of the DuckDB queries above, I don’t think parallelization made much difference in those cases.</p>

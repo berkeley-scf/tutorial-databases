@@ -173,8 +173,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./Big Data in R and Python" class="sidebar-item-text sidebar-link">
- <span class="menu-text">R-and-Python.qmd</span></a>
+  <a href="./R-and-Python.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Big Data in R and Python</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -254,7 +254,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>This tutorial assumes you have a working knowledge of R or Python.</p>
 <section id="materials" class="level3">
 <h3 class="anchored" data-anchor-id="materials">1.1 Materials</h3>
-<p>Materials for this tutorial, including the Markdown files and associated code files that were used to create these documents are <a href="https://github.com/berkeley-scf/tutorial-databases">available on GitHub</a>.```</p>
+<p>Materials for this tutorial, including the Markdown files and associated code files that were used to create these documents are <a href="https://github.com/berkeley-scf/tutorial-databases">available on GitHub</a>.</p>
 <p>The example data files are not part of the GitHub repository. You can get the example data files (both Stack Overflow data for 2021 and Wikipedia webtraffic data for the year 2008) <a href="https://www.stat.berkeley.edu/share/paciorek/tutorial-databases-data.zip">here</a>.</p>
 <p>Solutions to the SQL challenges are available on request.</p>
 </section>
@@ -287,7 +287,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="data-size" class="level3">
 <h3 class="anchored" data-anchor-id="data-size">2.1 Data size</h3>
 <p>The techniques and tools discussed here are designed for datasets in the range of gigabytes to tens of gigabytes, though they may scale to larger if you have a machine with a lot of memory or simply have enough disk space and are willing to wait. If you have 10s of gigabytes of data, you’ll be better off if your machine has 10s of GBs of memory, as discussed in this tutorial.</p>
-<p>If you’re scaling to 100s of GBs, terabytes or petabytes, using the cloud computing providers’ tools for working with big datasets is probably your best bet (e.g., Amazon RedShift or Google BigQuery), or possibly carefully-administered databases. Those topics are beyond the scope of this tutorial. However, this tutorial will be useful if you’re doing SQL queries on professionally-administered databases or databases in the cloud or in a Spark context.</p>
+<p>If you’re scaling to 100s of GBs, terabytes or petabytes, using the cloud computing providers’ tools for working with big datasets is probably your best bet (e.g., Amazon RedShift or Google BigQuery), or possibly carefully-administered databases. This tutorial has some information on using <a href="bigquery">Google BigQuery</a>, and this tutorial will be useful if you’re doing SQL queries on professionally-administered databases or databases in the cloud or in a Spark context.</p>
 </section>
 <section id="memory-vs.-disk" class="level3">
 <h3 class="anchored" data-anchor-id="memory-vs.-disk">2.2 Memory vs.&nbsp;disk</h3>
@@ -512,7 +512,7 @@ Answer
 <h3 class="anchored" data-anchor-id="getting-the-database">5.1 Getting the database</h3>
 <p>You can download a copy of the SQLite version of the Stack Overflow database (only data for the year 2021) from <a href="http://www.stat.berkeley.edu/share/paciorek/tutorial-databases-data.zip">here</a> as part of the overall zip with all of the example datasets as discussed in the introduction of this tutorial.</p>
 <p>In the next section I’ll assume the .db file is placed in the subdirectory of the repository called <code>data</code>.</p>
-<p>Note that all of the code used to download the data from the Stack Overflow website and to manipulate it to create a complete Postgres database and (for the year 2021 only) an SQLite database and CSVs for each table is in the <a href="https://github.com/berkeley-scf/tutorial-databases/tree/gh-pages/data/prep_stackoverflow"><code>data/prep_stackoverflow</code> subdirectory</a> of this repository. Note that as of February 2022, <a href="https://archive.org/download/stackexchange">the data are still being kept up to date online</a>.</p>
+<p>Note that all of the code used to download the data from the Stack Overflow website and to manipulate it to create a complete Postgres database and (for the year 2021 only) an SQLite database and CSVs for each table is in the <a href="https://github.com/berkeley-scf/tutorial-databases/tree/master/data/prep_stackoverflow"><code>data/prep_stackoverflow</code> subdirectory</a> of this repository. Note that as of July 2025, <a href="https://archive.org/download/stackexchange">the data were still being kept up to date online</a>.</p>
 </section>
 </section>
 <section id="accessing-a-database-and-using-sql-from-other-languages" class="level2">

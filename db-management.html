@@ -173,8 +173,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./Big Data in R and Python" class="sidebar-item-text sidebar-link">
- <span class="menu-text">R-and-Python.qmd</span></a>
+  <a href="./R-and-Python.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Big Data in R and Python</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -254,15 +254,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="populating-a-table" class="level3">
 <h3 class="anchored" data-anchor-id="populating-a-table">1.2 Populating a table</h3>
 <p>Here’s an example of reading from multiple files into SQLite using the command line. We create a file <code>import.sql</code> that has the configuration for the import:</p>
-<pre><code>.separator " "
-.import /dev/stdin webtraffic</code></pre>
+<div class="sourceCode" id="cb3"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>.separator <span class="ot">" "</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>.import <span class="op">/</span>dev<span class="op">/</span>stdin webtraffic</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Then we can iterate through our files from the UNIX shell, piping the output of gzip to the <code>sqlite3</code> interpreter:</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> file <span class="kw">in</span> <span class="va">$(</span><span class="fu">ls</span> part<span class="pp">*</span>gz<span class="va">)</span><span class="kw">;</span> <span class="cf">do</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">echo</span> <span class="st">"copying </span><span class="va">$file</span><span class="st">"</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">gzip</span> <span class="at">-cd</span> <span class="va">$file</span> <span class="kw">|</span> <span class="ex">sqlite3</span> wikistats.db <span class="st">'.read import.sql'</span></span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="cf">done</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Let’s check that the records are in the database. We could do this from R or Python, but here we’ll do it in the SQLite interface:</p>
-<pre><code>select * from webtraffic limit 5;</code></pre>
+<div class="sourceCode" id="cb5"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">select</span> <span class="op">*</span> <span class="kw">from</span> webtraffic <span class="kw">limit</span> <span class="dv">5</span>;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
 <section id="data-cleaning" class="level3">
 <h3 class="anchored" data-anchor-id="data-cleaning">1.3 Data cleaning</h3>
@@ -315,16 +315,16 @@ Warning
 <div class="sourceCode" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> <span class="at">-u</span> postgres <span class="at">-i</span>  <span class="co"># become the postgres user</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="ex">psql</span>  <span class="co"># start postgres interpreter</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Now from within the Postgres interpreter, you can create a database, tables within the database, and authenticate users to do things with those tables.</p>
-<pre><code>create database wikistats;
-create user paciorek with password 'test';
-grant all privileges on database wikistats to paciorek;</code></pre>
+<div class="sourceCode" id="cb10"><pre class="sourceCode sqlpostgresql code-with-copy"><code class="sourceCode sqlpostgresql"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">create</span> <span class="kw">database</span> wikistats;</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="kw">create</span> <span class="kw">user</span> paciorek <span class="kw">with</span> <span class="kw">password</span> <span class="vs">'test</span><span class="st">'</span>;</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="kw">grant</span> <span class="kw">all</span> <span class="kw">privileges</span> <span class="kw">on</span> <span class="kw">database</span> wikistats <span class="kw">to</span> paciorek;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>PostgreSQL and other DBMS (not SQLite) allow various kinds of control over permissions to access and modify databases and tables as well. It can get a bit involved because the administrator has fine-grained control over what each user can do/access.</p>
 <p>Now let’s create a table in the database, after first connecting to the specific database so as to operate on it.</p>
-<pre><code>\connect wikistats
-create table webtraffic (date char(8), hour char(6), site varchar, page varchar,
-       count integer, size double precision);
-grant all privileges on table webtraffic to paciorek;
-\quit</code></pre>
+<div class="sourceCode" id="cb11"><pre class="sourceCode sqlpostgresql code-with-copy"><code class="sourceCode sqlpostgresql"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>\<span class="kw">connect</span> wikistats</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="kw">create</span> <span class="kw">table</span> webtraffic (<span class="dt">date</span> <span class="dt">char</span>(<span class="dv">8</span>), <span class="kw">hour</span> <span class="dt">char</span>(<span class="dv">6</span>), site <span class="dt">varchar</span>, page <span class="dt">varchar</span>,</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>       count <span class="dt">integer</span>, <span class="kw">size</span> <span class="dt">double</span> <span class="kw">precision</span>);</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="kw">grant</span> <span class="kw">all</span> <span class="kw">privileges</span> <span class="kw">on</span> <span class="kw">table</span> webtraffic <span class="kw">to</span> paciorek;</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>\quit</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -339,21 +339,21 @@ Note
 </div>
 </div>
 <p>If you want control over where the database is stored (you probably only need to worry about this if you are creating a large database), you can do things like this:</p>
-<pre><code>show data_directory;
-create tablespace dbspace location '/var/tmp/pg';
-create database wikistats tablespace dbspace;
-create user paciorek with password 'test';
-grant all privileges on database wikistats to paciorek;</code></pre>
+<div class="sourceCode" id="cb12"><pre class="sourceCode sqlpostgresql code-with-copy"><code class="sourceCode sqlpostgresql"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">show</span> data_directory;</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="kw">create</span> <span class="kw">tablespace</span> dbspace <span class="kw">location</span> <span class="vs">'/var/tmp/pg</span><span class="st">'</span>;</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="kw">create</span> <span class="kw">database</span> wikistats <span class="kw">tablespace</span> dbspace;</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="kw">create</span> <span class="kw">user</span> paciorek <span class="kw">with</span> <span class="kw">password</span> <span class="vs">'test</span><span class="st">'</span>;</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="kw">grant</span> <span class="kw">all</span> <span class="kw">privileges</span> <span class="kw">on</span> <span class="kw">database</span> wikistats <span class="kw">to</span> paciorek;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
 <section id="populating-a-table-1" class="level3">
 <h3 class="anchored" data-anchor-id="populating-a-table-1">3.2 Populating a table</h3>
 <p>Here’s an example of importing a single file into Postgres from within the psql interpreter running as the special postgres user. In this case we have space-delimited text files. You can obtain the file <code>part-00000</code> as discussed in the introduction (you’ll need to run <code>gunzip part-00000.gz</code> first).</p>
-<pre><code>\connect wikistats
-copy webtraffic from 'part-00000' delimiter ' ';</code></pre>
+<div class="sourceCode" id="cb13"><pre class="sourceCode sqlpostgresql code-with-copy"><code class="sourceCode sqlpostgresql"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>\<span class="kw">connect</span> wikistats</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="kw">copy</span> webtraffic <span class="kw">from</span> <span class="vs">'part-00000</span><span class="st">'</span> <span class="kw">delimiter</span> <span class="vs">' </span><span class="st">'</span>;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>If one had CSV files, one could do the following</p>
-<pre><code>copy webtraffic from 'part-00000' csv;</code></pre>
+<div class="sourceCode" id="cb14"><pre class="sourceCode sqlpostgresql code-with-copy"><code class="sourceCode sqlpostgresql"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">copy</span> webtraffic <span class="kw">from</span> <span class="vs">'part-00000</span><span class="st">'</span> <span class="kw">csv</span>;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>To actually handle the Wikistats input files, we need to deal with backslash characters occurring at the end of text for a given column in some rows. Ordinarily in standard Postgres ‘text’ format (different from Postgres ‘csv’ format), a backslash is used to ‘quote’ characters that would usually be treated as row or column delimiters (i.e., preceding such a character by a backslash means it is treated as a character that is part of the field). But we just want the backslash treated as a character itself. So we need to tell Postgres not to treat a backslash as the quoting character. To do that we specify the <code>quote</code> character. However, the quote keyword is only provided when importing ‘csv’ format. In ‘csv’ format the double-quote character is by default treated as delineating the beginning and end of text in a field, but the Wikistats files have double-quotes as part of the fields. So we need to set the quote character as neither a double-quote nor a backslash. The following syntax does that by specifying that the quote character is a character (<code>\b</code>) that never actually appears in the file. The ‘e’ part is so that Postgres treats <code>\b</code> as a single character, i.e., ‘escaping’ the backslash, and the ‘csv’ is because the quote keyword only works with the csv format, but note that by setting the delimiter to a space, it’s not really a CSV file!</p>
-<pre><code>copy webtraffic from 'part-00000' delimiter ' ' quote e'\b' csv;</code></pre>
+<div class="sourceCode" id="cb15"><pre class="sourceCode sqlpostgresql code-with-copy"><code class="sourceCode sqlpostgresql"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="kw">copy</span> webtraffic <span class="kw">from</span> <span class="vs">'part-00000</span><span class="st">'</span> <span class="kw">delimiter</span> <span class="vs">' </span><span class="st">'</span> <span class="kw">quote</span> <span class="st">e'</span><span class="ch">\b</span><span class="st">'</span> <span class="kw">csv</span>;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Often you’ll need to load data from a large number of possibly zipped text files. As an example of how you would load data in a case like that, here’s some shell scripting that will iterate through multiple (gzipped) input files of Wikistats data, running as the regular user:</p>
 <div class="sourceCode" id="cb16"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">PGPASSWORD</span><span class="op">=</span>test  <span class="co"># set password via UNIX environment variable</span></span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> file <span class="kw">in</span> <span class="va">$(</span><span class="fu">ls</span> part<span class="pp">*</span>gz<span class="va">)</span><span class="kw">;</span> <span class="cf">do</span>  <span class="co"># loop thru files whose names start with 'part' and end with 'gz'</span></span>

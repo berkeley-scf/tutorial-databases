@@ -173,8 +173,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./Big Data in R and Python" class="sidebar-item-text sidebar-link">
- <span class="menu-text">R-and-Python.qmd</span></a>
+  <a href="./R-and-Python.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Big Data in R and Python</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -303,11 +303,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(DBI)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>The following will prompt for authentication to your Google account in a browser and save the authentication information as a ‘token’ associated with the email address.</p>
-<p>In principle, you shouldn’t have to do this explicitly, but rather the first time you try to interact with a BigQuery dataset, <code>bigrquery</code> should prompt you to authenticate, or if you’ve previously authenticated, it will reload a saved token. But I’ve had some trouble getting this to work without explicitly running the next steps.</p>
+<p>In principle, you shouldn’t have to do this explicitly, but rather the first time you try to interact with a BigQuery dataset, <code>bigrquery</code> should prompt you to authenticate, or if you’ve previously authenticated, it will reload a saved token. But I’ve had some trouble getting this to work without explicitly running this:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>token <span class="ot">&lt;-</span> gargle<span class="sc">::</span><span class="fu">credentials_user_oauth2</span>(<span class="at">scopes =</span> <span class="st">"https://www.googleapis.com/auth/bigquery"</span>,</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>            <span class="at">email =</span> user)</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>bigrquery<span class="sc">::</span><span class="fu">bq_auth</span>(<span class="at">token =</span> token)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>token <span class="ot">&lt;-</span> gargle<span class="sc">::</span><span class="fu">credentials_user_oauth2</span>(<span class="at">scopes =</span> <span class="st">"https://www.googleapis.com/auth/bigquery"</span>, <span class="at">email =</span> user)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>bigrquery<span class="sc">::</span><span class="fu">bq_auth</span>(<span class="at">token =</span> token)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Now let’s connect to the public dataset and check the schema. To be able to run queries, we need to be able to provide a GCP project that has billing set up via the <code>billing</code> argument. It’s possible that the SQL below would run if <code>billing</code> is set to be the name of a project without billing set up (i.e., using the BigQuery Sandbox), but I haven’t checked that.</p>
 <div class="cell">
@@ -421,7 +420,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>I’ll name the new BigQuery dataset <code>wiki_test</code> (this is equivalent to the name of a database in a standard DBMS).</p>
 <p>As was the case in the <a href="db-management">data management demos</a>, we need to strip out double quote (“) symbols as BigQuery tries to interpret these as beginning and ending fields.</p>
 <p>In the <code>Add Data</code> form, it looks like we can only add a single file at a time, so for this test, I’ll just add one file.</p>
-<p>You can then test things worked by trying to query the new table in the new dataset from R as done previously with the public Stack Overflow dataset.</p>
+<p>You can then test things worked by trying to query the new table in the new dataset from R as done previously with the public Stack Overflow dataset. In an earlier version of this tutorial in 2023, I had this working, but I haven’t gotten this working again after some changes to my GCP account, so here we’ll just see what one should get if it’s all set up.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>db<span class="ot">&lt;-</span> <span class="fu">dbConnect</span>(drv,</span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">project =</span> myproject,</span>
@@ -466,7 +465,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>sql <span class="ot">&lt;-</span> <span class="st">"select * from webtraffic limit 5"</span></span>
 <span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(db, sql)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Again, if it worked, you should se results like:</p>
+<p>Again, if it worked, you should see results like:</p>
 <pre><code>## [1] "webtraffic"
 ## [1] "date"  "hour"  "site"  "page"  "count" "size"
 ## # A tibble: 5 × 6

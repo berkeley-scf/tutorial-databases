@@ -2,27 +2,23 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://computing.stat.berkeley.edu/tutorial-databases/sql.html</loc>
-    <lastmod>2025-07-29T21:40:00.317Z</lastmod>
+    <lastmod>2025-07-29T23:17:25.665Z</lastmod>
   </url>
   <url>
     <loc>https://computing.stat.berkeley.edu/tutorial-databases/bigquery.html</loc>
-    <lastmod>2025-07-29T22:41:31.591Z</lastmod>
-  </url>
-  <url>
-    <loc>https://computing.stat.berkeley.edu/tutorial-databases/data/prep_stackoverflow/old_solutions.html</loc>
-    <lastmod>2020-01-31T22:51:42.000Z</lastmod>
-  </url>
-  <url>
-    <loc>https://computing.stat.berkeley.edu/tutorial-databases/db-management.html</loc>
-    <lastmod>2025-07-29T21:40:00.198Z</lastmod>
+    <lastmod>2025-07-29T23:39:12.284Z</lastmod>
   </url>
   <url>
     <loc>https://computing.stat.berkeley.edu/tutorial-databases/R-and-Python.html</loc>
     <lastmod>2025-07-29T21:39:59.660Z</lastmod>
   </url>
   <url>
+    <loc>https://computing.stat.berkeley.edu/tutorial-databases/db-management.html</loc>
+    <lastmod>2025-07-29T23:33:06.511Z</lastmod>
+  </url>
+  <url>
     <loc>https://computing.stat.berkeley.edu/tutorial-databases/index.html</loc>
-    <lastmod>2025-07-29T21:40:00.268Z</lastmod>
+    <lastmod>2025-07-29T22:58:49.945Z</lastmod>
   </url>
   <url>
     <loc>https://computing.stat.berkeley.edu/tutorial-databases/license.html</loc>
