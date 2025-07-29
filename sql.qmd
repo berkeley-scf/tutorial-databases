@@ -242,7 +242,7 @@ Simply listing two or more tables separated by commas as we saw earlier is the s
 
 In general, inner joins can be seen as a form of cross join followed by a condition that enforces matching between the rows of the table. More broadly, here are five equivalent joins that all perform the equivalent of an inner join:
 
-```
+```sql
 select * from table1 join table2 on table1.id = table2.id ## explicit inner join
 select * from table1, table2 where table1.id = table2.id  ## without explicit JOIN
 select * from table1 cross join table2 where table1.id = table2.id 
