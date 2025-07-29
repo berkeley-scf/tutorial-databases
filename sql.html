@@ -713,11 +713,11 @@ Challenge
 <p>A ‘natural’ join is an inner join that doesn’t require you to specify the common columns between tables on which to enforce equality, but it’s often good practice to not use a natural join and to explicitly indicate which columns are being matched on.</p>
 <p>Simply listing two or more tables separated by commas as we saw earlier is the same as a <em>cross join</em>. Alternatively, listing two or more tables separated by commas, followed by conditions that equate rows in one table to rows in another is the same as an <em>inner join</em>.</p>
 <p>In general, inner joins can be seen as a form of cross join followed by a condition that enforces matching between the rows of the table. More broadly, here are five equivalent joins that all perform the equivalent of an inner join:</p>
-<pre><code>select * from table1 join table2 on table1.id = table2.id ## explicit inner join
-select * from table1, table2 where table1.id = table2.id  ## without explicit JOIN
-select * from table1 cross join table2 where table1.id = table2.id 
-select * from table1 join table2 using(id)
-select * from table1 natural join table2</code></pre>
+<div class="sourceCode" id="cb23"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="kw">select</span> <span class="op">*</span> <span class="kw">from</span> table1 <span class="kw">join</span> table2 <span class="kw">on</span> table1.<span class="kw">id</span> <span class="op">=</span> table2.<span class="kw">id</span> ## explicit <span class="kw">inner</span> <span class="kw">join</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="kw">select</span> <span class="op">*</span> <span class="kw">from</span> table1, table2 <span class="kw">where</span> table1.<span class="kw">id</span> <span class="op">=</span> table2.<span class="kw">id</span>  ## <span class="kw">without</span> explicit <span class="kw">JOIN</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="kw">select</span> <span class="op">*</span> <span class="kw">from</span> table1 <span class="kw">cross</span> <span class="kw">join</span> table2 <span class="kw">where</span> table1.<span class="kw">id</span> <span class="op">=</span> table2.<span class="kw">id</span> </span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="kw">select</span> <span class="op">*</span> <span class="kw">from</span> table1 <span class="kw">join</span> table2 <span class="kw">using</span>(<span class="kw">id</span>)</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="kw">select</span> <span class="op">*</span> <span class="kw">from</span> table1 <span class="kw">natural</span> <span class="kw">join</span> table2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Note that in the last query the join would be based on all common columns, which could be a bit dangerous if you don’t look carefully at the schema of both tables. Assuming <code>id</code> is the common column, then the last of these queries is the same as the others.</p>
 <div class="callout callout-style-default callout-tip callout-titled" title="Challenge">
 <div class="callout-header d-flex align-content-center">
@@ -1096,7 +1096,7 @@ Note
 <span id="cb51-11"><a href="#cb51-11" aria-hidden="true" tabindex="-1"></a>               )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  4.507   1.391   8.480 </code></pre>
+  4.239   1.434   7.565 </code></pre>
 </div>
 </div>
 <p>Alternatively we can do a self-join. Note that the syntax gets complicated as we are doing multiple joins.</p>
@@ -1114,7 +1114,7 @@ Note
 <span id="cb53-11"><a href="#cb53-11" aria-hidden="true" tabindex="-1"></a>               )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  5.622   3.053   9.923 </code></pre>
+  5.977   3.565  10.854 </code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="fu">identical</span>(result1, result2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -1912,22 +1912,22 @@ Challenge (hard)
 <span id="cb105-6"><a href="#cb105-6" aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>(<span class="fu">dbGetQuery</span>(db, <span class="st">"select count(ownerid) from questions"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  0.179   0.155   1.634 </code></pre>
+  0.169   0.157   1.551 </code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb107"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb107-1"><a href="#cb107-1" aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>(<span class="fu">dbGetQuery</span>(dbDuck, <span class="st">"select count(ownerid) from questions"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  0.033   0.004   0.080 </code></pre>
+  0.034   0.004   0.078 </code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb109"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb109-1"><a href="#cb109-1" aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>(result1 <span class="ot">&lt;-</span> <span class="fu">dbGetQuery</span>(db, <span class="st">"select distinct ownerid from questions"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  1.722   0.999   2.938 </code></pre>
+  1.900   1.266   3.331 </code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb111"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb111-1"><a href="#cb111-1" aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>(result2 <span class="ot">&lt;-</span> <span class="fu">dbGetQuery</span>(dbDuck, <span class="st">"select distinct ownerid from questions"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  0.214   0.030   0.039 </code></pre>
+  0.207   0.020   0.038 </code></pre>
 </div>
 </div>
 <p>Now let’s compare timings for some of the queries we ran previously. There are substantial speed-ups in both cases.</p>
@@ -1938,14 +1938,14 @@ Challenge (hard)
 <span id="cb113-3"><a href="#cb113-3" aria-hidden="true" tabindex="-1"></a><span class="st">                           where tag = 'python'"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  2.950   0.768   4.083 </code></pre>
+  3.474   0.872   4.770 </code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb115"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb115-1"><a href="#cb115-1" aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>(result2 <span class="ot">&lt;-</span> <span class="fu">dbGetQuery</span>(dbDuck, <span class="st">"select * from questions join questions_tags </span></span>
 <span id="cb115-2"><a href="#cb115-2" aria-hidden="true" tabindex="-1"></a><span class="st">                           on questions.questionid = questions_tags.questionid </span></span>
 <span id="cb115-3"><a href="#cb115-3" aria-hidden="true" tabindex="-1"></a><span class="st">                           where tag = 'python'"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  1.267   0.169   1.220 </code></pre>
+  0.881   0.126   1.180 </code></pre>
 </div>
 </div>
 <p>And here’s a subquery in the FROM statement.</p>
@@ -1958,7 +1958,7 @@ Challenge (hard)
 <span id="cb117-6"><a href="#cb117-6" aria-hidden="true" tabindex="-1"></a><span class="st">                on A.ownerid = most_responsive.ownerid"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  7.923   1.701   9.841 </code></pre>
+  8.130   1.862  10.237 </code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb119"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb119-1"><a href="#cb119-1" aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>(result2 <span class="ot">&lt;-</span> <span class="fu">dbGetQuery</span>(dbDuck, <span class="st">"select * from questions join answers A</span></span>
 <span id="cb119-2"><a href="#cb119-2" aria-hidden="true" tabindex="-1"></a><span class="st">                on questions.questionid = A.questionid</span></span>
@@ -1968,7 +1968,7 @@ Challenge (hard)
 <span id="cb119-6"><a href="#cb119-6" aria-hidden="true" tabindex="-1"></a><span class="st">                on A.ownerid = most_responsive.ownerid"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  2.089   0.110   1.366 </code></pre>
+  2.310   0.125   1.484 </code></pre>
 </div>
 </div>
 <p>DuckDB will run in parallel by using multiple threads, which can help speed up computations on top of efficiencies available through the column-wise storage, though with the speed of the DuckDB queries above, I don’t think parallelization made much difference in those cases.</p>
