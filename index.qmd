@@ -30,7 +30,7 @@ This tutorial assumes you have a working knowledge of R or Python.
 
 ### 1.1 Materials
 
-Materials for this tutorial, including the Markdown files and associated code files that were used to create these documents are [available on GitHub](https://github.com/berkeley-scf/tutorial-databases).```
+Materials for this tutorial, including the Markdown files and associated code files that were used to create these documents are [available on GitHub](https://github.com/berkeley-scf/tutorial-databases).
 
 The example data files are not part of the GitHub repository. You can get the example data files (both Stack Overflow data for 2021 and Wikipedia webtraffic data for the year 2008) [here](https://www.stat.berkeley.edu/share/paciorek/tutorial-databases-data.zip).
 
@@ -67,7 +67,7 @@ To replicate the (non-essential) PostgreSQL administration portion of this tutor
 
 The techniques and tools discussed here are designed for datasets in the range of gigabytes to tens of gigabytes, though they may scale to larger if you have a machine with a lot of memory or simply have enough disk space and are willing to wait. If you have 10s of gigabytes of data, you'll be better off if your machine has 10s of GBs of memory, as discussed in this tutorial. 
 
-If you're scaling to 100s of GBs, terabytes or petabytes, using the cloud computing providers' tools for working with big datasets is probably your best bet (e.g., Amazon RedShift or Google BigQuery), or possibly carefully-administered databases. Those topics are beyond the scope of this tutorial. However, this tutorial will be useful if you're doing SQL queries on professionally-administered databases or databases in the cloud or in a Spark context.
+If you're scaling to 100s of GBs, terabytes or petabytes, using the cloud computing providers' tools for working with big datasets is probably your best bet (e.g., Amazon RedShift or Google BigQuery), or possibly carefully-administered databases. This tutorial has some information on using [Google BigQuery](bigquery), and this tutorial will be useful if you're doing SQL queries on professionally-administered databases or databases in the cloud or in a Spark context.
 
 ### 2.2 Memory vs. disk
 
@@ -291,7 +291,7 @@ You can download a copy of the SQLite version of the Stack Overflow database (on
 
 In the next section I'll assume the .db file is placed in the subdirectory of the repository called `data`.
 
-Note that all of the code used to download the data from the Stack Overflow website and to manipulate it to create a complete Postgres database and (for the year 2021 only) an SQLite database and CSVs for each table is in the [`data/prep_stackoverflow` subdirectory](https://github.com/berkeley-scf/tutorial-databases/tree/gh-pages/data/prep_stackoverflow) of this repository. Note that as of February 2022, [the data are still being kept up to date online](https://archive.org/download/stackexchange).
+Note that all of the code used to download the data from the Stack Overflow website and to manipulate it to create a complete Postgres database and (for the year 2021 only) an SQLite database and CSVs for each table is in the [`data/prep_stackoverflow` subdirectory](https://github.com/berkeley-scf/tutorial-databases/tree/master/data/prep_stackoverflow) of this repository. Note that as of July 2025, [the data were still being kept up to date online](https://archive.org/download/stackexchange).
 
 ## 6 Accessing a database and using SQL from other languages
 

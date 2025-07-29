@@ -44,7 +44,7 @@ Let's first demonstrate running an SQL query in BigQuery. We'll use a publicly a
 
 These next instructions assume you have a Google Cloud Platform account with billing set up (e.g., using a credit card). To use the BigQuery Sandbox, see below.
 
-Navigate to cloud.google.com and login (or create if needed) your Google Cloud Platform account (which will be associated with your Google account and its email address). Then go to the BiqQuery website](https://console.cloud.google.com/bigquery) and click `Enable` (if you haven't enabled it previously for your account).
+Navigate to `cloud.google.com` and login (or create if needed) your Google Cloud Platform account (which will be associated with your Google account and its email address). Then go to the [BiqQuery website](https://console.cloud.google.com/bigquery) and click `Enable` (if you haven't enabled it previously for your account).
 
 Now we can start working with BigQuery. The demo here follows [these instructions](https://cloud.google.com/bigquery/docs/quickstarts/query-public-dataset-console).
 
@@ -93,8 +93,8 @@ Go to [BigQuery](https://console.cloud.google.com/bigquery), and login with your
 We can use the `bigrquery` R package to interact with BigQuery from R (e.g., running on a laptop).
 
 ```{r, eval=TRUE}
-myproject <- "some_project"
-user <- "user@berkeley.edu"
+myproject <- "scf-gvm0"
+user <- "paciorek@berkeley.edu"
 
 library(bigrquery)
 library(DBI)
@@ -102,15 +102,16 @@ library(DBI)
 
 The following will prompt for authentication to your Google account in a browser and save the authentication information as a 'token' associated with the email address.
 
-If you've already done the authentication previously, it will reload the saved token, not requiring any interactivity, as done in generating this document.
+In principle, you shouldn't have to do this explicitly, but rather the first time you try to interact with a BigQuery dataset, `bigrquery` should prompt you to authenticate, or if you've previously authenticated, it will reload a saved token. But I've had some trouble getting this to work without explicitly running this:
 
 ```{r, eval=TRUE}
-bq_auth(email = user)
+token <- gargle::credentials_user_oauth2(scopes = "https://www.googleapis.com/auth/bigquery", email = user)
+bigrquery::bq_auth(token = token)
 ```
 
 Now let's connect to the public dataset and check the schema. To be able to run queries, we need to be able to provide a GCP project that has billing set up via the `billing` argument. It's possible that the SQL below would run if `billing` is set to be the name of a project without billing set up (i.e., using the BigQuery Sandbox), but I haven't checked that.
 
-```{r, eval=TRUE}
+```{r, bigquery-meta, eval=TRUE}
 drv <- bigquery()
 
 db <- dbConnect(drv,
@@ -125,7 +126,7 @@ dbListFields(db, 'posts_questions')
 
 Now let's run the simple query we tried before.
 
-```{r, eval=TRUE}
+```{r, bigquery-query, eval=TRUE}
 sql <- "select * from tags order by count desc limit 20"
 dbGetQuery(db, sql)
 ```
@@ -186,27 +187,37 @@ As was the case in the [data management demos](db-management), we need to strip 
 
 In the `Add Data` form, it looks like we can only add a single file at a time, so for this test, I'll just add one file.
 
-Let's see if we can now query the new table in the new dataset from R as done previously with the public Stack Overflow dataset.
+You can then test things worked by trying to query the new table in the new dataset from R as done previously with the public Stack Overflow dataset. In an earlier version of this tutorial in 2023, I had this working, but I haven't gotten this working again after some changes to my GCP account, so here we'll just see what one should get if it's all set up.
 
-```{r, eval=TRUE}
+```{r, eval=FALSE}
 db<- dbConnect(drv,
   project = myproject,
   dataset = "wiki_test",
   billing = myproject
 )
-
-dbListTables(db)
-dbListFields(db, 'webtraffic')
 ```
 
-Now let's run a simple query:
-
-```{r, eval=TRUE}
+```{r, eval=FALSE}
+dbListTables(db)
+dbListFields(db, 'webtraffic')
 sql <- "select * from webtraffic limit 5"
 dbGetQuery(db, sql)
 ```
 
-It worked!
+If it works you should see results like this:
+
+```
+## [1] "webtraffic"
+## [1] "date"  "hour"  "site"  "page"  "count" "size"
+## # A tibble: 5 × 6
+##   date     hour   site  page                        count   size
+##   <chr>    <chr>  <chr> <chr>                       <int>  <dbl>
+## 1 20081101 000001 af    Halloween                      12  94174
+## 2 20081101 000001 af    Spesiaal:Onlangse_wysigings    25 360372
+## 3 20081101 000001 af    Spesiaal:Search                50  52332
+## 4 20081101 000001 af    Tempelhof-lughawe              26 115063
+## 5 20081101 000001 af    Tuisblad                       33 514829
+```
 
 ### 3.2 Loading from Google Cloud Storage
 
@@ -224,18 +235,31 @@ db<- dbConnect(drv,
   dataset = "wikipedia",
   billing = myproject
 )
-
-dbListTables(db)
-dbListFields(db, 'webtraffic')
 ```
 
-Now let's run a simple query:
 
-```{r, eval=TRUE}
+
+```{r, eval=FALSE}
+dbListTables(db)
+dbListFields(db, 'webtraffic')
 sql <- "select * from webtraffic limit 5"
 dbGetQuery(db, sql)
 ```
 
+Again, if it worked, you should see results like:
+
+```
+## [1] "webtraffic"
+## [1] "date"  "hour"  "site"  "page"  "count" "size"
+## # A tibble: 5 × 6
+##   date     hour   site  page         count    size
+##   <chr>    <chr>  <chr> <chr>        <int>   <dbl>
+## 1 20081101 000001 fr    Psychose        15  295730
+## 2 20081101 000001 fr    Skyrock_Blog    10  192848
+## 3 20081101 000001 fr    Tunisie         36 3736262
+## 4 20081101 000001 fr    Ulc%C3%A8re     10   60423
+## 5 20081101 000001 fr    X_Japan         11  258634
+```
 
 ### 3.3 Permissions
 

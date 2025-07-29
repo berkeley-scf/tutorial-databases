@@ -121,21 +121,23 @@ In general `GROUP BY` statements will involve some aggregation operation on the 
 The result of a query that uses `group by` is a table with as many rows as groups. 
 
 ::: {.callout-warning title="`where` vs. `having`"}
-To filter the result of a grouping operation, we need to use `having` rather than `where`. (`where` would filter before the application of the `group by`).
+To filter the result of a grouping operation, we need to use `having` rather than `where`. (Note that `where` would filter before the application of the `group by`).
 
-  ```{r}
-  dbGetQuery(db, "select tag, count(*) as n from questions_tags
-                  group by tag having n > 100000 limit 10")
-  ```
+```{r}
+dbGetQuery(db, "select tag, count(*) as n from questions_tags
+               group by tag having n > 100000 limit 10")
+```
+
 :::
 
 ::: {.callout-warning title="Fields and `group by`"}
 Determining what fields can be selected when using `group by` can be tricky, because it varies by DBMS. For example, with Postgres, you can only select fields created by aggregation and the fields that `group by` is applied to, as well as when there is something called a [functional dependency](https://www.postgresql.org/docs/current/sql-select.html#SQL-GROUPBY). SQLite allows more flexibility. For example the following can be done in SQLite to find user and answer information for the answer to each question from the user with the highest reputation. However Postgres gives the error 'ERROR:  column "u.userid" must appear in the GROUP BY clause or be used in an aggregate function'.
 
-  ```{r}
-  dbGetQuery(db, "select *, max(reputation) from users U join answers A
-                  on A.ownerid = U.userid group by A.questionid limit 5")
-  ```
+```{r}
+dbGetQuery(db, "select *, max(reputation) from users U join answers A
+                on A.ownerid = U.userid group by A.questionid limit 5")
+```
+
 :::
 
 ::: {.callout-tip title="Challenge"}
@@ -544,9 +546,7 @@ A subquery is a full query that is embedded in a larger query.
 
 We can use subqueries in the FROM statement to create a temporary table to use in a query. Here we'll do it in the context of a join.
 
-::: {.callout-tip title="Challenge"}
-What does the following do?
-:::
+Try to figure out what the following query does.
 
 
 ```{r, eval=FALSE}
@@ -557,6 +557,10 @@ dbGetQuery(db, "select * from questions join answers A
                 group by ownerid order by n_answered desc limit 1000) most_responsive
                 on A.ownerid = most_responsive.ownerid")
 ```
+
+Here the subquery is `select ownerid, count(*) as n_answered from answers group by ownerid order by n_answered desc limit 1000`, which creates a temporary table, named `most_responsive`, having the ownerid (and the number of their answers) for the 1000 users who have answered the most questions.
+
+In the 'outer' main query, that temporary table is joined to the questions and answers tables. 
 
 It might be hard to just come up with that full query all at once. A good strategy is probably to think about creating a view that is the result of the inner query and then have the outer query use that. You can then piece together the complicated query in a modular way. For big databases, you are likely to want to submit this as a single query and not two queries so that the SQL optimizer can determine the best way to do the operations. But you want to start with code that you're confident will give you the right answer!
 
@@ -587,7 +591,7 @@ In some cases one can do a join rather than using a subquery, but in the followi
 
 ::: {.callout-tip title="Challenge"}
 What's wrong with the following query as an attempt to answer the question above? (See if you can figure it out before looking at the answer below.)
-:::
+
 
 ```{r}
 dbGetQuery(db, "select avg(upvotes) from questions, questions_tags, users
@@ -595,8 +599,11 @@ dbGetQuery(db, "select avg(upvotes) from questions, questions_tags, users
                 questions.ownerid = users.userid and
                 tag = 'python'")
 ```
+:::
 
-(Answer: In the subquery, we find the IDs of the users we are looking for and then average over the UpVotes of those individuals. In the join version we found all the questions that had a Python tag and averaged over the UpVotes of the individuals associated with those questions. So the latter includes multiple UpVotes values from individuals who have posted multiple Python questions.)
+::: {.callout-tip title="Answer" collapse="true"}
+In the subquery, we find the IDs of the users we are looking for and then average over the UpVotes of those individuals. In the join version we found all the questions that had a Python tag and averaged over the UpVotes of the individuals associated with those questions. So the latter includes multiple UpVotes values from individuals who have posted multiple Python questions.
+:::
 
 
 ::: {.callout-tip title="Challenge"}
@@ -764,69 +771,67 @@ Find the users who have asked one question that is highly-viewed (viewcount > 10
 
 Here are some real-world style questions one might try to create queries to answer. The context for these questions is a situation in which  you have data on user sessions on a website or data on messages between users. 
 
-(1) Given a table of user sessions with the format
+1. Given a table of user sessions with the format
 
-```
-date | session_id | user_id | session_time
-```
-calculate the distribution of the average daily total session time in the last month. I.e., you want to get each user's daily average and then find the distribution over users. The output should be something like:
-```
-minutes_per_day | number_of_users
-```
+   ```
+   date | session_id | user_id | session_time
+   ```
+   calculate the distribution of the average daily total session time in the last month. I.e., you want to get each user's daily average and then find the distribution over users. The output should be something like:
+   ```
+   minutes_per_day | number_of_users
+   ```
 
-(2) Consider a table of messages of the form
+2. Consider a table of messages of the form
 
-```
-sender_id | receiver_id | message_id
-```
-For each user, find the three users they message the most.
+   ```
+   sender_id | receiver_id | message_id
+   ```
+   For each user, find the three users they message the most.
 
-(3) Suppose you have are running an online experiment and have a table on the experimental design:
+3. Suppose you have are running an online experiment and have a table on the experimental design:
 
-```
-user_id | test_group | date_first_exposed
-```
-Suppose you also have a messages table that indicates if each message
-was sent on web or mobile:
-```
-date | sender_id | receiver_id | message_id | interface (web or mobile)
-```
-What is the average (over users) in the average number of messages sent per day for each test group
-if you look at the users who have sent messages only on mobile in the last month.
+   ```
+   user_id | test_group | date_first_exposed
+   ```
+   Suppose you also have a messages table that indicates if each message
+   was sent on web or mobile:
+   ```
+   date | sender_id | receiver_id | message_id | interface (web or mobile)
+   ```
+   What is the average (over users) in the average number of messages sent per day for each test group if you look at the users who have sent messages only on mobile in the last month.
 
 #### Challenge questions with the Stack Overflow data
 
 If we take the three challenges above and translate into problems for the Stack Overflow data, one could consider the following three problems.
 
-1) For each user who has asked at least one question find the average number of questions per month. Then determine the distribution of that average across the users. (I.e., determine the values that would go into a histogram of the average number of questions per month across users.) The output should be something like:
+1. For each user who has asked at least one question find the average number of questions per month. Then determine the distribution of that average across the users. (I.e., determine the values that would go into a histogram of the average number of questions per month across users.) The output should be something like:
 
-```
-number of questions per month (rounded) | number of users
-```
+   ```
+   number of questions per month (rounded) | number of users
+   ```
 
-Next try to figure out how to include the users who have asked no questions. Hint: think about how to get NULL values included and then count a column containing such values.
-
-
-2) For each user, find the three most common tags they apply to their questions.
-
-The output should be something like:
-
-```
-userid | tag | count
-```
-
-Hints: You'll need to use subqueries and the final selection of just the top 3 tags will need to be done in its own query and not as part of defining a field using a window function.
+   Next try to figure out how to include the users who have asked no questions. Hint: think about how to get NULL values included and then count a column containing such values.
 
 
-3) Consider trying to determine whether users who answer a lot of questions also ask a lot of questions. Grouping the users based on the number of questions they've answered (0, 1, 2, etc.), determine the aerage number of questions per month for each group. 
+2. For each user, find the three most common tags they apply to their questions.
 
-The output should be something like:
+   The output should be something like:
 
-```
-number of answers | average number of questions per month
-```
+   ```
+   userid | tag | count
+   ```
 
-You'll want to work through this in pieces. Try to think about the initial tables you would need and then build up your query in a nested fashion.
+   Hints: You'll need to use subqueries and the final selection of just the top 3 tags will need to be done in its own query and not as part of defining a field using a window function.
+
+3. Consider trying to determine whether users who answer a lot of questions also ask a lot of questions. Grouping the users based on the number of questions they've answered (0, 1, 2, etc.), determine the aerage number of questions per month for each group. 
+
+   The output should be something like:
+
+   ```
+   number of answers | average number of questions per month
+   ```
+
+   You'll want to work through this in pieces. Try to think about the initial tables you would need and then build up your query in a nested fashion.
 
 
 ### 3.5 A summary of SQL syntax by example
@@ -835,7 +840,7 @@ This section shows the syntax for various queries so as to demonstrate syntax by
 
 #### Selecting columns
 
-```
+```sql
 select ownerid, title from questions
 select ownerid, title from questions limit 5
 select * from questions
@@ -847,7 +852,7 @@ select sum(answercount) from questions
 
 #### Using `distinct`
 
-```
+```sql
 select distinct tag from questions_tags limit 15
 select distinct ownerid, answercount from questions limit 15
 select count(distinct tag) from questions_tags limit 15
@@ -855,7 +860,7 @@ select count(distinct tag) from questions_tags limit 15
 
 #### Filtering rows with `where`
 
-```
+```sql
 select * from questions where answercount > 40
 select * from questions where answercount > 40 order by answercount desc
 select * from questions where answercount = 10 limit 5
@@ -866,7 +871,7 @@ select * from questions_tags where tag in ('java','r','python') limit 10
 
 #### Grouping and reduction/aggregation
 
-```
+```sql
 select tag, count(*) as n from questions_tags \
     group by tag
 
@@ -895,7 +900,7 @@ The query above starting with `select *, sum(viewcount)` behaves differently in 
 
 Inner joins
 
-```
+```sql
 select * from questions join questions_tags \
     on questions.questionid = questions_tags.questionid
     
@@ -911,7 +916,7 @@ select * from questions Q, questions_tags T \
 
 Outer joins
 
-```
+```sql
 select * from questions Q left outer join answers A \
     on Q.questionid = A.questionid 
     
@@ -933,13 +938,13 @@ Self joins
 
 First we'll set up a view (a temporary) table that combines questions and tags for ease of illustrating ideas around self joins.
 
-```
+```sql
 create view QT as select * from questions join questions_tags using(questionid)
 ```
 
 In small groups, discuss what these queries do.
 
-```
+```sql
 select * from QT as QT1 join QT as QT2 \
     using(questionid)
 
@@ -957,7 +962,7 @@ select * from QT as QT1 join QT as QT2 using(ownerid)
 #### Set operations
 
 
-```
+```sql
 select ownerid from QT where tag='python' \
     intersect \
     select ownerid from QT where tag='r'
@@ -980,7 +985,7 @@ select userid, displayname, location from users \
 #### Subqueries
 
 
-```
+```sql
 select * from \
     answers A \
     join \
@@ -990,7 +995,7 @@ select * from \
 ```
 
 
-```
+```sql
 select avg(upvotes) from users \
     where userid in \
     ( select distinct ownerid from \

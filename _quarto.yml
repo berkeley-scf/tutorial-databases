@@ -22,8 +22,8 @@ website:
         text: Database Management
       - href: bigquery.qmd
         text: Databases in the Cloud
-      - href: Big Data in R and Python
-        text: R-and-Python.qmd
+      - href: R-and-Python.qmd
+        text: Big Data in R and Python
       - href: license.qmd
         text: License
 
