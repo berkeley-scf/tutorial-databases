@@ -1,0 +1,2402 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.31">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>SQL</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-e1a5c8363afafaef2c763b6775fbf3ca.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-ff803dae0bae9edb91fb3cd2582d8e33.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+
+<body class="nav-sidebar docked quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./sql.html">SQL</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
+      <a href="https://statistics.berkeley.edu" class="sidebar-logo-link">
+      <img src="./assets/img/logo.svg" alt="UC Berkeley Statistics logo" class="sidebar-logo py-0 d-lg-inline d-none">
+      </a>
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">SCF Databases/SQL Tutorial</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/berkeley-scf/tutorial-databases" title="" class="quarto-navigation-tool px-1" aria-label="GitHub"><i class="bi bi-github"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Getting Started</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./sql.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">SQL</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./db-management.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Database Management</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./bigquery.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Databases in the Cloud</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Big Data in R and Python" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">R-and-Python.qmd</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./license.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">License</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#introduction-to-sql" id="toc-introduction-to-sql" class="nav-link active" data-scroll-target="#introduction-to-sql">1 Introduction to SQL</a>
+  <ul class="collapse">
+  <li><a href="#getting-started" id="toc-getting-started" class="nav-link" data-scroll-target="#getting-started">1.1 Getting started</a></li>
+  <li><a href="#getting-unique-results-distinct" id="toc-getting-unique-results-distinct" class="nav-link" data-scroll-target="#getting-unique-results-distinct">1.2 Getting unique results (DISTINCT)</a></li>
+  <li><a href="#grouping-stratifying-group-by" id="toc-grouping-stratifying-group-by" class="nav-link" data-scroll-target="#grouping-stratifying-group-by">1.3 Grouping / stratifying (GROUP BY)</a></li>
+  <li><a href="#joins" id="toc-joins" class="nav-link" data-scroll-target="#joins">1.4 Joins</a></li>
+  <li><a href="#temporary-tables-and-views" id="toc-temporary-tables-and-views" class="nav-link" data-scroll-target="#temporary-tables-and-views">1.5 Temporary tables and views</a></li>
+  </ul></li>
+  <li><a href="#additional-sql-topics" id="toc-additional-sql-topics" class="nav-link" data-scroll-target="#additional-sql-topics">2 Additional SQL topics</a>
+  <ul class="collapse">
+  <li><a href="#creating-database-tables" id="toc-creating-database-tables" class="nav-link" data-scroll-target="#creating-database-tables">2.1 Creating database tables</a></li>
+  <li><a href="#string-processing-and-creating-new-fields" id="toc-string-processing-and-creating-new-fields" class="nav-link" data-scroll-target="#string-processing-and-creating-new-fields">2.2 String processing and creating new fields</a></li>
+  <li><a href="#dates-and-times" id="toc-dates-and-times" class="nav-link" data-scroll-target="#dates-and-times">2.3 Dates and times</a></li>
+  </ul></li>
+  <li><a href="#more-advanced-sql" id="toc-more-advanced-sql" class="nav-link" data-scroll-target="#more-advanced-sql">3 More advanced SQL</a>
+  <ul class="collapse">
+  <li><a href="#set-operations-union-intersect-except" id="toc-set-operations-union-intersect-except" class="nav-link" data-scroll-target="#set-operations-union-intersect-except">3.1 Set operations: UNION, INTERSECT, EXCEPT</a></li>
+  <li><a href="#subqueries" id="toc-subqueries" class="nav-link" data-scroll-target="#subqueries">3.2 Subqueries</a></li>
+  <li><a href="#window-functions" id="toc-window-functions" class="nav-link" data-scroll-target="#window-functions">3.3 Window functions</a></li>
+  <li><a href="#putting-it-all-together-to-do-complicated-queries" id="toc-putting-it-all-together-to-do-complicated-queries" class="nav-link" data-scroll-target="#putting-it-all-together-to-do-complicated-queries">3.4 Putting it all together to do complicated queries</a></li>
+  <li><a href="#a-summary-of-sql-syntax-by-example" id="toc-a-summary-of-sql-syntax-by-example" class="nav-link" data-scroll-target="#a-summary-of-sql-syntax-by-example">3.5 A summary of SQL syntax by example</a></li>
+  </ul></li>
+  <li><a href="#efficient-sql-queries" id="toc-efficient-sql-queries" class="nav-link" data-scroll-target="#efficient-sql-queries">4 Efficient SQL queries</a>
+  <ul class="collapse">
+  <li><a href="#overview" id="toc-overview" class="nav-link" data-scroll-target="#overview">4.1 Overview</a></li>
+  <li><a href="#indexes" id="toc-indexes" class="nav-link" data-scroll-target="#indexes">4.2 Indexes</a></li>
+  <li><a href="#sql-query-plans-and-explain" id="toc-sql-query-plans-and-explain" class="nav-link" data-scroll-target="#sql-query-plans-and-explain">4.3 SQL query plans and EXPLAIN</a></li>
+  <li><a href="#disk-caching" id="toc-disk-caching" class="nav-link" data-scroll-target="#disk-caching">4.4 Disk caching</a></li>
+  <li><a href="#parallelization-and-partitioning" id="toc-parallelization-and-partitioning" class="nav-link" data-scroll-target="#parallelization-and-partitioning">4.5 Parallelization and partitioning</a></li>
+  <li><a href="#duckdb" id="toc-duckdb" class="nav-link" data-scroll-target="#duckdb">4.6 DuckDB</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">SQL</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="introduction-to-sql" class="level2">
+<h2 class="anchored" data-anchor-id="introduction-to-sql">1 Introduction to SQL</h2>
+<section id="getting-started" class="level3">
+<h3 class="anchored" data-anchor-id="getting-started">1.1 Getting started</h3>
+<p>Here is a simple query that selects the first five rows (and all columns, based on the <code>*</code> wildcard) from the questions table.</p>
+<pre><code>select * from questions limit 5</code></pre>
+<p>To run this from R we provide the SQL syntax as a string as the second argument to <code>dbGetQuery</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(RSQLite)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>drv <span class="ot">&lt;-</span> <span class="fu">dbDriver</span>(<span class="st">"SQLite"</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>dir <span class="ot">&lt;-</span> <span class="st">'data'</span> <span class="co"># relative or absolute path to where the .db file is</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>dbFilename <span class="ot">&lt;-</span> <span class="st">'stackoverflow-2021.db'</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>db <span class="ot">&lt;-</span> <span class="fu">dbConnect</span>(drv, <span class="at">dbname =</span> <span class="fu">file.path</span>(dir, dbFilename))</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(db, <span class="st">"select * from questions limit 5"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  questionid        creationdate score viewcount answercount
+1   65534165 2021-01-01 22:15:54     0       112           2
+2   65535296 2021-01-02 01:33:13     2      1109           0
+3   65535910 2021-01-02 04:01:34    -1       110           1
+4   65535916 2021-01-02 04:03:20     1        35           1
+5   65536749 2021-01-02 07:03:04     0       108           1
+  commentcount favoritecount                               title
+1            0            NA     Can't update a value in sqlite3
+2            0            NA Install and run ROS on Google Colab
+3            8             0       Operators on date/time fields
+4            0            NA          Plotting values normalised
+5            5            NA     Export C# to word with template
+   ownerid
+1 13189393
+2 14924336
+3   651174
+4 14695007
+5 14899717</code></pre>
+</div>
+</div>
+<p>Now let’s see some more interesting usage of other SQL syntax.</p>
+<p>First we get the questions that are viewed the most by filtering to the rows for which the ‘viewcount’ is greater than 100000. We’ll limit the results to the first 5 rows so we don’t print too much out.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(db, <span class="st">"select * from questions where viewcount &gt; 100000 limit 5"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  questionid        creationdate score viewcount answercount
+1   65547199 2021-01-03 06:22:52   124    110832           7
+2   65549858 2021-01-03 12:30:19    52    130479          11
+3   65630743 2021-01-08 14:20:57    77    107140          19
+4   65632698 2021-01-08 16:22:59    74    101044           9
+5   65896334 2021-01-26 05:33:33   111    141899          12
+  commentcount favoritecount
+1            2             0
+2            0             0
+3            4             0
+4            1             0
+5            7             0
+                                                                                  title
+1                                                          Using Bootstrap 5 with Vue 3
+2 "ERESOLVE unable to resolve dependency tree" when installing npm react-facebook-login
+3                          How to solve flutter web api cors error only with dart code?
+4                                            How to open a link in a new Tab in NextJS?
+5                              Python Pip broken with sys.stderr.write(f"ERROR: {exc}")
+   ownerid
+1 11232893
+2 12425004
+3 12373446
+4  9578961
+5   202576</code></pre>
+</div>
+</div>
+<p>Next, let’s find the number of views for the 15 questions viewed the most.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(db, <span class="st">"select viewcount from questions </span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="st">                order by viewcount desc limit 15"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   viewcount
+1    1236876
+2     816368
+3     610026
+4     505992
+5     458856
+6     445775
+7     426798
+8     315861
+9     307961
+10    303399
+11    296364
+12    286886
+13    286810
+14    278432
+15    276806</code></pre>
+</div>
+</div>
+<p>Let’s lay out the various verbs in SQL. Here’s the form of a standard query (but note that the sorting done by ORDER BY is computationally expensive and would be used sparingly):</p>
+<pre><code>SELECT &lt;column(s)&gt; FROM &lt;table&gt; WHERE &lt;condition(s) on column(s)&gt; ORDER BY &lt;column(s)&gt;</code></pre>
+<p>SQL keywords are often written in ALL CAPITALS by convention, although I won’t necessarily do that in this tutorial.</p>
+<p>And here is a table of some important keywords:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Keyword</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>SELECT</td>
+<td>select columns</td>
+</tr>
+<tr class="even">
+<td>FROM</td>
+<td>which table to operate on</td>
+</tr>
+<tr class="odd">
+<td>WHERE</td>
+<td>filter (choose) rows satisfying certain conditions</td>
+</tr>
+<tr class="even">
+<td>LIKE, IN, &lt;, &gt;, =, &lt;=, &gt;=, !=, etc.</td>
+<td>used as part of filtering conditions</td>
+</tr>
+<tr class="odd">
+<td>ORDER BY</td>
+<td>sort based on columns</td>
+</tr>
+</tbody>
+</table>
+<p>Some other keywords are: DISTINCT, ON, JOIN, GROUP BY, AS, USING, UNION, INTERSECT, HAVING, SIMILAR TO (not available in SQLite), SUBSTR in SQLite and SUBSTRING in PostgreSQL.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Challenge">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Challenge
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Return a few rows from the users, questions, answers, and tags tables so you can get a sense for what the entries in the tables are like.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled" title="Challenge">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Challenge
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Find the users in the database with the most upvotes.</p>
+</div>
+</div>
+</section>
+<section id="getting-unique-results-distinct" class="level3">
+<h3 class="anchored" data-anchor-id="getting-unique-results-distinct">1.2 Getting unique results (DISTINCT)</h3>
+<p>A useful SQL keyword is DISTINCT, which allows you to eliminate duplicate rows from any table (or remove duplicate values when one only has a single column or set of values).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Find the unique tags:</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(db, <span class="st">"select distinct tag from questions_tags limit 15"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>          tag
+1     sorting
+2  visual-c++
+3         mfc
+4   cgridctrl
+5         css
+6      anchor
+7        divi
+8      python
+9  python-3.x
+10      audio
+11        vlc
+12        ios
+13     arrays
+14  dataframe
+15 javascript</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Count the number of unique tags:</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(db, <span class="st">"select count(distinct tag) from questions_tags"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  count(distinct tag)
+1               42137</code></pre>
+</div>
+</div>
+</section>
+<section id="grouping-stratifying-group-by" class="level3">
+<h3 class="anchored" data-anchor-id="grouping-stratifying-group-by">1.3 Grouping / stratifying (GROUP BY)</h3>
+<p>A common pattern of operation is to stratify the dataset, i.e., collect it into mutually exclusive and exhaustive subsets. One would then generally do some aggregation operation on each subset. The aggregation is always done within each of the groups. In SQL this is done with the GROUP BY keyword.</p>
+<p>Here’s a basic example where we count the occurrences of different tags.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(db, <span class="st">"select tag, count(*) as n from questions_tags</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="st">                group by tag order by n desc limit 100"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Also note the use of <code>as</code> to define a name for the new column.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Challenge">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Challenge
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>What specifically does that query do? Describe the table that would be returned.</p>
+</div>
+</div>
+<p>In general <code>GROUP BY</code> statements will involve some aggregation operation on the subsets. Options include: COUNT, MIN, MAX, AVG, SUM.</p>
+<p>The result of a query that uses <code>group by</code> is a table with as many rows as groups.</p>
+<div class="callout callout-style-default callout-warning callout-titled" title="`where` vs. `having`">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<code>where</code> vs.&nbsp;<code>having</code>
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>To filter the result of a grouping operation, we need to use <code>having</code> rather than <code>where</code>. (<code>where</code> would filter before the application of the <code>group by</code>).</p>
+<p>::: {.cell}</p>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(db, <span class="st">"select tag, count(*) as n from questions_tags</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="st">                group by tag having n &gt; 100000 limit 10"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>:::</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled" title="Fields and `group by`">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Fields and <code>group by</code>
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Determining what fields can be selected when using <code>group by</code> can be tricky, because it varies by DBMS. For example, with Postgres, you can only select fields created by aggregation and the fields that <code>group by</code> is applied to, as well as when there is something called a <a href="https://www.postgresql.org/docs/current/sql-select.html#SQL-GROUPBY">functional dependency</a>. SQLite allows more flexibility. For example the following can be done in SQLite to find user and answer information for the answer to each question from the user with the highest reputation. However Postgres gives the error ‘ERROR: column “u.userid” must appear in the GROUP BY clause or be used in an aggregate function’.</p>
+<p>::: {.cell}</p>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(db, <span class="st">"select *, max(reputation) from users U join answers A</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="st">                on A.ownerid = U.userid group by A.questionid limit 5"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>:::</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled" title="Challenge">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Challenge
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Write a query that will count the number of answers for each question, returning the IDs of the most answered questions. Hint: consider which field in the “answers” table we do the grouping on (and you shouldn’t need to use the “questions” table).</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled" title="`count` and NULL values">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<code>count</code> and NULL values
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>When applied to a specific field, <code>COUNT</code> will not count elements that are <code>NULL</code>. That can be useful in cases such as determining the number of non-matches in an outer join. In contrast, <code>COUNT(*)</code> will count the number of rows, regardless of the contents.</p>
+</div>
+</div>
+</section>
+<section id="joins" class="level3">
+<h3 class="anchored" data-anchor-id="joins">1.4 Joins</h3>
+<section id="introduction-to-joins" class="level4">
+<h4 class="anchored" data-anchor-id="introduction-to-joins">1.4.1 Introduction to joins</h4>
+<p>Suppose in the example of students in classes, we want a result that has the grades of all students in 9th grade. For this we need information from the Student table (to determine grade level) and information from the ClassAssignment table (to determine the class grade for each class a student takes). Getting information from multiple tables, where a row in one table is matched with one or more rows in another table is called a <em>join</em>. In this case the join would look for all rows in the ClassAssignment table that match a given row (i.e., student) in the Student table, using the column in each of the tables containing the student ID to do the matching of rows.</p>
+<p>The syntax generally looks like this (again the WHERE and ORDER BY are optional):</p>
+<pre><code>SELECT &lt;column(s)&gt; FROM &lt;table1&gt; JOIN &lt;table2&gt; ON &lt;columns to match on&gt;
+   WHERE &lt;condition(s) on column(s)&gt; ORDER BY &lt;column(s)&gt;</code></pre>
+<p>Let’s see an example join on the Stack Overflow database. In particular let’s select only the questions with the tag “python”.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>result1 <span class="ot">&lt;-</span> <span class="fu">dbGetQuery</span>(db, <span class="st">"select * from questions join questions_tags </span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="st">                           on questions.questionid = questions_tags.questionid </span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="st">                           where tag = 'python'"</span>)</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(result1)           </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  questionid        creationdate score viewcount answercount
+1   65526804 2021-01-01 01:54:10     0      2087           3
+2   65527402 2021-01-01 05:14:22     1        56           1
+3   65529525 2021-01-01 12:06:43     1       175           1
+4   65529971 2021-01-01 13:14:40     1        39           0
+5   65532644 2021-01-01 18:46:52    -2        49           1
+6   65534179 2021-01-01 22:17:15     1       476           0
+  commentcount favoritecount
+1            3            NA
+2            0            NA
+3            0            NA
+4            1            NA
+5            1            NA
+6            4            NA
+                                                             title
+1            How to play an audio file starting at a specific time
+2                                 Join dataframe columns in python
+3                              Issues with pygame.time.get_ticks()
+4 How to check if Windows prompts a notification box using python?
+5                      How I divide this text file in a Dataframe?
+6                         Suppress OpenCV Output Message in Python
+   ownerid questionid    tag
+1 14718094   65526804 python
+2  1492229   65527402 python
+3 13720770   65529525 python
+4 13845215   65529971 python
+5 14122166   65532644 python
+6 10355409   65534179 python</code></pre>
+</div>
+</div>
+<p>It’s also possible to get the same exact result without using the JOIN keyword, but you’ll need the WHERE keyword to ensure that the rows get matched correctly.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>result2 <span class="ot">&lt;-</span> <span class="fu">dbGetQuery</span>(db, <span class="st">"select * from questions, questions_tags</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="st">                           where questions.questionid = questions_tags.questionid </span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="st">                           and tag = 'python'"</span>)</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="fu">identical</span>(result1, result2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] TRUE</code></pre>
+</div>
+</div>
+<p>We’ll explain what is going on in the next section.</p>
+<p>Here’s a three-way join (both with and without the JOIN keyword) with some additional use of <em>aliases</em> to abbreviate table names. What does this query ask for?</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>result1 <span class="ot">&lt;-</span> <span class="fu">dbGetQuery</span>(db, <span class="st">"select * from questions Q</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="st">                           join questions_tags T on Q.questionid = T.questionid</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="st">                           join users U on Q.ownerid = U.userid</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="st">                           where tag = 'python' and upvotes &gt; 100"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Once again, we could do that without JOIN and using WHERE to match the rows appropriately.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>result2 <span class="ot">&lt;-</span> <span class="fu">dbGetQuery</span>(db, <span class="st">"select * from questions Q, questions_tags T, users U</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="st">                           where Q.questionid = T.questionid </span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="st">                           and Q.ownerid = U.userid</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="st">                           and tag = 'python' and upvotes &gt; 100"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled" title="Challenge">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Challenge
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Write a query that would return all the answers to questions with the Python tag.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled" title="Challenge">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Challenge
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Write a query that will count the number of answers for each question, returning the most answered questions and their information. Note that this extends the question in the previous section.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled" title="Challenge">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Challenge
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Write a query that would return the users who have answered a question with the Python tag.</p>
+</div>
+</div>
+</section>
+<section id="types-of-joins" class="level4">
+<h4 class="anchored" data-anchor-id="types-of-joins">1.4.2 Types of joins</h4>
+<p>We’ve seen a bunch of joins but haven’t discussed the full taxonomy of types of joins. There are various possibilities for how to do a join depending on whether there are rows in one table that do not match any rows in another table.</p>
+<p><em>Inner joins</em>: In database terminology an inner join is when the result has a row for each match of a row in one table with the rows in the second table, where the matching is done on the columns you indicate. If a row in one table corresponds to more than one row in another table, you get all of the matching rows in the second table, with the information from the first table duplicated for each of the resulting rows. For example in the Stack Overflow data, an inner join of questions and answers would pair each question with each of the answers to that question. However, questions without any answers or (if this were possible) answers without a corresponding question would not be part of the result.</p>
+<p><em>Outer joins</em>: Outer joins add additional rows from one table that do not match any rows from the other table as follows. A <em>left outer join</em> gives all the rows from the first table but only those from the second table that match a row in the first table. A <em>right outer join</em> is the converse, while a <em>full outer join</em> includes at least one copy of all rows from both tables. So a left outer join of the Stack Overflow questions and answers tables would, in addition to the matched questions and their answers, include a row for each question without any answers, as would a full outer join. In this case there should be no answers that do not correspond to question, so a right outer join should be the same as an inner join. Note that one cannot do a right outer join (or a full outer join) in SQLit; you’ll need to switch the order of the tables and do a left outer join.</p>
+<p><em>Cross joins</em>: A cross join gives the Cartesian product of the two tables, namely the pairwise combination of every row from each table, analogous to <code>expand.grid</code> in R. I.e., take a row from the first table and pair it with each row from the second table, then repeat that for all rows from the first table. Since cross joins pair each row in one table with all the rows in another table, the resulting table can be quite large (the product of the number of rows in the two tables). In the Stack Overflow database, a cross join would pair each question with every answer in the database, regardless of whether the answer is an answer to that question.</p>
+<p>Here’s a table of the different kinds of joins:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 27%">
+<col style="width: 47%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Type of join</th>
+<th>Rows from first table</th>
+<th>Rows from second table</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>inner (default)</td>
+<td>all that match on specified condition</td>
+<td>all that match on specified condition</td>
+</tr>
+<tr class="even">
+<td>left outer</td>
+<td>all</td>
+<td>all that match first table</td>
+</tr>
+<tr class="odd">
+<td>right outer</td>
+<td>all that match second table</td>
+<td>all</td>
+</tr>
+<tr class="even">
+<td>full outer</td>
+<td>all</td>
+<td>all</td>
+</tr>
+<tr class="odd">
+<td>cross</td>
+<td>all combined pairwise with second table</td>
+<td>all combined pairwise with first table</td>
+</tr>
+</tbody>
+</table>
+<p>A ‘natural’ join is an inner join that doesn’t require you to specify the common columns between tables on which to enforce equality, but it’s often good practice to not use a natural join and to explicitly indicate which columns are being matched on.</p>
+<p>Simply listing two or more tables separated by commas as we saw earlier is the same as a <em>cross join</em>. Alternatively, listing two or more tables separated by commas, followed by conditions that equate rows in one table to rows in another is the same as an <em>inner join</em>.</p>
+<p>In general, inner joins can be seen as a form of cross join followed by a condition that enforces matching between the rows of the table. More broadly, here are five equivalent joins that all perform the equivalent of an inner join:</p>
+<pre><code>select * from table1 join table2 on table1.id = table2.id ## explicit inner join
+select * from table1, table2 where table1.id = table2.id  ## without explicit JOIN
+select * from table1 cross join table2 where table1.id = table2.id 
+select * from table1 join table2 using(id)
+select * from table1 natural join table2</code></pre>
+<p>Note that in the last query the join would be based on all common columns, which could be a bit dangerous if you don’t look carefully at the schema of both tables. Assuming <code>id</code> is the common column, then the last of these queries is the same as the others.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Challenge">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Challenge
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Create a view with one row for every question-tag pair, including questions without any tags.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled" title="Challenge">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Challenge
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Write a query that would return the displaynames of all of the users who have <em>never</em> posted a question. The NULL keyword will come in handy – it’s like <code>NA</code> in R. Hint: NULLs should be produced if you do an outer join.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled" title="Challenge">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Challenge
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>How many questions tagged with ‘random-forest’ were unanswered? (You should need two different kinds of joins to answer this.)</p>
+</div>
+</div>
+</section>
+<section id="counting-nulls" class="level4">
+<h4 class="anchored" data-anchor-id="counting-nulls">1.4.3 Counting NULLs</h4>
+<p>We’ve seen that one can user outer joins as a way to find rows in one table that do not appear in another table. If you want to be able to count the number of entries by group and have a count of 0 when a group doesn’t appear in a table, you can do that by making sure to apply the count only to a field produced by an outer join that contains NULL values and not to all fields.</p>
+<p>For example if we wanted to count the number of answers provided by each user and make sure to include people who have answered no questions, assigning them a value of 0, we could do it like this by counting the <code>answerid</code> field, which will have NULL for users with no answers and will be counted as a 0:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(db, <span class="st">"select userid, count(answerid) as n_answers from users left outer join answers on userid=ownerid group by userid order by userid limit 10"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>If we had done <code>count(*)</code>, then each row for a user with no answers would be incorrectly assigned a 1 (since they have a row associated with them) instead of a 0 (note user #56 below).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(db, <span class="st">"select userid, count(*) as n_answers from users left outer join answers on userid=ownerid group by userid order by userid limit 10"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="joining-a-table-with-itself-self-join" class="level4">
+<h4 class="anchored" data-anchor-id="joining-a-table-with-itself-self-join">1.4.4 Joining a table with itself (self join)</h4>
+<p>Sometimes we want to query information across rows of the same table. For example supposed we want to analyze the time lags between when the same person posts a question. Do people tend to post in bursts or do they tend to post uniformly over the year? To do this we need contrasts between the times of the different posts. (One can also address this using window functions, discussed later.)</p>
+<p>So we need to join two copies of the same table, which means dealing with resolving the multiple copies of each column.</p>
+<p>This would look like this:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(db, <span class="st">"select * from questions Q1 join questions Q2</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="st">                on Q1.ownerid = Q2.ownerid"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>That should create a new table with all pairs of questions asked by a single person.</p>
+<p>Actually, there’s a problem here.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Challenge">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Challenge
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>What kinds of rows will we get that we don’t want?</p>
+</div>
+</div>
+<p>A solution to that problem of having the same question paired with itself is:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(db, <span class="st">"create view question_contrasts as</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="st">                select * from questions Q1 join questions Q2</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="st">                on Q1.ownerid = Q2.ownerid</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a><span class="st">                where Q1.creationdate != Q2.creationdate"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled" title="Challenge">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Challenge
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>There’s actually a further similar problem. What is the problem and how can we fix it by changing two characters in the query above? Hint, even as character strings, the creationdate column has an ordering.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="temporary-tables-and-views" class="level3">
+<h3 class="anchored" data-anchor-id="temporary-tables-and-views">1.5 Temporary tables and views</h3>
+<p>You can think of a view as a temporary table that is the result of a query and can be used in subsequent queries. In any given query you can use both views and tables. The advantage is that they provide modularity in our querying. For example, if a given operation (portion of a query) is needed repeatedly, one could abstract that as a view and then make use of that view.</p>
+<p>Suppose we always want the upvotes and displayname of question owners available. Once we have the view we can query it like a regular table.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="do">## note there is a creationdate in users too, hence disambiguation</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="fu">dbExecute</span>(db, <span class="st">"create view questions_plus as</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="st">               select questionid, questions.creationdate, score, viewcount, </span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a><span class="st">                      title, ownerid, upvotes, displayname</span></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a><span class="st">               from questions join users on questions.ownerid = users.userid"</span>)</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a><span class="do">## don't be confused by the "0" response --</span></span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a><span class="do">## it just means that nothing is returned to R; the view _has_ been created</span></span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>               </span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(db, <span class="st">"select * from questions_plus where upvotes &gt; 100 limit 5"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>One use of a view would be to create a mega table that stores all the information from multiple tables in the (unnormalized) form you might have if you simply had one data frame in R or Python.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbExecute</span>(db, <span class="st">"drop view questions_plus"</span>) <span class="co"># drop the view if we no longer need it</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>If you want to create a temporary table just for a single query, you can use a subquery or a WITH clause, as dicussed in <a href="#32-subqueries">Section 3.2</a>.</p>
+</section>
+</section>
+<section id="additional-sql-topics" class="level2">
+<h2 class="anchored" data-anchor-id="additional-sql-topics">2 Additional SQL topics</h2>
+<section id="creating-database-tables" class="level3">
+<h3 class="anchored" data-anchor-id="creating-database-tables">2.1 Creating database tables</h3>
+<p>Often one would create tables from within R or Python (though one can <a href="db-management">create tables from within the <code>sqlite</code> and <code>psql</code> command line interfaces</a> as well). Here’s the syntax from R.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Option 1: pass directly from CSV to database</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="fu">dbWriteTable</span>(<span class="at">conn =</span> db, <span class="at">name =</span> <span class="st">"student"</span>, <span class="at">value =</span> <span class="st">"student.csv"</span>, <span class="at">row.names =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>             <span class="at">header =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a><span class="do">## Option 2: pass from data in an R data frame</span></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a><span class="do">## First create your data frame:</span></span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a><span class="co"># student_df &lt;- data.frame(...)</span></span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a><span class="do">## or</span></span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a><span class="co"># student_df &lt;- read.csv(...)</span></span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a><span class="fu">dbWriteTable</span>(<span class="at">conn =</span> db, <span class="at">name =</span> <span class="st">"student"</span>, <span class="at">value =</span> student_df, <span class="at">row.names =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>             <span class="at">append =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="string-processing-and-creating-new-fields" class="level3">
+<h3 class="anchored" data-anchor-id="string-processing-and-creating-new-fields">2.2 String processing and creating new fields</h3>
+<p>We can do some basic matching with LIKE, using % as a wildcard and _ to stand in for any single character:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(db, <span class="st">"select * from questions_tags where tag like 'r-%' limit 10"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   questionid        tag
+1    65598394   r-factor
+2    65999758 r-markdown
+3    66007924    r-exams
+4    66036936 r-markdown
+5    65985449    r-caret
+6    66035257 r-markdown
+7    66135867 r-markdown
+8    65878099 r-markdown
+9    65973815 r-markdown
+10   66102594   r-lavaan</code></pre>
+</div>
+</div>
+<p>In Postgres, in addition to the basic use of LIKE to match character strings, one can use regular expression syntax with SIMILAR TO.</p>
+<p>SIMILAR TO is not available in SQLite so the following can only be done in the Postgres instance of our example database. Here we’ll look for all tags that are of the form “r-”, “-r”, “r” or “-r-”. SQL uses % as a wildcard (this is not standard regular expression syntax).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Try in postgreSQL, not SQLite</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>result <span class="ot">&lt;-</span> <span class="fu">dbGetQuery</span>(db, <span class="st">"select * from questions_tags </span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="st">                          where tag similar to 'r-%|%-r|r|%-r-%' limit 10"</span>)</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a><span class="do">## Standard regex for 'any character' doesn't seem to work:</span></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a><span class="do">## result &lt;- dbGetQuery(db, "select * from questions_tags </span></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>                             where tag SIMILAR TO <span class="st">'r-.*|.*-r|r|.*-r-.*'</span> limit <span class="dv">10</span><span class="st">")</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The matching does not match on substrings, unless one uses wildcards at beginning and end of the pattern, so “r” will only find “r” and not, for example, “dplyr”.</p>
+</div>
+</div>
+<p>To extract substrings we can SUBSTRING in Postgres. Here’s a basic example:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(db, <span class="st">"select substring(creationdate from '^[[:digit:]]{4}') as year</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="st">                from questions limit 3"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>If you need to specify the pattern to be extracted relative to the surrounding characters, then Postgres requires that the pattern to be extracted be surrounded by <code>#"</code> (one could use another character in place of <code>#</code>), but for use from R we need to escape the double-quote with a backslash so it is treated as a part of the string passed to Postgres and not treated by R as indicating where the character string stops/starts. We also need the % wildcard character when extracting in this way.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(db, <span class="st">"select substring(creationdate from</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="st">                '%-#</span><span class="sc">\"</span><span class="st">[[:digit:]]{2}#</span><span class="sc">\"</span><span class="st">-%' for '#') as month</span></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a><span class="st">                from questions limit 3"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled" title="Substrings">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Substrings
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>SQLite provides SUBSTR for substrings, but the flexibility of SUBSTR seems to be much less than use of SUBSTRING in PostgreSQL.</p>
+</div>
+</div>
+<p>Here is some <a href="https://www.postgresql.org/docs/current/functions-string.html">documentation on string functions in PostgreSQL</a>.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Challenge">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Challenge
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Select the questions that have “java” but not “javascript” in their titles using regular expression syntax.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled" title="Challenge">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Challenge
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Figure out how to calculate the length (in characters) of the title of each question.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled" title="Challenge">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Challenge
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Process the creationdate field to create year, day, and month fields in a new view. Note that this would be good practice for string manipulation but you would want to handle dates and times using the material in the next section and not use string processing.</p>
+</div>
+</div>
+</section>
+<section id="dates-and-times" class="level3">
+<h3 class="anchored" data-anchor-id="dates-and-times">2.3 Dates and times</h3>
+<p>Here we’ll see how you can work with dates and times in SQLite, but the functionality should be similar in other DBMS.</p>
+<p>SQLite doesn’t have specific date-time types, but it’s standard to store date-times as strings in the text field in the ISO-8601 format: YYYY-MM-DD HH:MM:SS.SSS. That’s the format of the dates in the StackOverflow database:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(db, <span class="st">"select distinct creationdate from questions limit 5"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         creationdate
+1 2021-01-01 22:15:54
+2 2021-01-02 01:33:13
+3 2021-01-02 04:01:34
+4 2021-01-02 04:03:20
+5 2021-01-02 07:03:04</code></pre>
+</div>
+</div>
+<p>Then SQLite provides some powerful functions for manipulating and extracting information in such fields. Here are just a few examples, noting that <code>strftime</code> is particularly powerful. Other DBMS should have similar functionality, but I haven’t investigated further.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Julian days (decimal days since noon UTC/Greenwich time November 24, 4714 BC (Yikes!)). </span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>output <span class="ot">&lt;-</span> <span class="fu">dbGetQuery</span>(db, <span class="st">"select creationdate, julianday(creationdate)</span></span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a><span class="st">                from questions limit 5"</span>)</span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>output</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         creationdate julianday(creationdate)
+1 2021-01-01 22:15:54                 2459216
+2 2021-01-02 01:33:13                 2459217
+3 2021-01-02 04:01:34                 2459217
+4 2021-01-02 04:03:20                 2459217
+5 2021-01-02 07:03:04                 2459217</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Julian day is decimal-valued:</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="fu">formatC</span>(output[ , <span class="dv">2</span>], <span class="dv">6</span>, <span class="at">format =</span> <span class="st">'f'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2459216.427708" "2459216.564734" "2459216.667755"
+[4] "2459216.668981" "2459216.793796"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Convert to local time</span></span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(db, <span class="st">"select distinct creationdate, datetime(creationdate, 'localtime')</span></span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a><span class="st">                from questions limit 5"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         creationdate datetime(creationdate, 'localtime')
+1 2021-01-01 22:15:54                 2021-01-01 14:15:54
+2 2021-01-02 01:33:13                 2021-01-01 17:33:13
+3 2021-01-02 04:01:34                 2021-01-01 20:01:34
+4 2021-01-02 04:03:20                 2021-01-01 20:03:20
+5 2021-01-02 07:03:04                 2021-01-01 23:03:04</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Eastern time, manually, ignoring daylight savings</span></span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(db, <span class="st">"select distinct creationdate, datetime(creationdate, '-05:00')</span></span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a><span class="st">                from questions limit 5"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         creationdate datetime(creationdate, '-05:00')
+1 2021-01-01 22:15:54              2021-01-01 17:15:54
+2 2021-01-02 01:33:13              2021-01-01 20:33:13
+3 2021-01-02 04:01:34              2021-01-01 23:01:34
+4 2021-01-02 04:03:20              2021-01-01 23:03:20
+5 2021-01-02 07:03:04              2021-01-02 02:03:04</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="do">## day of week: Jan 1 2021 was a Friday (0=Sunday, 6=Saturday)</span></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(db, <span class="st">"select creationdate, strftime('%w', creationdate)</span></span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a><span class="st">                from questions limit 5"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         creationdate strftime('%w', creationdate)
+1 2021-01-01 22:15:54                            5
+2 2021-01-02 01:33:13                            6
+3 2021-01-02 04:01:34                            6
+4 2021-01-02 04:03:20                            6
+5 2021-01-02 07:03:04                            6</code></pre>
+</div>
+</div>
+<p>Unfortunately I’m not sure if the actual dates in the database are Greenwich time or some US time zone, but we’ll ignore that complication here.</p>
+<p>Let’s put it all together to do something meaningful.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>result <span class="ot">&lt;-</span> <span class="fu">dbGetQuery</span>(db, <span class="st">"select strftime('%H', creationdate) as hour,</span></span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a><span class="st">                          count() as n from questions group by hour"</span>)</span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(result)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  hour     n
+1   00 35444
+2   01 33989
+3   02 35542
+4   03 37745
+5   04 39609
+6   05 45229</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">as.numeric</span>(result<span class="sc">$</span>hour), result<span class="sc">$</span>n, <span class="at">xlab =</span> <span class="st">'hour of day (UTC/Greenwich???)'</span>,</span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">ylab =</span> <span class="st">'number of questions'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="sql_files/figure-html/unnamed-chunk-24-1.png" class="img-fluid figure-img" width="480"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Here’s some <a href="https://www.sqlite.org/lang_datefunc.html">documentation of the syntax for the functions, including <code>stftime</code></a>.</p>
+</section>
+</section>
+<section id="more-advanced-sql" class="level2">
+<h2 class="anchored" data-anchor-id="more-advanced-sql">3 More advanced SQL</h2>
+<section id="set-operations-union-intersect-except" class="level3">
+<h3 class="anchored" data-anchor-id="set-operations-union-intersect-except">3.1 Set operations: UNION, INTERSECT, EXCEPT</h3>
+<p>You can do set operations like union, intersection, and set difference using the UNION, INTERSECT, and EXCEPT keywords on tables that have the same schema (same column names and types), though most often these would be used on single columns (i.e., single-column tables).</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>While one can often set up an equivalent query without using INTERSECT or UNION, set operations can be very handy.</p>
+</div>
+</div>
+<p>Here’s an example of a query that can be done with or without an intersection. Suppose we want to know the names of all individuals who have asked both an R question and a Python question. We can do this with INTERSECT:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>(</span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>   result1 <span class="ot">&lt;-</span> <span class="fu">dbGetQuery</span>(db, <span class="st">"select displayname, userid from</span></span>
+<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a><span class="st">                              questions Q join users U on U.userid = Q.ownerid</span></span>
+<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a><span class="st">                              join questions_tags T on Q.questionid = T.questionid</span></span>
+<span id="cb51-5"><a href="#cb51-5" aria-hidden="true" tabindex="-1"></a><span class="st">                              where tag = 'r'</span></span>
+<span id="cb51-6"><a href="#cb51-6" aria-hidden="true" tabindex="-1"></a><span class="st">                              intersect</span></span>
+<span id="cb51-7"><a href="#cb51-7" aria-hidden="true" tabindex="-1"></a><span class="st">                              select displayname, userid from</span></span>
+<span id="cb51-8"><a href="#cb51-8" aria-hidden="true" tabindex="-1"></a><span class="st">                              questions Q join users U on U.userid = Q.ownerid</span></span>
+<span id="cb51-9"><a href="#cb51-9" aria-hidden="true" tabindex="-1"></a><span class="st">                              join questions_tags T on Q.questionid = T.questionid</span></span>
+<span id="cb51-10"><a href="#cb51-10" aria-hidden="true" tabindex="-1"></a><span class="st">                              where tag = 'python'"</span>)</span>
+<span id="cb51-11"><a href="#cb51-11" aria-hidden="true" tabindex="-1"></a>               )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   user  system elapsed 
+  4.256   1.334   6.783 </code></pre>
+</div>
+</div>
+<p>Alternatively we can do a self-join. Note that the syntax gets complicated as we are doing multiple joins.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>(</span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a>   result2 <span class="ot">&lt;-</span> <span class="fu">dbGetQuery</span>(db, <span class="st">"select displayname, userid from</span></span>
+<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a><span class="st">                              (questions Q1 join questions_tags T1</span></span>
+<span id="cb53-4"><a href="#cb53-4" aria-hidden="true" tabindex="-1"></a><span class="st">                              on Q1.questionid = T1.questionid)</span></span>
+<span id="cb53-5"><a href="#cb53-5" aria-hidden="true" tabindex="-1"></a><span class="st">                              join</span></span>
+<span id="cb53-6"><a href="#cb53-6" aria-hidden="true" tabindex="-1"></a><span class="st">                              (questions Q2 join questions_tags T2</span></span>
+<span id="cb53-7"><a href="#cb53-7" aria-hidden="true" tabindex="-1"></a><span class="st">                              on Q2.questionid = T2.questionid)</span></span>
+<span id="cb53-8"><a href="#cb53-8" aria-hidden="true" tabindex="-1"></a><span class="st">                              on Q1.ownerid = Q2.ownerid</span></span>
+<span id="cb53-9"><a href="#cb53-9" aria-hidden="true" tabindex="-1"></a><span class="st">                              join users on Q1.ownerid = users.userid</span></span>
+<span id="cb53-10"><a href="#cb53-10" aria-hidden="true" tabindex="-1"></a><span class="st">                              where T1.tag = 'r' and T2.tag = 'python'"</span>)</span>
+<span id="cb53-11"><a href="#cb53-11" aria-hidden="true" tabindex="-1"></a>               )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   user  system elapsed 
+  5.955   3.538  12.829 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="fu">identical</span>(result1, result2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] FALSE</code></pre>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled" title="Challenge">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Challenge
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Those two queries return equivalent information, but the results are not exactly the same. What causes the difference? How can we modify the second query to get the exact same results as the first?</p>
+</div>
+</div>
+<p>Which is faster? The second one looks more involved in terms of the joins, so the timing results seen above make sense.</p>
+<p>We could use UNION or EXCEPT to find people who have asked either or only one type of question, respectively.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Challenge">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Challenge
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Find the users who have asked either an R question or a Python question.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled" title="Challenge">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Challenge
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Find the users who have asked but not answered a question.</p>
+</div>
+</div>
+</section>
+<section id="subqueries" class="level3">
+<h3 class="anchored" data-anchor-id="subqueries">3.2 Subqueries</h3>
+<p>A subquery is a full query that is embedded in a larger query.</p>
+<section id="subqueries-in-the-from-statement" class="level4">
+<h4 class="anchored" data-anchor-id="subqueries-in-the-from-statement">3.2.1 Subqueries in the FROM statement</h4>
+<p>We can use subqueries in the FROM statement to create a temporary table to use in a query. Here we’ll do it in the context of a join.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Challenge">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Challenge
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>What does the following do?</p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(db, <span class="st">"select * from questions join answers A</span></span>
+<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a><span class="st">                on questions.questionid = A.questionid</span></span>
+<span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a><span class="st">                join</span></span>
+<span id="cb57-4"><a href="#cb57-4" aria-hidden="true" tabindex="-1"></a><span class="st">                (select ownerid, count(*) as n_answered from answers</span></span>
+<span id="cb57-5"><a href="#cb57-5" aria-hidden="true" tabindex="-1"></a><span class="st">                group by ownerid order by n_answered desc limit 1000) most_responsive</span></span>
+<span id="cb57-6"><a href="#cb57-6" aria-hidden="true" tabindex="-1"></a><span class="st">                on A.ownerid = most_responsive.ownerid"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>It might be hard to just come up with that full query all at once. A good strategy is probably to think about creating a view that is the result of the inner query and then have the outer query use that. You can then piece together the complicated query in a modular way. For big databases, you are likely to want to submit this as a single query and not two queries so that the SQL optimizer can determine the best way to do the operations. But you want to start with code that you’re confident will give you the right answer!</p>
+<p>Note we could also have done that query using a subquery in the WHERE statement, as discussed in the next section.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Challenge">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Challenge
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Write a query that finds the number of answers per question, but only answers from users with at least 100 upvotes.</p>
+</div>
+</div>
+<p>Finally one can use subqueries in the SELECT clause to create new variables, but we won’t go into that here.</p>
+</section>
+<section id="subqueries-in-the-where-statement" class="level4">
+<h4 class="anchored" data-anchor-id="subqueries-in-the-where-statement">3.2.2 Subqueries in the WHERE statement</h4>
+<p>Instead of a join, we can use subqueries as a way to combine information across tables, with the subquery involved in a WHERE statement. The subquery creates a set and we then can check for inclusion in (or exclusion from with <code>not in</code>) that set.</p>
+<p>For example, suppose we want to know the average number of UpVotes for users who have posted a question with the tag “python”.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(db, <span class="st">"select avg(upvotes) from users where userid in</span></span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a><span class="st">                (select distinct ownerid from</span></span>
+<span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a><span class="st">                questions join questions_tags</span></span>
+<span id="cb58-4"><a href="#cb58-4" aria-hidden="true" tabindex="-1"></a><span class="st">                on questions.questionid = questions_tags.questionid</span></span>
+<span id="cb58-5"><a href="#cb58-5" aria-hidden="true" tabindex="-1"></a><span class="st">                where tag = 'python')"</span>)       </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  avg(upvotes)
+1     62.72529</code></pre>
+</div>
+</div>
+<p>In some cases one can do a join rather than using a subquery, but in the following example, it fails.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Challenge">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Challenge
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>What’s wrong with the following query as an attempt to answer the question above? (See if you can figure it out before looking at the answer below.)</p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(db, <span class="st">"select avg(upvotes) from questions, questions_tags, users</span></span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a><span class="st">                where questions.questionid = questions_tags.questionid and</span></span>
+<span id="cb60-3"><a href="#cb60-3" aria-hidden="true" tabindex="-1"></a><span class="st">                questions.ownerid = users.userid and</span></span>
+<span id="cb60-4"><a href="#cb60-4" aria-hidden="true" tabindex="-1"></a><span class="st">                tag = 'python'"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>(Answer: In the subquery, we find the IDs of the users we are looking for and then average over the UpVotes of those individuals. In the join version we found all the questions that had a Python tag and averaged over the UpVotes of the individuals associated with those questions. So the latter includes multiple UpVotes values from individuals who have posted multiple Python questions.)</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Challenge">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Challenge
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Write a query that would return the user information for users who have answered a question with the Python tag. We’ve seen this challenge before, but do it now based on a subquery.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled" title="Challenge">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Challenge
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Find the users who have asked but not answered a question. We’ve seen this before, but now make use of subqueries instead of a join.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled" title="Challenge">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Challenge
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>How would you find all the answers associated with the user with the most upvotes?</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled" title="Challenge">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Challenge
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Create a frequency list of the tags used in the top 100 most answered questions. Note there is a way to do this with a JOIN and a way without a JOIN.</p>
+</div>
+</div>
+</section>
+<section id="using-with" class="level4">
+<h4 class="anchored" data-anchor-id="using-with">3.2.3 Using WITH</h4>
+<p>The WITH clause allows you to create a temporary table to then use in an associated SELECT statement. So it provides similar functionality to using a view but without it being a persistent part of the database. The temporary table is only available within the associated SELECT statement. WITH can only occur as part of a query with SELECT.</p>
+<p>Let’s see use of WITH to accomplish what we did with a subquery in the FROM statement above.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(db, <span class="st">"with most_responsive as (</span></span>
+<span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a><span class="st">                select ownerid, count(*) as n_answered from answers</span></span>
+<span id="cb61-3"><a href="#cb61-3" aria-hidden="true" tabindex="-1"></a><span class="st">                group by ownerid order by n_answered desc limit 1000</span></span>
+<span id="cb61-4"><a href="#cb61-4" aria-hidden="true" tabindex="-1"></a><span class="st">                )</span></span>
+<span id="cb61-5"><a href="#cb61-5" aria-hidden="true" tabindex="-1"></a><span class="st">                select * from questions join answers A</span></span>
+<span id="cb61-6"><a href="#cb61-6" aria-hidden="true" tabindex="-1"></a><span class="st">                on questions.questionid = A.questionid</span></span>
+<span id="cb61-7"><a href="#cb61-7" aria-hidden="true" tabindex="-1"></a><span class="st">                join most_responsive on A.ownerid = most_responsive.ownerid"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>One could also replace the subquery in the WHERE statement above using WITH.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(db, <span class="st">"with tmp as (select distinct ownerid from</span></span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a><span class="st">                questions join questions_tags</span></span>
+<span id="cb62-3"><a href="#cb62-3" aria-hidden="true" tabindex="-1"></a><span class="st">                on questions.questionid = questions_tags.questionid</span></span>
+<span id="cb62-4"><a href="#cb62-4" aria-hidden="true" tabindex="-1"></a><span class="st">                where tag = 'python')</span></span>
+<span id="cb62-5"><a href="#cb62-5" aria-hidden="true" tabindex="-1"></a><span class="st">                select avg(UpVotes) from users where userid in</span></span>
+<span id="cb62-6"><a href="#cb62-6" aria-hidden="true" tabindex="-1"></a><span class="st">                tmp"</span>)       </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Finally, you can create multiple temporary tables in the WITH clause, separated by commas. This can help make your query more modular without the complication of creating views that will only be used once.</p>
+</section>
+</section>
+<section id="window-functions" class="level3">
+<h3 class="anchored" data-anchor-id="window-functions">3.3 Window functions</h3>
+<p><a href="https://www.postgresql.org/docs/current/functions-window.html">Window functions</a> provide the ability to perform calculations across sets of rows that are related to the current query row.</p>
+<p>Comments:</p>
+<ul>
+<li>The result of applying a window function is the same number of rows as the input, even though the functionality is similar to <code>group by</code>. Hint: think about the result of <code>group by</code> + <code>mutate</code> in dplyr in R.</li>
+<li>One can apply a window function within groups or across the whole table.</li>
+<li>The functions one can apply include standard aggregation functions such as <code>avg</code> and <code>count</code> as well as non-standard functions (specific to using window functions) such as <code>rank</code>, <code>row_number</code>, and <code>cume_dist</code>.</li>
+<li>Unless you’re simply grouping into categories, you’ll generally need to order the rows for the window function to make sense.</li>
+</ul>
+<p>The syntax is a bit involved, so let’s see with a range of examples:</p>
+<ul>
+<li>Aggregate within groups but with one output value per input row</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Total number of questions for each owner</span></span>
+<span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(db, <span class="st">"select ownerid,</span></span>
+<span id="cb63-3"><a href="#cb63-3" aria-hidden="true" tabindex="-1"></a><span class="st">                count() over (partition by ownerid) as n</span></span>
+<span id="cb63-4"><a href="#cb63-4" aria-hidden="true" tabindex="-1"></a><span class="st">                from questions where ownerid is not NULL limit 10"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   ownerid n
+1       33 1
+2       51 1
+3       56 3
+4       56 3
+5       56 3
+6       58 2
+7       58 2
+8       95 3
+9       95 3
+10      95 3</code></pre>
+</div>
+</div>
+<ul>
+<li>Compute cumulative calculations; note the need for ORDER BY within the PARTITION clause (the other ORDER BY is just for display purposes here):</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb65"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Rank (based on ordering by creationdate) of questions by owner</span></span>
+<span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(db, <span class="st">"select *,</span></span>
+<span id="cb65-3"><a href="#cb65-3" aria-hidden="true" tabindex="-1"></a><span class="st">                rank() over (partition by ownerid order by creationdate) as rank</span></span>
+<span id="cb65-4"><a href="#cb65-4" aria-hidden="true" tabindex="-1"></a><span class="st">                from questions order by ownerid desc limit 10"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   questionid        creationdate score viewcount answercount
+1    70347322 2021-12-14 08:47:41     1       123           0
+2    65620082 2021-01-07 21:19:16     0        44           1
+3    65671366 2021-01-11 17:04:26     0        40           1
+4    66034594 2021-02-03 19:43:00     1       111           2
+5    66237702 2021-02-17 07:49:58     0       174           2
+6    66547208 2021-03-09 12:49:23     2       307           1
+7    66907039 2021-04-01 15:07:28     3      1540           1
+8    67099166 2021-04-14 21:11:18     1       289           1
+9    67355292 2021-05-02 10:28:59    -2      5001           1
+10   67374899 2021-05-03 19:42:10     1        66           0
+   commentcount favoritecount
+1             5            NA
+2             9            NA
+3             0            NA
+4             0            NA
+5             0            NA
+6             0            NA
+7             0            NA
+8             0            NA
+9             5            NA
+10            7            NA
+                                                                                                  title
+1                                            Adjust brightness of Arduino's built-in LED with pyFirmata
+2             How to resolve squiggly lines in HTML files after importing Bootstrap to Angular project?
+3                                               Input form fields are cannot be updated in Angular app?
+4                                                      Select first largest value using TOP 1 in MySQL?
+5                                                                Cron expression in Spring, validation?
+6  Playing with Strategy Design Pattern using lambda expression by following Venkat Subramaniam's book?
+7                                                      GraphQL and Spring Security using @PreAuthorize?
+8                                           Emitting from Flux&lt;String&gt; until one of conditions are met?
+9                                        Cannot open older Angular project with latest Angular version?
+10 How to make vertical scrollbar's height same as window's height and make horizontal scrollbar fixed?
+    ownerid rank
+1  20674445    1
+2  20390023    1
+3  20390023    2
+4  20390023    3
+5  20390023    4
+6  20390023    5
+7  20390023    6
+8  20390023    7
+9  20390023    8
+10 20390023    9</code></pre>
+</div>
+</div>
+<p>(Sidenote: we rely here on the fact that ordering alphabetically by <code>creationdate</code> is equivalent to time ordering.)</p>
+<ul>
+<li>Do a lagged analysis</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb67"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Get previous value (based on ordering by creationdate) by owner</span></span>
+<span id="cb67-2"><a href="#cb67-2" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(db, <span class="st">"select ownerid, creationdate,</span></span>
+<span id="cb67-3"><a href="#cb67-3" aria-hidden="true" tabindex="-1"></a><span class="st">                lag(creationdate, 1) over</span></span>
+<span id="cb67-4"><a href="#cb67-4" aria-hidden="true" tabindex="-1"></a><span class="st">                (partition by ownerid order by creationdate)</span></span>
+<span id="cb67-5"><a href="#cb67-5" aria-hidden="true" tabindex="-1"></a><span class="st">                as previous_date</span></span>
+<span id="cb67-6"><a href="#cb67-6" aria-hidden="true" tabindex="-1"></a><span class="st">                from questions order by ownerid desc limit 5"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   ownerid        creationdate       previous_date
+1 20674445 2021-12-14 08:47:41                &lt;NA&gt;
+2 20390023 2021-01-07 21:19:16                &lt;NA&gt;
+3 20390023 2021-01-11 17:04:26 2021-01-07 21:19:16
+4 20390023 2021-02-03 19:43:00 2021-01-11 17:04:26
+5 20390023 2021-02-17 07:49:58 2021-02-03 19:43:00</code></pre>
+</div>
+</div>
+<p>So one could now calculate the difference between the previous and current date to analyze the time gaps between users posting questions.</p>
+<ul>
+<li>Do an analysis within an arbitrary window of rows based on the values in one of the columns</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb69"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Summarize questions within 15 days of current question </span></span>
+<span id="cb69-2"><a href="#cb69-2" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(db, <span class="st">"select ownerid, creationdate,</span></span>
+<span id="cb69-3"><a href="#cb69-3" aria-hidden="true" tabindex="-1"></a><span class="st">                count() over</span></span>
+<span id="cb69-4"><a href="#cb69-4" aria-hidden="true" tabindex="-1"></a><span class="st">                (partition by ownerid order by julianday(creationdate)</span></span>
+<span id="cb69-5"><a href="#cb69-5" aria-hidden="true" tabindex="-1"></a><span class="st">                range between 15 preceding and 15 following)</span></span>
+<span id="cb69-6"><a href="#cb69-6" aria-hidden="true" tabindex="-1"></a><span class="st">                as n_window</span></span>
+<span id="cb69-7"><a href="#cb69-7" aria-hidden="true" tabindex="-1"></a><span class="st">                from questions where ownerid is not null limit 30"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   ownerid        creationdate n_window
+1       33 2021-06-10 07:58:44        1
+2       51 2021-06-09 18:07:55        1
+3       56 2021-04-21 10:20:45        1
+4       56 2021-11-23 09:40:20        2
+5       56 2021-12-07 14:19:36        2
+6       58 2021-01-22 19:30:22        1
+7       58 2021-06-09 14:56:50        1
+8       95 2021-02-11 19:52:55        1
+9       95 2021-07-21 13:22:25        1
+10      95 2021-10-15 07:28:39        1
+11     101 2021-03-16 18:53:19        1
+12     114 2021-03-11 16:30:45        1
+13     116 2021-02-15 21:58:48        2
+14     116 2021-02-25 03:07:55        2
+15     116 2021-03-24 16:10:27        1
+16     116 2021-04-08 20:48:23        2
+17     116 2021-04-15 19:03:33        2
+18     116 2021-07-12 00:37:47        1
+19     159 2021-03-19 21:48:17        1
+20     159 2021-05-21 17:29:36        2
+21     159 2021-05-26 21:24:16        2
+22     188 2021-08-04 01:48:51        1
+23     199 2021-01-28 23:04:47        1
+24     199 2021-06-07 08:10:25        1
+25     199 2021-10-05 10:10:37        1
+26     199 2021-12-17 23:29:05        1
+27     214 2021-04-29 14:39:04        1
+28     230 2021-03-26 16:30:09        2
+29     230 2021-04-09 13:14:16        2
+30     234 2021-01-04 01:02:03        1</code></pre>
+</div>
+</div>
+<p>There the ‘15 preceding’ and ‘15 following’ mean to include all rows within each ownerid that are within 15 Julian days (based on ‘creationdate’) of each row.</p>
+<p>So one could now analyze bursts of activity.</p>
+<p>One can also choose a fixed number of rows by replacing ‘range’ with ‘rows’. The ROWS and RANGE syntax allow one to specify the <em>window frame</em> in more flexible ways than simply the categories of a categorical variable.</p>
+<p>Ranking becomes more complicated when there are ties. <code>RANK</code> will assign the same value to any ties, and then increment based on the number of ties, e.g., you can get <code>1, 1, 1, 4</code>, if the three lowest value are tied. <code>DENSE RANK</code> will avoid skipping values, giving <code>1, 1, 1, 2</code> in the same situation. <code>ROW_NUMBER</code> just numbers, ignoring ties and resulting in ambiguity when there are ties, giving <code>1, 2, 3, 4</code> in the same situation.</p>
+<p>So the syntax of a window function will generally have these elements:</p>
+<ul>
+<li>a call to some function that calculates within the window and assigns value(s) to the rows in the window</li>
+<li>OVER</li>
+<li>PARTITION BY (optional)</li>
+<li>ORDER BY (optional)</li>
+<li>RANGE or ROW (optional)</li>
+<li>AS (optional)</li>
+</ul>
+<p>You can also name window functions, which comes in handy if you want multiple functions applied to the same window:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb71"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(db, <span class="st">"select ownerid, creationdate,</span></span>
+<span id="cb71-2"><a href="#cb71-2" aria-hidden="true" tabindex="-1"></a><span class="st">                lag(creationdate, 1) over w as lag1,</span></span>
+<span id="cb71-3"><a href="#cb71-3" aria-hidden="true" tabindex="-1"></a><span class="st">                lag(creationdate, 2) over w as lag2</span></span>
+<span id="cb71-4"><a href="#cb71-4" aria-hidden="true" tabindex="-1"></a><span class="st">                from questions where ownerid is not null</span></span>
+<span id="cb71-5"><a href="#cb71-5" aria-hidden="true" tabindex="-1"></a><span class="st">                window w as (partition by ownerid order by creationdate)</span></span>
+<span id="cb71-6"><a href="#cb71-6" aria-hidden="true" tabindex="-1"></a><span class="st">                order by ownerid limit 5"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  ownerid        creationdate                lag1
+1      33 2021-06-10 07:58:44                &lt;NA&gt;
+2      51 2021-06-09 18:07:55                &lt;NA&gt;
+3      56 2021-04-21 10:20:45                &lt;NA&gt;
+4      56 2021-11-23 09:40:20 2021-04-21 10:20:45
+5      56 2021-12-07 14:19:36 2021-11-23 09:40:20
+                 lag2
+1                &lt;NA&gt;
+2                &lt;NA&gt;
+3                &lt;NA&gt;
+4                &lt;NA&gt;
+5 2021-04-21 10:20:45</code></pre>
+</div>
+</div>
+<p>What does that query do?</p>
+<p>Finally, you can use window functions on the entire table, without partitioning.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb73"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Summarize questions within 15 (decimal) days of current question </span></span>
+<span id="cb73-2"><a href="#cb73-2" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(db, <span class="st">"select ownerid, creationdate,</span></span>
+<span id="cb73-3"><a href="#cb73-3" aria-hidden="true" tabindex="-1"></a><span class="st">                count() over</span></span>
+<span id="cb73-4"><a href="#cb73-4" aria-hidden="true" tabindex="-1"></a><span class="st">                (order by julianday(creationdate)</span></span>
+<span id="cb73-5"><a href="#cb73-5" aria-hidden="true" tabindex="-1"></a><span class="st">                range between 15 preceding and 15 following)</span></span>
+<span id="cb73-6"><a href="#cb73-6" aria-hidden="true" tabindex="-1"></a><span class="st">                as n_window</span></span>
+<span id="cb73-7"><a href="#cb73-7" aria-hidden="true" tabindex="-1"></a><span class="st">                from questions where ownerid is not null limit 30"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    ownerid        creationdate n_window
+1  13708122 2021-01-01 00:00:01    65899
+2  14920712 2021-01-01 00:00:59    65901
+3  10407800 2021-01-01 00:01:40    65901
+4  14593381 2021-01-01 00:02:06    65901
+5  14783072 2021-01-01 00:02:09    65901
+6  14853091 2021-01-01 00:02:17    65901
+7  14920717 2021-01-01 00:03:01    65902
+8  11645517 2021-01-01 00:03:20    65902
+9  10197813 2021-01-01 00:04:32    65903
+10 14694500 2021-01-01 00:05:43    65906
+11  6335637 2021-01-01 00:05:46    65906
+12  2242096 2021-01-01 00:05:47    65906
+13  9574155 2021-01-01 00:06:09    65908
+14  6281777 2021-01-01 00:06:15    65908
+15 14260231 2021-01-01 00:07:02    65908
+16 14920186 2021-01-01 00:07:03    65908
+17 13103324 2021-01-01 00:08:01    65909
+18  1127065 2021-01-01 00:09:37    65918
+19 10841085 2021-01-01 00:10:40    65919
+20  7336289 2021-01-01 00:11:05    65920
+21 14634129 2021-01-01 00:11:17    65920
+22 14920707 2021-01-01 00:12:16    65924
+23 14461250 2021-01-01 00:13:16    65927
+24 14920741 2021-01-01 00:13:23    65927
+25 11035194 2021-01-01 00:16:10    65934
+26   735332 2021-01-01 00:17:34    65940
+27 10707986 2021-01-01 00:19:19    65944
+28 12743240 2021-01-01 00:20:09    65944
+29  1098815 2021-01-01 00:21:35    65950
+30 14496928 2021-01-01 00:21:42    65951</code></pre>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled" title="Challenge">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Challenge
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Use a window function to compute the average viewcount for each ownerid for the 10 questions preceding each question.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled" title="Challenge">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Challenge
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>For each question, get the answer given by the user with the maximum reputation amongst users answering the question.</p>
+<p>Hint: you’ll need to first create a subquery that determines the maximum reputation amongst the answers for each question and then use that to get the answer of interest for each question.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled" title="Challenge (hard)">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Challenge (hard)
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Find the users who have asked one question that is highly-viewed (viewcount &gt; 1000) with their remaining questions not highly-viewed (viewcount &lt; 20 for all other questions).</p>
+</div>
+</div>
+</section>
+<section id="putting-it-all-together-to-do-complicated-queries" class="level3">
+<h3 class="anchored" data-anchor-id="putting-it-all-together-to-do-complicated-queries">3.4 Putting it all together to do complicated queries</h3>
+<p>Here are some real-world style questions one might try to create queries to answer. The context for these questions is a situation in which you have data on user sessions on a website or data on messages between users.</p>
+<ol type="1">
+<li>Given a table of user sessions with the format</li>
+</ol>
+<pre><code>date | session_id | user_id | session_time</code></pre>
+<p>calculate the distribution of the average daily total session time in the last month. I.e., you want to get each user’s daily average and then find the distribution over users. The output should be something like:</p>
+<pre><code>minutes_per_day | number_of_users</code></pre>
+<ol start="2" type="1">
+<li>Consider a table of messages of the form</li>
+</ol>
+<pre><code>sender_id | receiver_id | message_id</code></pre>
+<p>For each user, find the three users they message the most.</p>
+<ol start="3" type="1">
+<li>Suppose you have are running an online experiment and have a table on the experimental design:</li>
+</ol>
+<pre><code>user_id | test_group | date_first_exposed</code></pre>
+<p>Suppose you also have a messages table that indicates if each message was sent on web or mobile:</p>
+<pre><code>date | sender_id | receiver_id | message_id | interface (web or mobile)</code></pre>
+<p>What is the average (over users) in the average number of messages sent per day for each test group if you look at the users who have sent messages only on mobile in the last month.</p>
+<section id="challenge-questions-with-the-stack-overflow-data" class="level4">
+<h4 class="anchored" data-anchor-id="challenge-questions-with-the-stack-overflow-data">Challenge questions with the Stack Overflow data</h4>
+<p>If we take the three challenges above and translate into problems for the Stack Overflow data, one could consider the following three problems.</p>
+<ol type="1">
+<li>For each user who has asked at least one question find the average number of questions per month. Then determine the distribution of that average across the users. (I.e., determine the values that would go into a histogram of the average number of questions per month across users.) The output should be something like:</li>
+</ol>
+<pre><code>number of questions per month (rounded) | number of users</code></pre>
+<p>Next try to figure out how to include the users who have asked no questions. Hint: think about how to get NULL values included and then count a column containing such values.</p>
+<ol start="2" type="1">
+<li>For each user, find the three most common tags they apply to their questions.</li>
+</ol>
+<p>The output should be something like:</p>
+<pre><code>userid | tag | count</code></pre>
+<p>Hints: You’ll need to use subqueries and the final selection of just the top 3 tags will need to be done in its own query and not as part of defining a field using a window function.</p>
+<ol start="3" type="1">
+<li>Consider trying to determine whether users who answer a lot of questions also ask a lot of questions. Grouping the users based on the number of questions they’ve answered (0, 1, 2, etc.), determine the aerage number of questions per month for each group.</li>
+</ol>
+<p>The output should be something like:</p>
+<pre><code>number of answers | average number of questions per month</code></pre>
+<p>You’ll want to work through this in pieces. Try to think about the initial tables you would need and then build up your query in a nested fashion.</p>
+</section>
+</section>
+<section id="a-summary-of-sql-syntax-by-example" class="level3">
+<h3 class="anchored" data-anchor-id="a-summary-of-sql-syntax-by-example">3.5 A summary of SQL syntax by example</h3>
+<p>This section shows the syntax for various queries so as to demonstrate syntax by example. It may be useful to test your understanding by figuring out (either with or without running the query) what the query does.</p>
+<section id="selecting-columns" class="level4">
+<h4 class="anchored" data-anchor-id="selecting-columns">Selecting columns</h4>
+<pre><code>select ownerid, title from questions
+select ownerid, title from questions limit 5
+select * from questions
+select * from questions order by answercount desc
+select count(*) as n from questions
+select count(ownerid) as n from questions
+select sum(answercount) from questions</code></pre>
+</section>
+<section id="using-distinct" class="level4">
+<h4 class="anchored" data-anchor-id="using-distinct">Using <code>distinct</code></h4>
+<pre><code>select distinct tag from questions_tags limit 15
+select distinct ownerid, answercount from questions limit 15
+select count(distinct tag) from questions_tags limit 15</code></pre>
+</section>
+<section id="filtering-rows-with-where" class="level4">
+<h4 class="anchored" data-anchor-id="filtering-rows-with-where">Filtering rows with <code>where</code></h4>
+<pre><code>select * from questions where answercount &gt; 40
+select * from questions where answercount &gt; 40 order by answercount desc
+select * from questions where answercount = 10 limit 5
+select * from questions_tags where tag like 'r-%' limit 10
+select * from questions_tags where tag similar to 'r-%|%-r|r|%-r-%' limit 10
+select * from questions_tags where tag in ('java','r','python') limit 10</code></pre>
+</section>
+<section id="grouping-and-reductionaggregation" class="level4">
+<h4 class="anchored" data-anchor-id="grouping-and-reductionaggregation">Grouping and reduction/aggregation</h4>
+<pre><code>select tag, count(*) as n from questions_tags \
+    group by tag
+
+select tag, count(*) as n from questions_tags \
+    group by tag having n &gt; 1000
+    
+select ownerid, count(*) as n from questions \
+    group by ownerid order by n desc limit 15
+    
+select ownerid, sum(viewcount) as viewed from questions \
+    group by ownerid
+
+select *, sum(viewcount) as viewed from questions \
+    group by ownerid
+
+select answercount, commentcount, count(*) as n from questions \
+    group by answercount, commentcount
+
+select tag, count(*) as n from questions_tags \
+    where tag like 'python%' group by tag having n &gt; 1000</code></pre>
+<p>The query above starting with <code>select *, sum(viewcount)</code> behaves differently in SQLite and DuckDB.</p>
+</section>
+<section id="joins-1" class="level4">
+<h4 class="anchored" data-anchor-id="joins-1">Joins</h4>
+<p>Inner joins</p>
+<pre><code>select * from questions join questions_tags \
+    on questions.questionid = questions_tags.questionid
+    
+select * from questions Q join questions_tags T \
+    on Q.questionid = T.questionid
+    
+select * from questions Q join questions_tags T \
+    using(questionid)
+    
+select * from questions Q, questions_tags T \
+    where Q.questionid = T.questionid</code></pre>
+<p>Outer joins</p>
+<pre><code>select * from questions Q left outer join answers A \
+    on Q.questionid = A.questionid 
+    
+select * from questions Q left outer join answers A \
+    on Q.questionid = A.questionid \
+    where A.creationdate is NULL
+    
+# Note no right outer join in SQLite so here we reverse order of answers and questions \
+select * from questions Q right outer join answers A \
+    on Q.questionid = A.questionid \
+    where Q.creationdate is NULL
+
+select Q.questionid, count(*) as n_tags from questions Q join questions_tags T \
+    on Q.questionid = T.questionid \
+    group by Q.questionid</code></pre>
+<p>Self joins</p>
+<p>First we’ll set up a view (a temporary) table that combines questions and tags for ease of illustrating ideas around self joins.</p>
+<pre><code>create view QT as select * from questions join questions_tags using(questionid)</code></pre>
+<p>In small groups, discuss what these queries do.</p>
+<pre><code>select * from QT as QT1 join QT as QT2 \
+    using(questionid)
+
+select * from QT as QT1 join QT as QT2 \
+    using(questionid) where QT1.tag &lt; QT2.tag
+    
+select QT1.tag, QT2.tag, count(*) as n from QT as QT1 join QT as QT2 \
+    using(questionid) where QT1.tag &lt; QT2.tag \
+    group by QT1.tag, QT2.tag order by n desc limit 10
+
+
+select * from QT as QT1 join QT as QT2 using(ownerid)</code></pre>
+</section>
+<section id="set-operations" class="level4">
+<h4 class="anchored" data-anchor-id="set-operations">Set operations</h4>
+<pre><code>select ownerid from QT where tag='python' \
+    intersect \
+    select ownerid from QT where tag='r'
+    
+select ownerid from QT where tag='python' \
+    except \
+    select ownerid from QT where tag='r'
+    
+select ownerid from QT where tag='python' \
+    union \
+    select ownerid from QT where tag='r'
+
+select userid, displayname, location from users \
+    where location like '%United States%' \
+    intersect \
+    select userid, displayname, location from users \
+    where reputation &gt; 10</code></pre>
+</section>
+<section id="subqueries-1" class="level4">
+<h4 class="anchored" data-anchor-id="subqueries-1">Subqueries</h4>
+<pre><code>select * from \
+    answers A \
+    join \
+    ( select ownerid, count(*) as n_answered from answers \
+        group by ownerid order by n_answered desc limit 1000 ) most_responsive \
+    on A.ownerid = most_responsive.ownerid</code></pre>
+<pre><code>select avg(upvotes) from users \
+    where userid in \
+    ( select distinct ownerid from \
+    questions join questions_tags using(questionid) \
+    where tag = 'python' )</code></pre>
+</section>
+</section>
+</section>
+<section id="efficient-sql-queries" class="level2">
+<h2 class="anchored" data-anchor-id="efficient-sql-queries">4 Efficient SQL queries</h2>
+<section id="overview" class="level3">
+<h3 class="anchored" data-anchor-id="overview">4.1 Overview</h3>
+<p>In general, your DBMS should examine your query and try to implement it in the fastest way possible.</p>
+<p>Some tips for faster queries include:</p>
+<ul>
+<li>use indexes on fields used in WHERE and JOIN clauses (see next section)
+<ul>
+<li>try to avoid wildcards at the start of LIKE string comparison when you have an index on the field (as this requires looking at all of the rows)</li>
+<li>similarly try to avoid using functions on indexed columns in a WHERE clause as this requires doing the calculation on all the rows in order to check the condition</li>
+</ul></li>
+<li>only select the columns you really need</li>
+<li>create (temporary) tables to store intermediate results that you need to query repeatedly</li>
+<li>use filtering (WHERE clauses) in inner statements when you have nested subqueries</li>
+<li>use LIMIT as seen in the examples here if you only need some of the rows a query returns</li>
+</ul>
+</section>
+<section id="indexes" class="level3">
+<h3 class="anchored" data-anchor-id="indexes">4.2 Indexes</h3>
+<p>An index is an ordering of rows based on one or more fields. DBMS use indexes to look up values quickly, either when filtering (if the index is involved in the WHERE condition) or when doing joins (if the index is involved in the JOIN condition). So in general you want your tables to have indexes.</p>
+<p>DBMS use indexing to provide sub-linear time lookup. Without indexes, a database needs to scan through every row sequentially, which is called linear time lookup – if there are n rows, the lookup is <span class="math inline">\(O(n)\)</span> in computational cost. With indexes, lookup may be logarithmic – O(log(n)) – (if using tree-based indexes) or constant time – O(1) – (if using hash-based indexes). A binary tree-based search is logarithmic; at each step through the tree you can eliminate half of the possibilities.</p>
+<p>Here’s how we create an index, with some time comparison for a simple query.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb94"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb94-1"><a href="#cb94-1" aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>(<span class="fu">dbGetQuery</span>(db, <span class="st">"select * from questions where viewcount &gt; 10000"</span>))  <span class="co"># 2.4 seconds</span></span>
+<span id="cb94-2"><a href="#cb94-2" aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>(<span class="fu">dbExecute</span>(db, <span class="st">"create index count_index on questions (viewcount)"</span>)) <span class="co"># 5.6 seconds</span></span>
+<span id="cb94-3"><a href="#cb94-3" aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>(<span class="fu">dbGetQuery</span>(db, <span class="st">"select * from questions where viewcount &gt; 10000"</span>))   <span class="co"># 0.9 seconds</span></span>
+<span id="cb94-4"><a href="#cb94-4" aria-hidden="true" tabindex="-1"></a><span class="do">## restore earlier state by removing index</span></span>
+<span id="cb94-5"><a href="#cb94-5" aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>(<span class="fu">dbExecute</span>(db, <span class="st">"drop index count_index"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>In many contexts (but not the example above), an index can save huge amounts of time. So if you’re working with a database and speed is important, check to see if there are indexes.</p>
+<p>One downside of indexes is that creation of indexes can be very time-consuming, as seen above. And if the database is updated frequently, this could be detrimental.</p>
+<p>Finally, using indexes in a lookup is not always advantageous, as discussed next.</p>
+<section id="index-lookup-vs.-sequential-scan" class="level4">
+<h4 class="anchored" data-anchor-id="index-lookup-vs.-sequential-scan">4.2.1 Index lookup vs.&nbsp;sequential scan</h4>
+<p>Using an index is good in that can go to the data needed very quickly based on random access to the disk locations of the data of interest, but if it requires the computer to examine a large number of rows, it may not be better than sequential scan. An advantage of sequential scan is that it will make good use of the CPU cache, reading chunks of data and then accessing the individual pieces of data quickly.</p>
+<p>For example, if you compare the change the query above that filters on viewcount to use a much smaller threshold than 10000, you will probably see that the time used when there is an index is more than without an index.</p>
+<p>Ideally you’d do sequential scan of exactly the subset of the rows that you need, with that subset available in contiguous storage.</p>
+</section>
+<section id="how-indexes-work" class="level4">
+<h4 class="anchored" data-anchor-id="how-indexes-work">4.2.2 How indexes work</h4>
+<p>Indexes are often implemented using tree-based methods. For example in Postgres, b-tree indexes are used for indexes on things that have an ordering. Trees are basically like decision trees - at each node in the tree, there is a condition that sends one down the left or right branch (there might also be more than two branches. Eventually, one reaches the leaves of the tree, which have the actual values that one is looking for. Associated with each value is the address of where that row of data is stored. With a tree-based index, the time cost of b-tree lookup is logarithmic (based on the binary lookup), so it does grow with the number of elements in the table, but it does so slowly. The lookup process is that given a value (which would often be referred to as a <code>key</code>), one walks down the tree based on comparing the value to the condition at each split in the tree until one finds the elements corresponding to the value and then getting the addresses for where the desired rows are stored.</p>
+<p>Here’s <a href="https://use-the-index-luke.com/sql/anatomy/the-tree">some information</a> on how such trees are constructed and searched.</p>
+<p>In SQLite, indexes are implemented by creating a separate index table that maps from the value to the row index in the indexed table, allowing for fast lookup of a row.</p>
+</section>
+</section>
+<section id="sql-query-plans-and-explain" class="level3">
+<h3 class="anchored" data-anchor-id="sql-query-plans-and-explain">4.3 SQL query plans and EXPLAIN</h3>
+<p>You can actually examine the query plan that the system is going to use for a query using the EXPLAIN keyword. I’d suggest trying this in Postgres as the output is more interpretable than SQLite.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb95"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb95-1"><a href="#cb95-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(db, <span class="st">"explain select * from webtraffic where count &gt; 500"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>In PostgreSQL that gives the following:</p>
+<pre><code>                                                                        QUERY PLAN
+1                             Gather  (cost=1000.00..388634.17 rows=8513 width=61)
+2                                                               Workers Planned: 2
+3   -&gt;  Parallel Seq Scan on webtraffic  (cost=0.00..386782.88 rows=3547 width=61)
+4                                                            Filter: (count &gt; 500)</code></pre>
+<p>The “Workers Planned: 2” seems to indicate that there will be some parallelization used, even without us asking for that.</p>
+<p>Now let’s see what query plan is involved in a join and when using indexes.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb97"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb97-1"><a href="#cb97-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(db, <span class="st">"explain select * from questions join questions_tags on</span></span>
+<span id="cb97-2"><a href="#cb97-2" aria-hidden="true" tabindex="-1"></a><span class="st">               questions.questionid = questions_tags.questionid"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<pre><code>                                                                         QUERY PLAN
+1                   Hash Join  (cost=744893.91..2085537.32 rows=39985376 width=118)
+2                     Hash Cond: (questions_tags.questionid = questions.questionid)
+3     -&gt;  Seq Scan on questions_tags  (cost=0.00..634684.76 rows=39985376 width=16)
+4                     -&gt;  Hash  (cost=365970.96..365970.96 rows=13472796 width=102)
+5         -&gt;  Seq Scan on questions  (cost=0.00..365970.96 rows=13472796 width=102)</code></pre>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb99"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb99-1"><a href="#cb99-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(db, <span class="st">"explain select * from questions join questions_tags on</span></span>
+<span id="cb99-2"><a href="#cb99-2" aria-hidden="true" tabindex="-1"></a><span class="st">               questions.questionid = questions_tags.questionid where tag like 'python'"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<pre><code>                                                                                                QUERY PLAN
+1                                                 Gather  (cost=15339.05..899172.92 rows=687748 width=118)
+2                                                                                       Workers Planned: 2
+3                                        -&gt;  Nested Loop  (cost=14339.05..829398.12 rows=286562 width=118)
+4         -&gt;  Parallel Bitmap Heap Scan on questions_tags  (cost=14338.61..252751.63 rows=286562 width=16)
+5                                                                          Filter: (tag ~~ 'python'::text)
+6               -&gt;  Bitmap Index Scan on questions_tags_tag_idx  (cost=0.00..14166.68 rows=687748 width=0)
+7                                                                       Index Cond: (tag = 'python'::text)
+8                     -&gt;  Index Scan using questions_pkey on questions  (cost=0.43..2.01 rows=1 width=102)
+9                                                     Index Cond: (questionid = questions_tags.questionid)</code></pre>
+<p>Here’s additional information on interpreting what you see: <a href="https://www.postgresql.org/docs/current/static/using-explain.html">https://www.postgresql.org/docs/current/static/using-explain.html</a>.</p>
+<p>The main thing to look for is to see if the query will be done by using an index or by sequential scan (i.e., looking at all the rows).</p>
+<p>Finally, let’s compare the query plans for an inner join versus a cross join followed by a WHERE that produces equivalent results.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb101"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb101-1"><a href="#cb101-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(db, <span class="st">"explain select * from questions join questions_tags on</span></span>
+<span id="cb101-2"><a href="#cb101-2" aria-hidden="true" tabindex="-1"></a><span class="st">               questions.questionid = questions_tags.questionid"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<pre><code>                                                                         QUERY PLAN
+1                   Hash Join  (cost=744893.91..2085537.32 rows=39985376 width=118)
+2                     Hash Cond: (questions_tags.questionid = questions.questionid)
+3     -&gt;  Seq Scan on questions_tags  (cost=0.00..634684.76 rows=39985376 width=16)
+4                     -&gt;  Hash  (cost=365970.96..365970.96 rows=13472796 width=102)
+5         -&gt;  Seq Scan on questions  (cost=0.00..365970.96 rows=13472796 width=102)
+6                                                                              JIT:
+7                                                                     Functions: 10
+8       Options: Inlining true, Optimization true, Expressions true, Deforming true</code></pre>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb103"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb103-1"><a href="#cb103-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(db, <span class="st">"explain select * from questions cross join questions_tags where</span></span>
+<span id="cb103-2"><a href="#cb103-2" aria-hidden="true" tabindex="-1"></a><span class="st">               questions.questionid = questions_tags.questionid"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<pre><code>                                                                         QUERY PLAN
+1                   Hash Join  (cost=744893.91..2085537.32 rows=39985376 width=118)
+2                     Hash Cond: (questions_tags.questionid = questions.questionid)
+3     -&gt;  Seq Scan on questions_tags  (cost=0.00..634684.76 rows=39985376 width=16)
+4                     -&gt;  Hash  (cost=365970.96..365970.96 rows=13472796 width=102)
+5         -&gt;  Seq Scan on questions  (cost=0.00..365970.96 rows=13472796 width=102)
+6                                                                              JIT:
+7                                                                     Functions: 10
+8       Options: Inlining true, Optimization true, Expressions true, Deforming true</code></pre>
+<p>We see that the query plan indicates the two queries are using the same steps, with the same cost.</p>
+</section>
+<section id="disk-caching" class="level3">
+<h3 class="anchored" data-anchor-id="disk-caching">4.4 Disk caching</h3>
+<p>You might think that database queries will generally be slow (and slower than in-memory manipulation such as in R or Python when all the data can fit in memory) because the database stores the data on disk. However, as mentioned on the introduction page, the operating system will generally cache files/data in memory when it reads from disk. Then if that information is still in memory the next time it is needed, it will be much faster to access it the second time around. Other processes might need memory and ‘invalidate’ the cache, but often once the data is read once, the database will be able to do queries quite quickly. This also means that even if you’re using a database, you can benefit from a machine with a lot of memory if you have a large database (ideally a machine with rather more RAM than the size of the table(s) you’ll be accessing).</p>
+<p>Given this, it generally won’t be helpful to force your database to reside in memory (e.g., using <code>:memory:</code> for SQLite or putting the database on a RAM disk).</p>
+</section>
+<section id="parallelization-and-partitioning" class="level3">
+<h3 class="anchored" data-anchor-id="parallelization-and-partitioning">4.5 Parallelization and partitioning</h3>
+<p>To speed up your work, one might try to split up one’s queries into multiple queries that you run in parallel. However, you’re likely to have problems with parallel queries from a single R or Python session.</p>
+<p>However, multiple queries to the same database from separate R or Python sessions will generally run fine but can compete for access to disk/memory. That said, in some basic experiments, the slowdown was moderate, so one may be able to parallelize across processes in a manual fashion.</p>
+<p>As of version 9.6 of Postgres, there is some capability for doing parallel queries: <a href="https://www.postgresql.org/docs/current/static/parallel-query.html">https://www.postgresql.org/docs/current/static/parallel-query.html</a>.</p>
+<p>Finally Postgres supports partitioning tables. Generally one would divide a large table into smaller tables based on unique values of a key. For example if your data had timetamps, you could partition into subtables for each month or each year. This would allow faster queries when considering data that reside on one or a small number of partitions and could also ease manual implementation of parallelization. Here’s some information: https://www.postgresql.org/docs/current/static/ddl-partitioning.html.</p>
+</section>
+<section id="duckdb" class="level3">
+<h3 class="anchored" data-anchor-id="duckdb">4.6 DuckDB</h3>
+<p>For a serverless database, DuckDB is a nice alternative to SQLite that may speed up queries substantially. DuckDB stores data column-wise, which can lead to big speedups when doing queries operating on large portions of tables (so-called “online analytical processing” (OLAP)). Also, in this case, working with a column-wise format may faster than using an index.</p>
+<p>Let’s compare timing using DuckDB and SQLite versions of the StackOverflow database.</p>
+<p>First, we’ll see that simple queries that have to process an entire column can be much faster in DuckDB.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb105"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb105-1"><a href="#cb105-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(duckdb)</span>
+<span id="cb105-2"><a href="#cb105-2" aria-hidden="true" tabindex="-1"></a>drv <span class="ot">&lt;-</span> <span class="fu">duckdb</span>()</span>
+<span id="cb105-3"><a href="#cb105-3" aria-hidden="true" tabindex="-1"></a>dbFilename <span class="ot">&lt;-</span> <span class="st">'stackoverflow-2021.duckdb'</span></span>
+<span id="cb105-4"><a href="#cb105-4" aria-hidden="true" tabindex="-1"></a>dbDuck <span class="ot">&lt;-</span> <span class="fu">dbConnect</span>(drv, <span class="fu">file.path</span>(dir, dbFilename))</span>
+<span id="cb105-5"><a href="#cb105-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb105-6"><a href="#cb105-6" aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>(<span class="fu">dbGetQuery</span>(db, <span class="st">"select count(ownerid) from questions"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   user  system elapsed 
+  0.218   0.175   1.786 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb107"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb107-1"><a href="#cb107-1" aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>(<span class="fu">dbGetQuery</span>(dbDuck, <span class="st">"select count(ownerid) from questions"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   user  system elapsed 
+  0.063   0.008   0.133 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb109"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb109-1"><a href="#cb109-1" aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>(result1 <span class="ot">&lt;-</span> <span class="fu">dbGetQuery</span>(db, <span class="st">"select distinct ownerid from questions"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   user  system elapsed 
+  1.779   1.061   2.986 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb111"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb111-1"><a href="#cb111-1" aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>(result2 <span class="ot">&lt;-</span> <span class="fu">dbGetQuery</span>(dbDuck, <span class="st">"select distinct ownerid from questions"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   user  system elapsed 
+  0.204   0.026   0.075 </code></pre>
+</div>
+</div>
+<p>Now let’s compare timings for some of the queries we ran previously. There are substantial speed-ups in both cases.</p>
+<p>Here’s a simple join with a filter.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb113"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb113-1"><a href="#cb113-1" aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>(result1 <span class="ot">&lt;-</span> <span class="fu">dbGetQuery</span>(db, <span class="st">"select * from questions join questions_tags </span></span>
+<span id="cb113-2"><a href="#cb113-2" aria-hidden="true" tabindex="-1"></a><span class="st">                           on questions.questionid = questions_tags.questionid </span></span>
+<span id="cb113-3"><a href="#cb113-3" aria-hidden="true" tabindex="-1"></a><span class="st">                           where tag = 'python'"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   user  system elapsed 
+  3.202   0.738   4.490 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb115"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb115-1"><a href="#cb115-1" aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>(result2 <span class="ot">&lt;-</span> <span class="fu">dbGetQuery</span>(dbDuck, <span class="st">"select * from questions join questions_tags </span></span>
+<span id="cb115-2"><a href="#cb115-2" aria-hidden="true" tabindex="-1"></a><span class="st">                           on questions.questionid = questions_tags.questionid </span></span>
+<span id="cb115-3"><a href="#cb115-3" aria-hidden="true" tabindex="-1"></a><span class="st">                           where tag = 'python'"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   user  system elapsed 
+  0.955   0.146   1.228 </code></pre>
+</div>
+</div>
+<p>And here’s a subquery in the FROM statement.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb117"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb117-1"><a href="#cb117-1" aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>(result1 <span class="ot">&lt;-</span> <span class="fu">dbGetQuery</span>(db, <span class="st">"select * from questions join answers A</span></span>
+<span id="cb117-2"><a href="#cb117-2" aria-hidden="true" tabindex="-1"></a><span class="st">                on questions.questionid = A.questionid</span></span>
+<span id="cb117-3"><a href="#cb117-3" aria-hidden="true" tabindex="-1"></a><span class="st">                join</span></span>
+<span id="cb117-4"><a href="#cb117-4" aria-hidden="true" tabindex="-1"></a><span class="st">                (select ownerid, count(*) as n_answered from answers</span></span>
+<span id="cb117-5"><a href="#cb117-5" aria-hidden="true" tabindex="-1"></a><span class="st">                group by ownerid order by n_answered desc limit 1000) most_responsive</span></span>
+<span id="cb117-6"><a href="#cb117-6" aria-hidden="true" tabindex="-1"></a><span class="st">                on A.ownerid = most_responsive.ownerid"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   user  system elapsed 
+  8.564   1.973  11.381 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb119"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb119-1"><a href="#cb119-1" aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>(result2 <span class="ot">&lt;-</span> <span class="fu">dbGetQuery</span>(dbDuck, <span class="st">"select * from questions join answers A</span></span>
+<span id="cb119-2"><a href="#cb119-2" aria-hidden="true" tabindex="-1"></a><span class="st">                on questions.questionid = A.questionid</span></span>
+<span id="cb119-3"><a href="#cb119-3" aria-hidden="true" tabindex="-1"></a><span class="st">                join</span></span>
+<span id="cb119-4"><a href="#cb119-4" aria-hidden="true" tabindex="-1"></a><span class="st">                (select ownerid, count(*) as n_answered from answers</span></span>
+<span id="cb119-5"><a href="#cb119-5" aria-hidden="true" tabindex="-1"></a><span class="st">                group by ownerid order by n_answered desc limit 1000) most_responsive</span></span>
+<span id="cb119-6"><a href="#cb119-6" aria-hidden="true" tabindex="-1"></a><span class="st">                on A.ownerid = most_responsive.ownerid"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   user  system elapsed 
+  2.324   0.142   1.670 </code></pre>
+</div>
+</div>
+<p>DuckDB will run in parallel by using multiple threads, which can help speed up computations on top of efficiencies available through the column-wise storage, though with the speed of the DuckDB queries above, I don’t think parallelization made much difference in those cases.</p>
+<p>You can manage the number of threads like this:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb121"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb121-1"><a href="#cb121-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbExecute</span>(dbDuck, <span class="st">"set threads to 4"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb123"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb123-1"><a href="#cb123-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(dbDuck, <span class="st">"SELECT current_setting('threads')"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  current_setting('threads')
+1                          4</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb125"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb125-1"><a href="#cb125-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbDisconnect</span>(dbDuck, <span class="at">shutdown =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Finally, DuckDB databases tend to take up less space on disk than SQLite databases, because the column-wise storage allows for better compression.</p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/computing\.stat\.berkeley\.edu\/tutorial-databases");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

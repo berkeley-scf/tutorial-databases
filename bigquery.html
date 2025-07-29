@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.31">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Data Warehouses</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-e1a5c8363afafaef2c763b6775fbf3ca.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-ff803dae0bae9edb91fb3cd2582d8e33.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+
+<body class="nav-sidebar docked quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./bigquery.html">Databases in the Cloud</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
+      <a href="https://statistics.berkeley.edu" class="sidebar-logo-link">
+      <img src="./assets/img/logo.svg" alt="UC Berkeley Statistics logo" class="sidebar-logo py-0 d-lg-inline d-none">
+      </a>
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">SCF Databases/SQL Tutorial</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/berkeley-scf/tutorial-databases" title="" class="quarto-navigation-tool px-1" aria-label="GitHub"><i class="bi bi-github"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Getting Started</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./sql.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">SQL</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./db-management.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Database Management</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./bigquery.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Databases in the Cloud</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Big Data in R and Python" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">R-and-Python.qmd</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./license.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">License</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#overview" id="toc-overview" class="nav-link active" data-scroll-target="#overview">1 Overview</a></li>
+  <li><a href="#running-queries" id="toc-running-queries" class="nav-link" data-scroll-target="#running-queries">2 Running queries</a>
+  <ul class="collapse">
+  <li><a href="#using-the-bigquery-browser-based-interface" id="toc-using-the-bigquery-browser-based-interface" class="nav-link" data-scroll-target="#using-the-bigquery-browser-based-interface">2.1 Using the BigQuery browser-based interface</a></li>
+  <li><a href="#running-queries-from-r-or-python" id="toc-running-queries-from-r-or-python" class="nav-link" data-scroll-target="#running-queries-from-r-or-python">2.2 Running queries from R or Python</a></li>
+  </ul></li>
+  <li><a href="#getting-data-into-bigquery" id="toc-getting-data-into-bigquery" class="nav-link" data-scroll-target="#getting-data-into-bigquery">3 Getting data into BigQuery</a>
+  <ul class="collapse">
+  <li><a href="#loading-a-local-file" id="toc-loading-a-local-file" class="nav-link" data-scroll-target="#loading-a-local-file">3.1 Loading a local file</a></li>
+  <li><a href="#loading-from-google-cloud-storage" id="toc-loading-from-google-cloud-storage" class="nav-link" data-scroll-target="#loading-from-google-cloud-storage">3.2 Loading from Google Cloud Storage</a></li>
+  <li><a href="#permissions" id="toc-permissions" class="nav-link" data-scroll-target="#permissions">3.3 Permissions</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Data Warehouses</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="overview" class="level2">
+<h2 class="anchored" data-anchor-id="overview">1 Overview</h2>
+<p><em>Data warehouses</em> such as Google BigQuery and Amazon RedShift allow you to create a data repository in which the data are structured like in a database (tables, fields, etc.), stored in the cloud, and queried efficiently (and in parallel) using the cloud provider’s infrastructure. Storage is by column, which allows for efficient queries when doing queries operating on large portions of tables.</p>
+<p>BigQuery has some nice advantages over RedShift for one-off analyses (as opposed to regular, repeated operations). In particular, it requires less configuration/administration. BigQuery is ‘serverless’. Instead of you having to set up virtual machines to do the queries, BigQuery automatically sets up the computational resources for your query, scaled as appropriate for the size of the query.</p>
+<p>Some features of BigQuery include:</p>
+<ul>
+<li>You can manage access to your datasets for different GCP users.</li>
+<li>You can query <a href="https://cloud.google.com/datasets">publicly available datasets</a>.</li>
+<li>You can query “external tables” to access data not in a BigQuery dataset.</li>
+</ul>
+<div class="callout-danger" title="BigQuery interface may have changed">
+<p>The instructions here were prepared in 2023 and the interface may have changed since then.</p>
+</div>
+</section>
+<section id="running-queries" class="level2">
+<h2 class="anchored" data-anchor-id="running-queries">2 Running queries</h2>
+<p>Let’s first demonstrate running an SQL query in BigQuery. We’ll use a publicly available dataset. You can process your first one terabyte of data per month for free (that sounds like a lot, but queries can add up quickly when datasets are gigatyes in size or larger).</p>
+<section id="using-the-bigquery-browser-based-interface" class="level3">
+<h3 class="anchored" data-anchor-id="using-the-bigquery-browser-based-interface">2.1 Using the BigQuery browser-based interface</h3>
+<p>These next instructions assume you have a Google Cloud Platform account with billing set up (e.g., using a credit card). To use the BigQuery Sandbox, see below.</p>
+<p>Navigate to <code>cloud.google.com</code> and login (or create if needed) your Google Cloud Platform account (which will be associated with your Google account and its email address). Then go to the <a href="https://console.cloud.google.com/bigquery">BiqQuery website</a> and click <code>Enable</code> (if you haven’t enabled it previously for your account).</p>
+<p>Now we can start working with BigQuery. The demo here follows <a href="https://cloud.google.com/bigquery/docs/quickstarts/query-public-dataset-console">these instructions</a>.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="bq-welcome.png" class="img-fluid figure-img" width="750"></p>
+<figcaption>BigQuery interface, showing the welcome page.</figcaption>
+</figure>
+</div>
+<p>To use a public dataset, we’ll choose <code>Add Data</code> and scroll down to <code>Public Datasets</code>. Search for “Stack Overflow”. Click on <code>View Dataset</code>. You’ll be able to see that the name of the dataset is <code>bigquery-public-data.stackoverflow</code>. This dataset has similar data to the Stack Overflow database used elsewhere in this tutorial, but the schema differs somewhat.</p>
+<p>In the <code>Explorer</code> pane you can search for “Stack Overflow” and be able to view the tables, and then select tables to see the fields.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="bq-data.png" class="img-fluid figure-img" width="750"></p>
+<figcaption>BigQuery interface, showing the SQL <code>Explorer</code> pane highlight the public <code>stackoverflow</code> dataset.</figcaption>
+</figure>
+</div>
+<p>Now we can go to the <code>Editor</code> pane or select `Compose a New Query’ and enter an SQL query.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="bq-querywindow.png" class="img-fluid figure-img" width="750"></p>
+<figcaption>BigQuery interface, showing the SQL <code>Editor</code> pane.</figcaption>
+</figure>
+</div>
+<p>Note that BigQuery will preview how much data will be processed (see the upper right). Remember that you can process 1 TB for free each month.</p>
+<p>This example query would process 37 GB. Maybe more of our free quota than we want to use at the moment.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">select</span> <span class="op">*</span> <span class="kw">from</span> `bigquery<span class="op">-</span><span class="kw">public</span><span class="op">-</span><span class="kw">data</span>.stackoverflow.posts_questions` <span class="kw">limit</span> <span class="dv">5</span>;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>This will only process 2.5 MB, so let’s run this:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">select</span> <span class="op">*</span> <span class="kw">from</span> `bigquery<span class="op">-</span><span class="kw">public</span><span class="op">-</span><span class="kw">data</span>.stackoverflow.tags` <span class="kw">order</span> <span class="kw">by</span> <span class="fu">count</span> <span class="kw">desc</span> <span class="kw">limit</span> <span class="dv">20</span>;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The result (which you can see in the next section run from R) indicates that <code>javascript</code>, <code>python</code>, <code>java</code>, and <code>c#</code> are the most popular tags.</p>
+<p>You can save the results in various ways (to a local file, to Google Drive, as a BigQuery table, etc.</p>
+<section id="using-the-free-bigquery-sandbox" class="level4">
+<h4 class="anchored" data-anchor-id="using-the-free-bigquery-sandbox">2.1.1 Using the free BigQuery Sandbox</h4>
+<p>You can use the <a href="https://cloud.google.com/bigquery/docs/sandbox">Sandbox</a> to avoid having to set up billing for your GCP account. The Sandbox has the same limits as BigQuery’s free tier, in particular 1 TB of processed query data each month.</p>
+<p>Go to <a href="https://console.cloud.google.com/bigquery">BigQuery</a>, and login with your Google account. Set up a new project and then go to BigQuery and try it out (e.g., running the query above on the StackOverflow data).</p>
+</section>
+</section>
+<section id="running-queries-from-r-or-python" class="level3">
+<h3 class="anchored" data-anchor-id="running-queries-from-r-or-python">2.2 Running queries from R or Python</h3>
+<section id="using-r" class="level4">
+<h4 class="anchored" data-anchor-id="using-r">2.2.1 Using R</h4>
+<p>We can use the <code>bigrquery</code> R package to interact with BigQuery from R (e.g., running on a laptop).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>myproject <span class="ot">&lt;-</span> <span class="st">"scf-gvm0"</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>user <span class="ot">&lt;-</span> <span class="st">"paciorek@berkeley.edu"</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(bigrquery)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(DBI)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The following will prompt for authentication to your Google account in a browser and save the authentication information as a ‘token’ associated with the email address.</p>
+<p>In principle, you shouldn’t have to do this explicitly, but rather the first time you try to interact with a BigQuery dataset, <code>bigrquery</code> should prompt you to authenticate, or if you’ve previously authenticated, it will reload a saved token. But I’ve had some trouble getting this to work without explicitly running the next steps.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>token <span class="ot">&lt;-</span> gargle<span class="sc">::</span><span class="fu">credentials_user_oauth2</span>(<span class="at">scopes =</span> <span class="st">"https://www.googleapis.com/auth/bigquery"</span>,</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>            <span class="at">email =</span> user)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>bigrquery<span class="sc">::</span><span class="fu">bq_auth</span>(<span class="at">token =</span> token)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Now let’s connect to the public dataset and check the schema. To be able to run queries, we need to be able to provide a GCP project that has billing set up via the <code>billing</code> argument. It’s possible that the SQL below would run if <code>billing</code> is set to be the name of a project without billing set up (i.e., using the BigQuery Sandbox), but I haven’t checked that.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>drv <span class="ot">&lt;-</span> <span class="fu">bigquery</span>()</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>db <span class="ot">&lt;-</span> <span class="fu">dbConnect</span>(drv,</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">project =</span> <span class="st">"bigquery-public-data"</span>,</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">dataset =</span> <span class="st">"stackoverflow"</span>,</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">billing =</span> myproject</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="fu">dbListTables</span>(db)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "badges"                     "comments"                  
+ [3] "post_history"               "post_links"                
+ [5] "posts_answers"              "posts_moderator_nomination"
+ [7] "posts_orphaned_tag_wiki"    "posts_privilege_wiki"      
+ [9] "posts_questions"            "posts_tag_wiki"            
+[11] "posts_tag_wiki_excerpt"     "posts_wiki_placeholder"    
+[13] "stackoverflow_posts"        "tags"                      
+[15] "users"                      "votes"                     </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbListFields</span>(db, <span class="st">'posts_questions'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "id"                       "title"                   
+ [3] "body"                     "accepted_answer_id"      
+ [5] "answer_count"             "comment_count"           
+ [7] "community_owned_date"     "creation_date"           
+ [9] "favorite_count"           "last_activity_date"      
+[11] "last_edit_date"           "last_editor_display_name"
+[13] "last_editor_user_id"      "owner_display_name"      
+[15] "owner_user_id"            "parent_id"               
+[17] "post_type_id"             "score"                   
+[19] "tags"                     "view_count"              </code></pre>
+</div>
+</div>
+<p>Now let’s run the simple query we tried before.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>sql <span class="ot">&lt;-</span> <span class="st">"select * from tags order by count desc limit 20"</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(db, sql)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 20 × 5
+      id tag_name     count excerpt_post_id wiki_post_id
+   &lt;int&gt; &lt;chr&gt;        &lt;int&gt;           &lt;int&gt;        &lt;int&gt;
+ 1     3 javascript 2426650         3624960      3607052
+ 2    16 python     2026741         3624965      3607014
+ 3    17 java       1866104         3624966      3607018
+ 4     9 c#         1559412         3624962      3607007
+ 5     5 php        1445747         3624936      3607050
+ 6  1386 android    1386459         3625001      3607484
+ 7     2 html       1146245         3673183      3673182
+ 8   820 jquery     1029561         3625262      3607053
+ 9    10 c++         776837         3624963      3606997
+10     4 css         771867         3644670      3644669
+11 58338 ios         674982         4536664      4536663
+12    21 mysql       651413         3624969      3607033
+13    22 sql         643145         3625226      3607304
+14  4452 r           464242         3625322      3607736
+15 46426 node.js     442811         4238969      4238968
+16 92497 reactjs     415837        16880335     16880334
+17   114 arrays      398827         4969094      4969093
+18     8 c           385511         3624961      3607013
+19    96 asp.net     370124         3625232      3607037
+20  1508 json        346406         4889848      4889847</code></pre>
+</div>
+</div>
+</section>
+<section id="using-python" class="level4">
+<h4 class="anchored" data-anchor-id="using-python">2.2.2 Using Python</h4>
+<p>We can use the <a href="https://cloud.google.com/python/docs/reference/bigquery/latest">Google BigQuery Python client (package)</a> provided by Google. (We’ll also install the <code>db-dtypes</code> package so that we convert the result of our query into a Pandas data frame.)</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install google-cloud-bigquery db-dtypes</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>To authenticate, you’ll need to use the <a href="https://cloud.google.com/sdk/gcloud"><code>gcloud</code> command line interface</a>. After installing that, we run the authentication command.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">gcloud</span> auth application-default login</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>This will bring up a browser window and you can authenticate with your Google account. It will save your credentials to a file in your home directory, e.g., to <code>~/.config/gcloud/application_default_credentials.json</code>. These credentials will then be used by Google Cloud clients such as the BigQuery client.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> google.cloud <span class="im">import</span> bigquery</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> db_dtypes  <span class="co"># needed for `to_dataframe()`</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>myproject <span class="op">&lt;-</span> <span class="st">"some_project"</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>db <span class="op">=</span> bigquery.Client(project <span class="op">=</span> myproject)</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>sql <span class="op">=</span> <span class="st">"select * from bigquery-public-data.stackoverflow.tags order by count desc limit 20"</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>query_job <span class="op">=</span> db.query(sql)  <span class="co"># API request</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>rows <span class="op">=</span> query_job.result()  <span class="co"># Waits for query to finish</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>mydf <span class="op">=</span> rows.to_dataframe()</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>mydf</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The results (not shown) are the same as when done from R.</p>
+</section>
+</section>
+</section>
+<section id="getting-data-into-bigquery" class="level2">
+<h2 class="anchored" data-anchor-id="getting-data-into-bigquery">3 Getting data into BigQuery</h2>
+<p>Next, let’s demonstrate setting up a BigQuery data warehouse, using the Wikipedia data (used in the <a href="db-managment">database management demos</a>) as an example. Recall that we have data to populate a single table from multiple space-delimited flat text files, all of them in exactly the same format in terms of columns.</p>
+<section id="loading-a-local-file" class="level3">
+<h3 class="anchored" data-anchor-id="loading-a-local-file">3.1 Loading a local file</h3>
+<p>We can load from a local file on our computer using <code>Add Data</code>, or we can load from files already present in Google Cloud Storage.</p>
+<p>First we’ll need to set IAM permissions on our account to allow the account to create and update tables.</p>
+<p>To upload from a local file, select the <code>Add Data</code> button and choose the file. There is no ‘space-separated’ file format, so we’ll choose CSV and then in the advanced options, I need to specify that the delimiter is a space using a “custom” field delimiter. You can choose to create a new dataset. Since the files don’t have column names, I’ll choose to specify the schema (the field names and types) in the Schema section of the BigQuery form by clicking on the ‘+’ symbol to add each field, specifically by entering this information: {date: string, maxlength = 8, hour: string: maxlength = 6, site: string, page: string, count: integer, size: numeric}.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="bq-load.png" class="img-fluid figure-img" width="750"></p>
+<figcaption>BigQuery interface, showing the SQL <code>Editor</code> pane.</figcaption>
+</figure>
+</div>
+<p>I’ll name the new BigQuery dataset <code>wiki_test</code> (this is equivalent to the name of a database in a standard DBMS).</p>
+<p>As was the case in the <a href="db-management">data management demos</a>, we need to strip out double quote (“) symbols as BigQuery tries to interpret these as beginning and ending fields.</p>
+<p>In the <code>Add Data</code> form, it looks like we can only add a single file at a time, so for this test, I’ll just add one file.</p>
+<p>You can then test things worked by trying to query the new table in the new dataset from R as done previously with the public Stack Overflow dataset.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>db<span class="ot">&lt;-</span> <span class="fu">dbConnect</span>(drv,</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">project =</span> myproject,</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">dataset =</span> <span class="st">"wiki_test"</span>,</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">billing =</span> myproject</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbListTables</span>(db)</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">dbListFields</span>(db, <span class="st">'webtraffic'</span>)</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>sql <span class="ot">&lt;-</span> <span class="st">"select * from webtraffic limit 5"</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(db, sql)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>If it works you should see results like this:</p>
+<pre><code>## [1] "webtraffic"
+## [1] "date"  "hour"  "site"  "page"  "count" "size"
+## # A tibble: 5 × 6
+##   date     hour   site  page                        count   size
+##   &lt;chr&gt;    &lt;chr&gt;  &lt;chr&gt; &lt;chr&gt;                       &lt;int&gt;  &lt;dbl&gt;
+## 1 20081101 000001 af    Halloween                      12  94174
+## 2 20081101 000001 af    Spesiaal:Onlangse_wysigings    25 360372
+## 3 20081101 000001 af    Spesiaal:Search                50  52332
+## 4 20081101 000001 af    Tempelhof-lughawe              26 115063
+## 5 20081101 000001 af    Tuisblad                       33 514829</code></pre>
+</section>
+<section id="loading-from-google-cloud-storage" class="level3">
+<h3 class="anchored" data-anchor-id="loading-from-google-cloud-storage">3.2 Loading from Google Cloud Storage</h3>
+<p>Now let’s load multiple files all at once from Google Cloud Storage (GCS).</p>
+<p>First we’ll take 10 of the files of the cleaned (no double quotes) Wikipedia data and put them in GCS. Through the <a href="https://console.cloud.google.com/storage">GCS web interface</a>, I’ll create a bucket named <code>wikipedia-cleaned-data</code> and upload the files.</p>
+<p>Now select <code>Add Data</code> in the BigQuery interface. We’ll select the source as <code>Google Cloud Storage</code>, the file format as CSV (with the custom separator of a space character) and use a “URI pattern” to select all 10 of the files: <code>wikipedia-cleaned-data/part-*</code>. We’ll name this dataset <code>wikipedia</code>.</p>
+<p>We can now run the same query as above on the new (larger) dataset:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>db<span class="ot">&lt;-</span> <span class="fu">dbConnect</span>(drv,</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">project =</span> myproject,</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">dataset =</span> <span class="st">"wikipedia"</span>,</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">billing =</span> myproject</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbListTables</span>(db)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="fu">dbListFields</span>(db, <span class="st">'webtraffic'</span>)</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>sql <span class="ot">&lt;-</span> <span class="st">"select * from webtraffic limit 5"</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(db, sql)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Again, if it worked, you should se results like:</p>
+<pre><code>## [1] "webtraffic"
+## [1] "date"  "hour"  "site"  "page"  "count" "size"
+## # A tibble: 5 × 6
+##   date     hour   site  page         count    size
+##   &lt;chr&gt;    &lt;chr&gt;  &lt;chr&gt; &lt;chr&gt;        &lt;int&gt;   &lt;dbl&gt;
+## 1 20081101 000001 fr    Psychose        15  295730
+## 2 20081101 000001 fr    Skyrock_Blog    10  192848
+## 3 20081101 000001 fr    Tunisie         36 3736262
+## 4 20081101 000001 fr    Ulc%C3%A8re     10   60423
+## 5 20081101 000001 fr    X_Japan         11  258634</code></pre>
+</section>
+<section id="permissions" class="level3">
+<h3 class="anchored" data-anchor-id="permissions">3.3 Permissions</h3>
+<p>I did this using my Google Cloud account, which is an owner of the GCP account and so has various BigQuery permissions already set to allow various actions, including creating or modifying BigQuery datasets.</p>
+<p>If you (as recommended) are using an IAM account, you are likely to need to set <a href="https://cloud.google.com/bigquery/docs/access-control">some permissions for the account</a> to create or modify BigQuery datasets. In particular, as discussed <a href="https://cloud.google.com/bigquery/docs/batch-loading-data">here</a> you need the following IAM permissions set:</p>
+<ul>
+<li>bigquery.tables.create</li>
+<li>bigquery.tables.updateData</li>
+<li>bigquery.tables.update</li>
+<li>bigquery.jobs.create</li>
+</ul>
+<p>You can set these permissions by adding one of various IAM roles (e.g., <code>roles/bigquery.dataEditor</code>, <code>roles/bigquery.dataOwner</code>, <code>roles/bigquery.admin</code>, <code>bigquery.user</code>, or <code>bigquery.jobUser</code>).</p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/computing\.stat\.berkeley\.edu\/tutorial-databases");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

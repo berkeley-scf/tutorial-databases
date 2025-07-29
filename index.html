@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.31">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Working with large datasets using SQL, R, and Python</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-e1a5c8363afafaef2c763b6775fbf3ca.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-ff803dae0bae9edb91fb3cd2582d8e33.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+
+<body class="nav-sidebar docked quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html">Getting Started</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
+      <a href="https://statistics.berkeley.edu" class="sidebar-logo-link">
+      <img src="./assets/img/logo.svg" alt="UC Berkeley Statistics logo" class="sidebar-logo py-0 d-lg-inline d-none">
+      </a>
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">SCF Databases/SQL Tutorial</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/berkeley-scf/tutorial-databases" title="" class="quarto-navigation-tool px-1" aria-label="GitHub"><i class="bi bi-github"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Getting Started</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./sql.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">SQL</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./db-management.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Database Management</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./bigquery.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Databases in the Cloud</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Big Data in R and Python" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">R-and-Python.qmd</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./license.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">License</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#this-tutorial" id="toc-this-tutorial" class="nav-link active" data-scroll-target="#this-tutorial">1 This Tutorial</a>
+  <ul class="collapse">
+  <li><a href="#materials" id="toc-materials" class="nav-link" data-scroll-target="#materials">1.1 Materials</a></li>
+  <li><a href="#prerequisite-software" id="toc-prerequisite-software" class="nav-link" data-scroll-target="#prerequisite-software">1.2 Prerequisite Software</a></li>
+  </ul></li>
+  <li><a href="#background" id="toc-background" class="nav-link" data-scroll-target="#background">2 Background</a>
+  <ul class="collapse">
+  <li><a href="#data-size" id="toc-data-size" class="nav-link" data-scroll-target="#data-size">2.1 Data size</a></li>
+  <li><a href="#memory-vs.-disk" id="toc-memory-vs.-disk" class="nav-link" data-scroll-target="#memory-vs.-disk">2.2 Memory vs.&nbsp;disk</a></li>
+  </ul></li>
+  <li><a href="#database-systems-and-sql" id="toc-database-systems-and-sql" class="nav-link" data-scroll-target="#database-systems-and-sql">3 Database systems and SQL</a>
+  <ul class="collapse">
+  <li><a href="#overview-of-databases" id="toc-overview-of-databases" class="nav-link" data-scroll-target="#overview-of-databases">3.1 Overview of databases</a></li>
+  <li><a href="#databases-in-the-cloud" id="toc-databases-in-the-cloud" class="nav-link" data-scroll-target="#databases-in-the-cloud">3.2 Databases in the cloud</a></li>
+  <li><a href="#sql" id="toc-sql" class="nav-link" data-scroll-target="#sql">3.3 SQL</a></li>
+  </ul></li>
+  <li><a href="#schema-and-normalization" id="toc-schema-and-normalization" class="nav-link" data-scroll-target="#schema-and-normalization">4 Schema and normalization</a>
+  <ul class="collapse">
+  <li><a href="#keys" id="toc-keys" class="nav-link" data-scroll-target="#keys">4.1 Keys</a></li>
+  </ul></li>
+  <li><a href="#stack-overflow-example-database" id="toc-stack-overflow-example-database" class="nav-link" data-scroll-target="#stack-overflow-example-database">5 Stack Overflow example database</a>
+  <ul class="collapse">
+  <li><a href="#getting-the-database" id="toc-getting-the-database" class="nav-link" data-scroll-target="#getting-the-database">5.1 Getting the database</a></li>
+  </ul></li>
+  <li><a href="#accessing-a-database-and-using-sql-from-other-languages" id="toc-accessing-a-database-and-using-sql-from-other-languages" class="nav-link" data-scroll-target="#accessing-a-database-and-using-sql-from-other-languages">6 Accessing a database and using SQL from other languages</a>
+  <ul class="collapse">
+  <li><a href="#using-sql-from-r" id="toc-using-sql-from-r" class="nav-link" data-scroll-target="#using-sql-from-r">6.1 Using SQL from R</a></li>
+  <li><a href="#using-sql-from-python" id="toc-using-sql-from-python" class="nav-link" data-scroll-target="#using-sql-from-python">6.2 Using SQL from Python</a></li>
+  </ul></li>
+  <li><a href="#references-and-other-resources" id="toc-references-and-other-resources" class="nav-link" data-scroll-target="#references-and-other-resources">7 References and Other Resources</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Working with large datasets using SQL, R, and Python</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="this-tutorial" class="level2">
+<h2 class="anchored" data-anchor-id="this-tutorial">1 This Tutorial</h2>
+<p>This tutorial covers tools for manipulating large datasets, including those living in SQL databases or in data frames and related objects in R and Python. The focus is on querying rather than creating and administering databases as the intended audience is for statisticians/data analysts/data scientists who are carrying out analyses. A major emphasis is on how to do queries efficiently and how to use SQL effectively. At the moment, this tutorial is somewhat more focused on R than Python, but the manipulation of databases from R and Python are very similar because the core reliance is on SQL.</p>
+<p>This tutorial assumes you have a working knowledge of R or Python.</p>
+<section id="materials" class="level3">
+<h3 class="anchored" data-anchor-id="materials">1.1 Materials</h3>
+<p>Materials for this tutorial, including the Markdown files and associated code files that were used to create these documents are <a href="https://github.com/berkeley-scf/tutorial-databases">available on GitHub</a>.```</p>
+<p>The example data files are not part of the GitHub repository. You can get the example data files (both Stack Overflow data for 2021 and Wikipedia webtraffic data for the year 2008) <a href="https://www.stat.berkeley.edu/share/paciorek/tutorial-databases-data.zip">here</a>.</p>
+<p>Solutions to the SQL challenges are available on request.</p>
+</section>
+<section id="prerequisite-software" class="level3">
+<h3 class="anchored" data-anchor-id="prerequisite-software">1.2 Prerequisite Software</h3>
+<section id="using-sqlite-from-r-or-python" class="level4">
+<h4 class="anchored" data-anchor-id="using-sqlite-from-r-or-python">1.2.1 Using SQLite from R or Python</h4>
+<p>The simplest way to use a database is with SQLite, a lightweight database engine under which the database is stored simply in a single file.</p>
+<p>Both R and Python can easily interact with an SQLite database. For R you’ll need the <code>RSQLite</code> package. For Python you’ll need the <code>sqlite3</code> package.</p>
+<p>One thing to note is that SQLite does not have some useful functionality that other databas management systems have. For example, you can’t use <code>ALTER TABLE</code> to modify column types or drop columns.</p>
+</section>
+<section id="duckdb-as-a-faster-alternative-to-sqlite" class="level4">
+<h4 class="anchored" data-anchor-id="duckdb-as-a-faster-alternative-to-sqlite">1.2.2 DuckDB as a faster alternative to SQLite</h4>
+<p>DuckDB is another lightweight database engine under which the database is stored simply in a single file. It stores data column-wise, which can lead to big speedups when doing queries operating on large portions of tables (so-called “online analytical processing” (OLAP)).</p>
+<p>Both R and Python can easily interact with a DuckDB database. For R you’ll need the <code>duckdb</code> R package. For Python you’ll need the <code>duckdb</code> Python package.</p>
+</section>
+<section id="using-postgresql-on-mac-or-windows" class="level4">
+<h4 class="anchored" data-anchor-id="using-postgresql-on-mac-or-windows">1.2.3 Using PostgreSQL on Mac or Windows</h4>
+<p>To replicate the (non-essential) PostgreSQL administration portion of this tutorial, you’ll need access to a machine on which you can run a PostgreSQL server. While there are a variety of ways to do this, this tutorial assumes that you are running PostgreSQL on an Ubuntu (or Debian) Linux machine. If you are a Windows or Mac user, there are several options for accessing a Linux environment:</p>
+<ul>
+<li>You could run Ubuntu in a Docker container; Docker can be installed on Windows or Mac. Once you’ve installed Docker and have access to a terminal command line, please see the commands in <a href="docker.sh">docker.sh</a> in this repository.</li>
+<li>You could run an Amazon EC2/Google Cloud/Azure virtual machine instance, using a image that supports R and/or Python and then installing PostgreSQL as discussed in this tutorial.</li>
+<li>The big cloud computing providers have created a wide array of specific database services, so if you are using a cloud provider, you’d probably want to take advantage of those rather than ‘manually’ running a database via a virtual machine.</li>
+</ul>
+</section>
+</section>
+</section>
+<section id="background" class="level2">
+<h2 class="anchored" data-anchor-id="background">2 Background</h2>
+<section id="data-size" class="level3">
+<h3 class="anchored" data-anchor-id="data-size">2.1 Data size</h3>
+<p>The techniques and tools discussed here are designed for datasets in the range of gigabytes to tens of gigabytes, though they may scale to larger if you have a machine with a lot of memory or simply have enough disk space and are willing to wait. If you have 10s of gigabytes of data, you’ll be better off if your machine has 10s of GBs of memory, as discussed in this tutorial.</p>
+<p>If you’re scaling to 100s of GBs, terabytes or petabytes, using the cloud computing providers’ tools for working with big datasets is probably your best bet (e.g., Amazon RedShift or Google BigQuery), or possibly carefully-administered databases. Those topics are beyond the scope of this tutorial. However, this tutorial will be useful if you’re doing SQL queries on professionally-administered databases or databases in the cloud or in a Spark context.</p>
+</section>
+<section id="memory-vs.-disk" class="level3">
+<h3 class="anchored" data-anchor-id="memory-vs.-disk">2.2 Memory vs.&nbsp;disk</h3>
+<p>On a computer there is a hierarchy of locations where data can be stored. The hierarchy has the trade-off that the locations that the CPU can access most quickly can store the least amount of data. The hierarchy looks like this:</p>
+<ul>
+<li>cpu cache</li>
+<li>main memory</li>
+<li>disk</li>
+<li>local network (data stored on other machines)</li>
+<li>general internet access</li>
+</ul>
+<p>For our purposes here the key question is whether the data resides in memory or on disk, but when considering Spark and distributed systems, one gets into issues of moving data across the network between machines.</p>
+<p>Formally, databases are stored on disk, while R and Python store datasets in memory. This would suggest that databases will be slow to access their data but will be able to store more data than can be loaded into an R or Python session. However, databases can be quite fast due in part to disk caching by the operating system as well as careful implementation of good algorithms for database operations. For more information about disk caching see <a href="db-management">the database management document</a>.</p>
+<p>And conversely, R and Python have mechanisms for storing large datasets on disk in a way that they can be accessed fairly quickly.</p>
+</section>
+</section>
+<section id="database-systems-and-sql" class="level2">
+<h2 class="anchored" data-anchor-id="database-systems-and-sql">3 Database systems and SQL</h2>
+<section id="overview-of-databases" class="level3">
+<h3 class="anchored" data-anchor-id="overview-of-databases">3.1 Overview of databases</h3>
+<p>Basically, standard SQL databases are <em>relational</em> databases that are a collection of rectangular format datasets (<em>tables</em>, also called <em>relations</em>), with each table similar to R or Pandas data frames, in that a table is made up of columns, which are called <em>fields</em> or <em>attributes</em>, each containing a single <em>type</em> (numeric, character, date, currency, enumerated (i.e., categorical), …) and rows or records containing the observations for one entity. Some of these tables generally have fields in common so it makes sense to merge (i.e., join) information from multiple tables. E.g., you might have a database with a table of student information, a table of teacher information and a table of school information.</p>
+<p>One principle of databases is that if a set of fields contain duplicated information about a given category, you can more efficiently store information about each level of the category in a separate table. Consider information about people living in a state and information about each state - you don’t want to include variables that only vary by state in the table containing information about individuals (at least until you’re doing the actual analysis that needs the information in a single table). Or consider students nested within classes nested within schools.</p>
+<p>Databases are set up to allow for fast querying and merging (called joins in database terminology).</p>
+<p>You can interact with databases in a variety of database systems (DBMS=database management system). Some popular systems are SQLite, MySQL, PostgreSQL, Oracle and Microsoft Access. We’ll concentrate on accessing data in a database rather than management of databases. SQL is the Structured Query Language and is a special-purpose high-level language for managing databases and making queries. Variations on SQL are used in many different DBMS.</p>
+<p>Queries are the way that the user gets information (often simply subsets of tables or information merged across tables). The result of an SQL query is in general another table, though in some cases it might have only one row and/or one column.</p>
+<p>Many DBMS have a client-server model. Clients connect to the server, with some authentication, and make requests (i.e., queries).</p>
+<p>There are often multiple ways to interact with a DBMS, including directly using command line tools provided by the DBMS or via Python or R, among others.</p>
+<section id="relational-database-management-systems-dbms" class="level4">
+<h4 class="anchored" data-anchor-id="relational-database-management-systems-dbms">3.1.1 Relational Database Management Systems (DBMS)</h4>
+<p>There are a variety of relational database management systems (DBMS). Some that are commonly used by the intended audience of this tutorial are SQLite, PostgreSQL, and mySQL. We’ll concentrate on SQLite and DuckDB (because they are simple to use on a single machine) and PostgreSQL (because is is a popular open-source DBMS that is a good representative of a client-server model and has some functionality that SQLite lacks).</p>
+</section>
+<section id="serverless-dbms" class="level4">
+<h4 class="anchored" data-anchor-id="serverless-dbms">3.1.2 Serverless DBMS</h4>
+<p>SQLite and DuckDB are quite nice in terms of being self-contained - there is no server-client model, just a single file on your hard drive that stores the database. There is no database process running on the computer; rather SQLite or DuckDB are embedded within the host process (e.g., Python or R). (There are also command line interfaces (CLI) for both SQLite and DuckDB that you can start from the command line/terminal.)</p>
+</section>
+<section id="nosql-databases" class="level4">
+<h4 class="anchored" data-anchor-id="nosql-databases">3.1.3 NoSQL databases</h4>
+<p>NoSQL (not only SQL) systems have to do with working with datasets that are not handled well in traditional DBMS, and not specifically about the use or non-use of SQL itself. In particular data might not fit well within the rectangular row-column data model of one or more tables in a database. And one might be in a context where a full DBMS is not needed. Or one might have more data or need faster responses than can be handled well by standard DBMS.</p>
+<p>While these systems tend to scale better, they generally don’t have a declarative query language so you end up having to do more programming yourself. For example in the Stanford database course referenced at the end of this tutorial, the noSQL video gives the example of web log data that records visits to websites. One might have the data in the form of files and not want to go through the trouble of data cleaning and extracting fields from unstructured text. In addition, one may need to do only simple queries that involve looking at each record separately and therefore can be easily done in parallel, which noSQL systems tend to be designed to do. Or one might have document data, such as Wikipedia pages, where the unstructured text on each page is not really suited for a DBMS.</p>
+<p>Some NoSQL systems include</p>
+<ul>
+<li>Hadoop/Spark-style MapReduce systems,</li>
+<li>key-value storage systems (e.g., with data stored as pairs of keys (i.e., ids) and values, such as in JSON),</li>
+<li>document storage systems (like key-value systems but where the value is a document), and</li>
+<li>graph storage systems (e.g., for social networks).</li>
+</ul>
+</section>
+</section>
+<section id="databases-in-the-cloud" class="level3">
+<h3 class="anchored" data-anchor-id="databases-in-the-cloud">3.2 Databases in the cloud</h3>
+<p>The various big cloud computing providers (AWS, Google Cloud Platform (GCP), Azure) provide a dizzying array of different database-like services. Here are some examples.</p>
+<ul>
+<li><em>Online database hosting services</em> allow you to host databases (e.g., PostgreSQL databases) the infrastructure of a cloud provider. You basically manage the database in the cloud instead of on a physical machine. One example is Google Cloud SQL.</li>
+<li><em>Data warehouses</em> such as Google BigQuery and Amazon RedShift allow you to create a data repository in which the data are structured like in a database (tables, fields, etc.), stored in the cloud, and queried efficiently (and in parallel) using the cloud provider’s infrastructure). Storage is by column, which allows for efficient queries when doing queries operating on large portions of tables.</li>
+<li><em>Data lakes</em> store data in a less structured way in cloud storage in files (e.g., CSV, Parquet, Arrow, etc.) that generally have common structure. The data can be queried without creating an actual database or data warehouse.</li>
+</ul>
+<p>Google’s BigQuery has the advantages of not requiring a lot of administration/configuration while allowing your queries to take advantage of a lot of computing power. BigQuery will determine how to run a query in parallel across multiple (virtual) cores. You can see a <a href="bigquery">demonstration of BigQuery</a>.</p>
+</section>
+<section id="sql" class="level3">
+<h3 class="anchored" data-anchor-id="sql">3.3 SQL</h3>
+<p>SQL is a declarative language that tells the database system what results you want. The system then parses the SQL syntax and determines how to implement the query.</p>
+<p>Later we’ll introduce a database of Stack Overflow questions and answers.</p>
+<p>Here is a simple query that selects the first five rows (and all columns, based on the <code>*</code> wildcard) from a table (called ‘questions’) in a database that one has connected to:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">select</span> <span class="op">*</span> <span class="kw">from</span> questions <span class="kw">limit</span> <span class="dv">5</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+</section>
+<section id="schema-and-normalization" class="level2">
+<h2 class="anchored" data-anchor-id="schema-and-normalization">4 Schema and normalization</h2>
+<p>To truly leverage the conceptual and computational power of a database you’ll want to have your data in a normalized form, which means spreading your data across multiple tables in such a way that you don’t repeat information unnecessarily.</p>
+<p>The schema is the metadata about the tables in the database and the fields (and their types) in those tables.</p>
+<p>Let’s consider this using an educational example. Suppose we have a school with multiple teachers teaching multiple classes and multiple students taking multiple classes. If we put this all in one table organized per student, the data might have the following fields:</p>
+<ul>
+<li>student ID</li>
+<li>student grade level</li>
+<li>student name</li>
+<li>class 1</li>
+<li>class 2</li>
+<li>…</li>
+<li>class n</li>
+<li>grade in class 1</li>
+<li>grade in class 2</li>
+<li>…</li>
+<li>grade in class n</li>
+<li>teacher ID 1</li>
+<li>teacher ID 2</li>
+<li>…</li>
+<li>teacher ID n</li>
+<li>teacher department 1</li>
+<li>teacher department 2</li>
+<li>…</li>
+<li>teacher department n</li>
+<li>teacher age 1</li>
+<li>teacher age 2</li>
+<li>…</li>
+<li>teacher age n</li>
+</ul>
+<p>There are a lot of problems with this.</p>
+<ol type="1">
+<li>‘n’ needs to be the maximum number of classes a student might take. If one ambitious student takes many classes, there will be a lot of empty data slots.</li>
+<li>All the information about individual teachers (department, age, etc.) is repeated many times, meaning we use more storage than we need to.</li>
+<li>If we want to look at the data on a per teacher basis, this is very poorly organized for that.</li>
+<li>If one wants to change certain information (such as the age of a teacher) one needs to do it in many locations, which can result in errors and is inefficient.</li>
+</ol>
+<p>It would get even worse if there was a field related to teachers for which a given teacher could have multiple values (e.g., teachers could be in multiple departments). This would lead to even more redundancy - each student-class-teacher combination would be crossed with all of the departments for the teacher (so-called multivalued dependency in database theory).</p>
+<p>An alternative organization of the data would be to have each row represent the enrollment of a student in a class, with as many rows per student as the number of classes the student is taking.</p>
+<ul>
+<li>student ID</li>
+<li>student name</li>
+<li>class</li>
+<li>grade in class</li>
+<li>student grade level</li>
+<li>teacher ID</li>
+<li>teacher department</li>
+<li>teacher age</li>
+</ul>
+<p>This has some advantages relative to our original organization in terms of not having empty data slots, but it doesn’t solve the other three issues above.</p>
+<p>Instead, a natural way to order this database is with the following tables.</p>
+<ul>
+<li>Student
+<ul>
+<li>ID</li>
+<li>name</li>
+<li>grade_level</li>
+</ul></li>
+<li>Teacher
+<ul>
+<li>ID</li>
+<li>name</li>
+<li>department</li>
+<li>age</li>
+</ul></li>
+<li>Class
+<ul>
+<li>ID</li>
+<li>topic</li>
+<li>class_size</li>
+<li>teacher_ID</li>
+</ul></li>
+<li>ClassAssignment
+<ul>
+<li>student_ID</li>
+<li>class_ID</li>
+<li>grade</li>
+</ul></li>
+</ul>
+<p>Then we do queries to pull information from multiple tables. We do the joins based on ‘keys’, which are the fields in each table that allow us to match rows from different tables.</p>
+<p>(That said, if all anticipated uses of a database will end up recombining the same set of tables, we may want to have a denormalized schema in which those tables are actually combined in the database. It is possible to be too pure about normalization! We can also create a virtual table, called a <em>view</em>, as discussed later.)</p>
+<section id="keys" class="level3">
+<h3 class="anchored" data-anchor-id="keys">4.1 Keys</h3>
+<p>A key is a field or collection of fields that give(s) a unique value for every row/observation. A table in a database should then have a primary key that is the main unique identifier used by the DBMS. Foreign keys are columns in one table that give the value of the primary key in another table. When information from multiple tables is joined together, the matching of a row from one table to a row in another table is generally done by equating the primary key in one table with a foreign key in a different table.</p>
+<p>In our educational example, the primary keys would presumably be: Student.ID, Teacher.ID, Class.ID, and for ClassAssignment two fields: {ClassAssignment.studentID, ClassAssignment.class_ID}.</p>
+<p>Some examples of foreign keys would be:</p>
+<ul>
+<li>student_ID as the foreign key in ClassAssignment for joining with Student on Student.ID</li>
+<li>teacher_ID as the foreign key in Class for joining with Teacher based on Teacher.ID</li>
+<li>class_ID as the foreign key in ClassAssignment for joining with Class based on Class.ID</li>
+</ul>
+</section>
+</section>
+<section id="stack-overflow-example-database" class="level2">
+<h2 class="anchored" data-anchor-id="stack-overflow-example-database">5 Stack Overflow example database</h2>
+<p>I’ve obtained data from <a href="https://stackoverflow.com">Stack Overflow</a>, the popular website for asking coding questions, and placed it into a normalized database. We’ll explore SQL functionality using this example database, which has metadata (i.e., it lacks the actual text of the questions and answers) on all of the questions and answers posted in 2021.</p>
+<p>Let’s consider the Stack Overflow data. Each question may have multiple answers and each question may have multiple (topic) tags.</p>
+<p>If we tried to put this into a single table, the fields could look like this if we have one row per question:</p>
+<ul>
+<li>question ID</li>
+<li>ID of user submitting question</li>
+<li>question title</li>
+<li>tag 1</li>
+<li>tag 2</li>
+<li>…</li>
+<li>tag n</li>
+<li>answer 1 ID</li>
+<li>ID of user submitting answer 1</li>
+<li>answer 2 ID</li>
+<li>ID of user submitting answer 2</li>
+<li>…</li>
+</ul>
+<p>or like this if we have one row per question-answer pair:</p>
+<ul>
+<li>question ID</li>
+<li>ID of user submitting question</li>
+<li>question title</li>
+<li>tag 1</li>
+<li>tag 2</li>
+<li>…</li>
+<li>tag n</li>
+<li>answer ID</li>
+<li>ID of user submitting answer</li>
+</ul>
+<p>As we’ve discussed neither of those schema is particularly desirable.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Question">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Question
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>How would you devise a schema to normalize the data. I.e., what set of tables do you think we should create?</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled" title="Answer">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Answer
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Don’t peek until after you’ve thought about it, but you can view one <a href="normalized_example.png">reasonable schema here</a>. The lines between tables indicate the relationship of foreign keys in one table to primary keys in another table. The schema in the actual databases of Stack Overflow data we’ll use in this tutorial is similar to but not identical to that.</p>
+</div>
+</div>
+</div>
+<section id="getting-the-database" class="level3">
+<h3 class="anchored" data-anchor-id="getting-the-database">5.1 Getting the database</h3>
+<p>You can download a copy of the SQLite version of the Stack Overflow database (only data for the year 2021) from <a href="http://www.stat.berkeley.edu/share/paciorek/tutorial-databases-data.zip">here</a> as part of the overall zip with all of the example datasets as discussed in the introduction of this tutorial.</p>
+<p>In the next section I’ll assume the .db file is placed in the subdirectory of the repository called <code>data</code>.</p>
+<p>Note that all of the code used to download the data from the Stack Overflow website and to manipulate it to create a complete Postgres database and (for the year 2021 only) an SQLite database and CSVs for each table is in the <a href="https://github.com/berkeley-scf/tutorial-databases/tree/gh-pages/data/prep_stackoverflow"><code>data/prep_stackoverflow</code> subdirectory</a> of this repository. Note that as of February 2022, <a href="https://archive.org/download/stackexchange">the data are still being kept up to date online</a>.</p>
+</section>
+</section>
+<section id="accessing-a-database-and-using-sql-from-other-languages" class="level2">
+<h2 class="anchored" data-anchor-id="accessing-a-database-and-using-sql-from-other-languages">6 Accessing a database and using SQL from other languages</h2>
+<p>Although DBMS have their own interfaces (we’ll see a bit of this later), databases are commonly accessed from other programs. For data analysts this would often be Python or R, as seen next.</p>
+<p>Most of our examples of making SQL queries on a database will be done from R, but they could just as easily have been done from Python or other programs.</p>
+<section id="using-sql-from-r" class="level3">
+<h3 class="anchored" data-anchor-id="using-sql-from-r">6.1 Using SQL from R</h3>
+<p>The <em>DBI</em> package provides a front-end for manipulating databases from a variety of DBMS (SQLite, DuckDB, MySQL, PostgreSQL, among others). Basically, you tell the package what DBMS is being used on the back-end, link to the actual database, and then you can use the standard functions in the package regardless of the back-end.</p>
+<p>With SQLite and DuckDB, R processes make calls against the stand-alone SQLite database (.db or .duckdb) file, so there are no SQLite-specific processes. With PostgreSQL, R processes call out to separate Postgres processes; these are started from the overall Postgres background process.</p>
+<p>Apart from the different manner of connecting, all of the queries below are the same regardless of whether the back-end DBMS is SQLite, DuckDB, PostgreSQL, etc.</p>
+<section id="sqlite" class="level4">
+<h4 class="anchored" data-anchor-id="sqlite">6.1.1 SQLite</h4>
+<p>You can access and navigate an SQLite database from R as follows.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(RSQLite)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>drv <span class="ot">&lt;-</span> <span class="fu">dbDriver</span>(<span class="st">"SQLite"</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>dir <span class="ot">&lt;-</span> <span class="st">'data'</span> <span class="co"># relative or absolute path to where the .db file is</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>dbFilename <span class="ot">&lt;-</span> <span class="st">'stackoverflow-2021.db'</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>db <span class="ot">&lt;-</span> <span class="fu">dbConnect</span>(drv, <span class="at">dbname =</span> <span class="fu">file.path</span>(dir, dbFilename))</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># simple query to get 5 rows from a table</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(db, <span class="st">"select * from questions limit 5"</span>)  </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  questionid        creationdate score viewcount answercount
+1   65534165 2021-01-01 22:15:54     0       112           2
+2   65535296 2021-01-02 01:33:13     2      1109           0
+3   65535910 2021-01-02 04:01:34    -1       110           1
+4   65535916 2021-01-02 04:03:20     1        35           1
+5   65536749 2021-01-02 07:03:04     0       108           1
+  commentcount favoritecount                               title
+1            0            NA     Can't update a value in sqlite3
+2            0            NA Install and run ROS on Google Colab
+3            8             0       Operators on date/time fields
+4            0            NA          Plotting values normalised
+5            5            NA     Export C# to word with template
+   ownerid
+1 13189393
+2 14924336
+3   651174
+4 14695007
+5 14899717</code></pre>
+</div>
+</div>
+<p>We can easily see the tables and their fields:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbListTables</span>(db)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "answers"        "questions"      "questions_tags"
+[4] "users"         </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbListFields</span>(db, <span class="st">"questions"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "questionid"    "creationdate"  "score"        
+[4] "viewcount"     "answercount"   "commentcount" 
+[7] "favoritecount" "title"         "ownerid"      </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbListFields</span>(db, <span class="st">"answers"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "answerid"     "questionid"   "creationdate" "score"       
+[5] "ownerid"     </code></pre>
+</div>
+</div>
+<p>One can either make the query and get the results in one go or make the query and separately fetch the results. Here we’ve selected the first five rows (and all columns, based on the <code>*</code> wildcard) and brought them into R as a data frame.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>results <span class="ot">&lt;-</span> <span class="fu">dbGetQuery</span>(db, <span class="st">'select * from questions limit 5'</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(results)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "data.frame"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>query <span class="ot">&lt;-</span> <span class="fu">dbSendQuery</span>(db, <span class="st">"select * from questions"</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>query</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>&lt;SQLiteResult&gt;
+  SQL  select * from questions
+  ROWS Fetched: 0 [incomplete]
+       Changed: 0</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>results2 <span class="ot">&lt;-</span> <span class="fu">fetch</span>(query, <span class="dv">5</span>)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">identical</span>(results, results2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] TRUE</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbClearResult</span>(query)  <span class="co"># clear to prepare for another query</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>To disconnect from the database:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbDisconnect</span>(db)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="duckdb" class="level4">
+<h4 class="anchored" data-anchor-id="duckdb">6.1.2 DuckDB</h4>
+<p>You can access and navigate an DuckDB database from R as follows.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(duckdb)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>drv <span class="ot">&lt;-</span> <span class="fu">duckdb</span>()</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>dir <span class="ot">&lt;-</span> <span class="st">'data'</span> <span class="co"># relative or absolute path to where the .db file is</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>dbFilename <span class="ot">&lt;-</span> <span class="st">'stackoverflow-2021.duckdb'</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>dbd <span class="ot">&lt;-</span> <span class="fu">dbConnect</span>(drv, <span class="fu">file.path</span>(dir, dbFilename))</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="co"># simple query to get 5 rows from a table</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(dbd, <span class="st">"select * from questions limit 5"</span>)  </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  questionid            creationdate score viewcount answercount
+1   65534165 2021-01-01T22:15:54.657     0       112           2
+2   65535296 2021-01-02T01:33:13.543     2      1109           0
+3   65535910 2021-01-02T04:01:34.137    -1       110           1
+4   65535916 2021-01-02T04:03:20.027     1        35           1
+5   65536749 2021-01-02T07:03:04.783     0       108           1
+  commentcount favoritecount                               title
+1            0            NA     Can't update a value in sqlite3
+2            0            NA Install and run ROS on Google Colab
+3            8             0       Operators on date/time fields
+4            0            NA          Plotting values normalised
+5            5            NA     Export C# to word with template
+   ownerid
+1 13189393
+2 14924336
+3   651174
+4 14695007
+5 14899717</code></pre>
+</div>
+</div>
+<p>To disconnect from the database:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbDisconnect</span>(dbd, <span class="at">shutdown =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="postgresql" class="level4">
+<h4 class="anchored" data-anchor-id="postgresql">6.1.3 PostgreSQL</h4>
+<p>To access a PostgreSQL database instead, you can do the following, assuming the database has been created and you have a username and password that allow you to access the particular database.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(RPostgreSQL)</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>drv <span class="ot">&lt;-</span> <span class="fu">dbDriver</span>(<span class="st">"PostgreSQL"</span>)</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>dbp <span class="ot">&lt;-</span> <span class="fu">dbConnect</span>(drv, <span class="at">dbname =</span> <span class="st">'stackoverflow'</span>, <span class="at">user =</span> <span class="st">'paciorek'</span>, <span class="at">password =</span> <span class="st">'test'</span>)</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="co"># simple query to get 5 rows from a table, same as with SQLite:</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(dbp, <span class="st">"select * from questions limit 5"</span>)  </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="using-sql-from-python" class="level3">
+<h3 class="anchored" data-anchor-id="using-sql-from-python">6.2 Using SQL from Python</h3>
+<section id="sqlite-1" class="level4">
+<h4 class="anchored" data-anchor-id="sqlite-1">6.2.1 SQLite</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sqlite3 <span class="im">as</span> sq</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="bu">dir</span> <span class="op">=</span> <span class="st">'data'</span> <span class="co"># relative or absolute path to where the .db file is</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>dbFilename <span class="op">=</span> <span class="st">'stackoverflow-2021.db'</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>db <span class="op">=</span> sq.<span class="ex">connect</span>(os.path.join(<span class="st">'data'</span>, dbFilename))</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> db.cursor()</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>c.execute(<span class="st">"select * from questions limit 5"</span>)  <span class="co"># simple query </span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> c.fetchall() <span class="co"># retrieve results</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>To disconnect:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>c.close()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="duckdb-1" class="level4">
+<h4 class="anchored" data-anchor-id="duckdb-1">6.2.2 DuckDB</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> duckdb</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="bu">dir</span> <span class="op">=</span> <span class="st">'data'</span> <span class="co"># relative or absolute path to where the .duckdb file is</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>dbFilename <span class="op">=</span> <span class="st">'stackoverflow-2021.duckdb'</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>db <span class="op">=</span> duckdb.<span class="ex">connect</span>(os.path.join(<span class="bu">dir</span>, dbFilename))</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>db.sql(<span class="st">"select * from questions limit 5"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="postgresql-1" class="level4">
+<h4 class="anchored" data-anchor-id="postgresql-1">6.2.3 PostgreSQL</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> psycopg2 <span class="im">as</span> pg</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>db <span class="op">=</span> pg.<span class="ex">connect</span>(<span class="st">"dbname = 'stackoverflow' user = 'paciorek' host = 'localhost' password = 'test'"</span>)</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> db.cursor()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="references-and-other-resources" class="level2">
+<h2 class="anchored" data-anchor-id="references-and-other-resources">7 References and Other Resources</h2>
+<p>In addition to various material found online, including various software manuals and vignettes, much of the SQL material was based on the following two sources:</p>
+<ul>
+<li>The Stanford online Introduction to Databases course (MOOC) released in Fall 2011, a version of which is available <a href="https://www.edx.org/course/databases-5-sql">on edX</a>.</li>
+<li>Harrison Dekker’s materials from a <a href="https://github.com/uc-data-services/sql-workshop-2016">Statistics short course</a> he taught in January 2016.</li>
+</ul>
+<p>I’ve heard good things about the interactive exercises/tutorials at <a href="https://sqlzoo.net">SQLZoo</a> and the book Practical SQL by Anthony DeBarros (available through Berkeley’s library); in particular the first 200 or so pages (through chapter 12) cover general SQL programming/querying.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/computing\.stat\.berkeley\.edu\/tutorial-databases");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
