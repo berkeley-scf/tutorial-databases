@@ -251,30 +251,79 @@ The *data.table* package provides a lot of functionality for fast manipulation o
 
 If you've got enough memory, data.table can be effective with pretty large datasets (e.g., 10s of gigabytes).
 
-To illustrate without the example taking too long, we'll only read in a subset of the Wikipedia webtraffic data.
+To illustrate without the example taking too long, we'll only read in a subset of the Wikipedia webtraffic data (about 300 MB over 10 gzipped files).
 
-Let's read in the dataset, specifying the column classes so that fread() doesn't have to detect what they are (which will take additional time and might cause errors). Note that  we can read directly from a UNIX operation piped into R. 
+Note that we can read directly from a UNIX operation piped into R, though I'm not sure if that will take full advantage of data.table's ability to read from files in parallel.
 
 ```{r}
+#| eval: true
 library(data.table)
-colClasses <- c('numeric', 'numeric', 'character', 
+col_types <- c('numeric', 'numeric', 'character', 
            'character', 'numeric', 'numeric')
-colNames <- c('date', 'hour', 'site', 'page', 'count', 'size')
+col_names <- c('date', 'hour', 'site', 'page', 'count', 'size')
 system.time(wikiDT <- fread('gzip -cd data/part-0000?.gz', 
- col.names = colNames, colClasses = colClasses, header = FALSE,
+ col.names = col_names, colClasses = col_types, header = FALSE,
  quote = ""))
-## 30 sec. for 300 MB zipped
 ```
 
-Now let's do some basic subsetting. We'll see that setting a key (equivalent to setting an index in SQL) can improve lookup speed dramatically.
+We'll compare the time for reading to `read.table` and `readr::read_table`. For this we'll just use a single file since those commands can't take their input from a UNIX pipe operation. We'll also see if specifying the column classes (so that `fread()` doesn't have to detect what they are, which will take additional time and might cause errors)speeds things up.
 
 ```{r}
+#| eval: true
+system(paste("gunzip", file.path('data', 'part-00000.gz')))
+
+system.time(wikiDT2 <- read.table(file.path('data', 'part-00000'), quote = "", fill = TRUE))
+
+system.time(wikiDT2 <- read.table(file.path('data', 'part-00000'), quote = "", fill = TRUE,
+   colClasses = col_types))  
+
+system.time(wikiDT2 <- readr::read_table(file.path('data', 'part-00000'),
+   col_types = "iiccii")) 
+
+system.time(wikiDT2 <- fread(file.path('data', 'part-00000'),
+   header = FALSE, quote = ""))
+
+system.time(wikiDT2 <- fread(file.path('data', 'part-00000'),
+   colClasses = col_types, header = FALSE, quote = ""))
+
+system(paste("gzip", file.path('data', 'part-00000')))
+```
+
+`fread` is indeed the fastest (and `read_table` improves upon `read.table`) and specifying the column classes helps, though it doesn't make much difference for that small-ish (30 MB) file. For bigger files, `fread` should be fast, including reading from zipped files or online files.
+
+Here are some examples of data.table syntax.
+
+```{r}
+#| eval: false
+# Filter rows:
+wikiDT[date == "20081101" & site == "en"]
+# Select columns:
+wikiDT[ , c("date", "hour")]
+# Mutate (create new columns):
+wikiDT[ , year := date %/% 10000]
+# Summarize
+wikiDT[ , .(meanByHour = mean(count, na.rm = TRUE)), by = hour]
+# Chaining operations (ugly!):
+wikiDT[ , year := date %/% 10000][ , .(meanByYear = mean(count, na.rm = TRUE)),
+                                         by = year]
+# Join:
+wikiDT[another_dt, on = "keycolumn"]
+# Sort:
+wikiDT[order(-count, site)]
+```
+
+An important area for efficiency is to use an *index*, which can improve lookup speed dramatically. For this small dataset, everything is fast already, but even here the index speeds things up considerably.
+
+```{r}
+#| eval: true
 ## without a key (i.e., index)
-system.time(sub <- subset(wikiDT, count == 512)) # .27 sec.
-system.time(setkey(wikiDT, count , size)) # 3 sec.
+system.time(sub <- subset(wikiDT, site == "en")) 
+system.time(setkey(wikiDT, site))
 
 ## with a key (i.e., index)
-system.time(sub2 <- wikiDT[.(512), ]) # essentially instantaneous
+system.time(sub2 <- wikiDT[site == "en"]) 
+
+setkey(wikiDT, NULL)  # Remove the key(s).
 ```
 
 data.table has a lot of functionality and can be used to do a variety of sophisticated queries and manipulations (including aggregation operations), but it has its own somewhat involved syntax and concepts. The above just scratches the surface of what you can do with it. 
@@ -284,17 +333,21 @@ data.table has a lot of functionality and can be used to do a variety of sophist
 
 Rather than learning the data.table syntax, one can also use dplyr syntax with data.table objects.
 
-We can use dplyr syntax directly with data table objects, illustrated here with our existing `wikiDT` data table.
+We can use dplyr syntax directly with data table objects, illustrated here with our existing `wikiDT` data table, but the efficiency may not be what you want.
 
 ```{r}
-system.time(sub <- wikiDT %>% filter(count == 512)) 
+#| eval: true
+system.time(sub <- wikiDT %>% filter(site == "en")) 
 ```
 
-One can also use `dtplyr` to set use a data table as a back end for dplyr manipulations. Using `lazy_dt` allows dtplyr to do some optimization as it generates the translation from dplyr syntax to data table syntax, though this simple example doesn't illustrate the usefulness of that. 
+Instead, one can also use `dtplyr` to use a  a data table as a back end for dplyr manipulations. Using `lazy_dt` allows dtplyr to do some optimization as it generates the translation from dplyr syntax to data table syntax, though this simple example doesn't illustrate the usefulness of that (and using `system.time` for fine differentiation of timing is not generally a good idea). 
+
 
 ```{r}
+#| eval: true
+library(dtplyr)
 wikiDT2 <- lazy_dt(wikiDT)
-system.time(sub <- wikiDT2 %>% filter(count == 512)) # 0.1 sec.
+system.time(sub <- wikiDT2 %>% filter(site == "en")) 
 ```
 
 Finally the `tidytable` package also allows you to use dplyr syntax as well as other tidyverse syntax, such as `tidyr` functions. 
